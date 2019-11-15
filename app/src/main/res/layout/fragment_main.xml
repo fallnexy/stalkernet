@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+<!--		<ImageView
+			android:id="@+id/ImageViewHealth"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:src="@drawable/healthsymbol" />
+		-->
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Health"/>
+		<ProgressBar
+			android:id="@+id/ProgressHealth"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:scaleY="8.0"
+			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+
+		<!--
+		<ImageView
+			android:id="@+id/ImageViewRad"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:src="@drawable/radsymbol" />
+		-->
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="RAD"/>
+		<ProgressBar
+			android:id="@+id/ProgressRad"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:scaleY="8.0"
+			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+		<!--
+		<ImageView
+			android:id="@+id/ImageViewBio"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:src="@drawable/biosymbol" />
+		-->
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="BIO"/>
+		<ProgressBar
+			android:id="@+id/ProgressBio"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:scaleY="8.0"
+			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"
+			android:secondaryProgressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+		<!--
+		<ImageView
+			android:id="@+id/ImageViewPsy"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:src="@drawable/psysymbol" />
+		-->
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="PSI"/>
+		<ProgressBar
+			android:id="@+id/ProgressPsy"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:scaleY="8.0"
+			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+
+		<TextView
+			android:id="@+id/txtCoordinates"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="text"
+			/>
+
+		<TextView
+			android:id="@+id/txtMessages"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="V 0.27" />
+
+		<TextView
+			android:id="@+id/txtVersion"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="V 0.27" />
+	</LinearLayout>
+</LinearLayout>
