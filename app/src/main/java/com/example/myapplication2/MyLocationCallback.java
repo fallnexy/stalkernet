@@ -9,8 +9,6 @@ import com.google.android.gms.location.LocationResult;
 
 import java.util.Calendar;
 
-import static com.example.myapplication2.MainActivity.BROADCAST_ACTION;
-
 public class MyLocationCallback extends LocationCallback {
     private Calendar cal = Calendar.getInstance();
     private int Hour = this.cal.get(10);
@@ -42,25 +40,21 @@ public class MyLocationCallback extends LocationCallback {
                 this.ServiceReference.IsDead = Boolean.valueOf(true);
             }
             StringBuilder stringBuilder = new StringBuilder();
-         /*   stringBuilder.append(Double.toString(this.ServiceReference.Health));
+            stringBuilder.append(Double.toString(this.ServiceReference.Health));
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.Rad));
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.Bio));
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.Psy));
-            stringBuilder.append(":");*/
-     //    Double task = this.ServiceReference.Health;
-         //  stringBuilder.append(Double.toString(this.ServiceReference.CurrentBio));
-           // stringBuilder.append(":");
+            stringBuilder.append(":");
+            stringBuilder.append(Double.toString(this.ServiceReference.CurrentBio));
+            stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLatitude()));/////может закомментить координаты, раз они уже передаются?
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLongitude()));
             String stringBuilder2 = stringBuilder.toString();
-            //String task = "sdfffd";
             Intent intent = new Intent("StatsService.Update");
-            //Intent intent = new Intent(BROADCAST_ACTION);
-           // intent.putExtra(MainActivity.PARAM_TASK, task);
             intent.putExtra("Stats", stringBuilder2);
             this.ServiceReference.sendBroadcast(intent);
         }

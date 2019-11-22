@@ -24,11 +24,6 @@ import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
-    //объявление срани из интернета
-    public final static String PARAM_TASK = "task";
-    public final static String PARAM_STATUS = "status";
-    public final static int STATUS_START = 100;
-    public final static String BROADCAST_ACTION = "com.example.myapplication2";
 
     private boolean FineLocationPermissionGranted;
     private int Fine_Location_RequestCode = 1;
@@ -40,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String[] split = intent.getStringExtra("Stats").split(":");
-           /* if (Double.parseDouble(split[0]) <= 0.0d) {
+            if (Double.parseDouble(split[0]) <= 0.0d) {
                 MainActivity.this.G.Health = "Вы умерли.";
             } else {
                 MainActivity.this.G.Health = split[0];
@@ -52,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.G.Health = "Вы умерли.";
             } else {
                 MainActivity.this.G.Psy = split[3];
-            }*/
-            MainActivity.this.G.location.setLatitude(Double.parseDouble(split[0]));//5
-            MainActivity.this.G.location.setLongitude(Double.parseDouble(split[1]));//6
+            }
+            MainActivity.this.G.location.setLatitude(Double.parseDouble(split[5]));//0
+            MainActivity.this.G.location.setLongitude(Double.parseDouble(split[6]));//1
             MainActivity.this.G.UpdateStats();
         }
     };
