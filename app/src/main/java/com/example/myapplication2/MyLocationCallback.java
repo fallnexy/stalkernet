@@ -32,16 +32,16 @@ public class MyLocationCallback extends LocationCallback {
             this.MyCurrentLocation.setProvider(location.getProvider());
             this.MyCurrentLocation.setBearing(location.getBearing());
             this.MyCurrentLocation.setAccuracy(location.getAccuracy());
-         //   if (!this.ServiceReference.IsDead.booleanValue() && this.ServiceReference.IsUnlocked.booleanValue()) {
-               // GetTime();
-               // TimeToDischarge();
-               // this.ServiceReference.CheckAnomalys();
-              //  this.ServiceReference.CheckIfInAnyAnomaly();
-         //   }
-         //   if (this.ServiceReference.Health <= 0.0d) {
-         //       this.ServiceReference.IsDead = Boolean.valueOf(true);
-         //   }
-           // StringBuilder stringBuilder = new StringBuilder();
+            if (!this.ServiceReference.IsDead.booleanValue() && this.ServiceReference.IsUnlocked.booleanValue()) {
+                GetTime();
+                TimeToDischarge();
+                this.ServiceReference.CheckAnomalys();
+                this.ServiceReference.CheckIfInAnyAnomaly();
+            }
+            if (this.ServiceReference.Health <= 0.0d) {
+                this.ServiceReference.IsDead = Boolean.valueOf(true);
+            }
+            StringBuilder stringBuilder = new StringBuilder();
          /*   stringBuilder.append(Double.toString(this.ServiceReference.Health));
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.Rad));
@@ -51,20 +51,20 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(Double.toString(this.ServiceReference.Psy));
             stringBuilder.append(":");*/
      //    Double task = this.ServiceReference.Health;
-           /* stringBuilder.append(Double.toString(this.ServiceReference.CurrentBio));
-            stringBuilder.append(":");
+         //  stringBuilder.append(Double.toString(this.ServiceReference.CurrentBio));
+           // stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLatitude()));/////может закомментить координаты, раз они уже передаются?
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLongitude()));*/
-            //String task = stringBuilder.toString();
+            stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLongitude()));
+            String stringBuilder2 = stringBuilder.toString();
             //String task = "sdfffd";
-           // Intent intent = new Intent("StatsService.Update");
+            Intent intent = new Intent("StatsService.Update");
             //Intent intent = new Intent(BROADCAST_ACTION);
            // intent.putExtra(MainActivity.PARAM_TASK, task);
-            //intent.putExtra("Stats", stringBuilder2);
-           // this.ServiceReference.sendBroadcast(intent);
+            intent.putExtra("Stats", stringBuilder2);
+            this.ServiceReference.sendBroadcast(intent);
         }
-      //  this.ServiceReference.SaveStats();
+        this.ServiceReference.SaveStats();
     }
 
     public void onLocationAvailability(LocationAvailability locationAvailability) {

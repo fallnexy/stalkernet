@@ -746,7 +746,7 @@ public class StatsService extends Service {
         CheckPermissions();
        // registerReceiver(this.broadcastReceiver, new IntentFilter("Command"));
 
-        // срань из интернета GPS вместо CheckPermissions()
+     /*   // срань из интернета GPS вместо CheckPermissions()
       //  int task = intent.getIntExtra(MainActivity.PARAM_TASK, 0);
        // StringBuilder stringBuilder = new StringBuilder();
         //stringBuilder.append("опана");
@@ -754,7 +754,7 @@ public class StatsService extends Service {
         Intent intent2 = new Intent(MainActivity.BROADCAST_ACTION);
       //  intent2.putExtra(MainActivity.PARAM_TASK, task);
         intent2.putExtra(MainActivity.PARAM_STATUS, MainActivity.STATUS_START);
-        sendBroadcast(intent2);
+        sendBroadcast(intent2);*/
         return START_REDELIVER_INTENT;
     }
 

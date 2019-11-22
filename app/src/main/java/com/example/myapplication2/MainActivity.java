@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String[] split = intent.getStringExtra("Stats").split(":");
-            if (Double.parseDouble(split[0]) <= 0.0d) {
+           /* if (Double.parseDouble(split[0]) <= 0.0d) {
                 MainActivity.this.G.Health = "Вы умерли.";
             } else {
                 MainActivity.this.G.Health = split[0];
@@ -52,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.G.Health = "Вы умерли.";
             } else {
                 MainActivity.this.G.Psy = split[3];
-            }
-           // MainActivity.this.G.location.setLatitude(Double.parseDouble(split[0]));//5
-          //  MainActivity.this.G.location.setLongitude(Double.parseDouble(split[1]));//6
-           // MainActivity.this.G.UpdateStats();
+            }*/
+            MainActivity.this.G.location.setLatitude(Double.parseDouble(split[0]));//5
+            MainActivity.this.G.location.setLongitude(Double.parseDouble(split[1]));//6
+            MainActivity.this.G.UpdateStats();
         }
     };
     @Override
@@ -74,45 +74,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(this.mViewPager));
         CheckPermissions(this);
 
-        //срань из интернета работает. Подключил health, но оно не работает может быть - потому что надо проверить команды, которые постаупают в приемник
-        br = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                int task = 50; //intent.getIntExtra(PARAM_TASK, 0);
-              //  Double task = intent.getDoubleExtra(PARAM_TASK, 0);
-                int status = intent.getIntExtra(PARAM_STATUS, 0);
-                if (status  == STATUS_START){
-                    MainActivity.this.G.Messages.setText("Так держать, товарищ сталкер!");
-                    if (task <= 0.0d){
-                        MainActivity.this.G.Health = "Вы умерли.";
-                    } else {
-                        MainActivity.this.G.Health = String.valueOf(task);
-                    }
-                   /* String[] split = intent.getStringExtra(PARAM_TASK).split(":");
-                    if (Double.parseDouble(split[0]) <= 0.0d) {
-                        MainActivity.this.G.Health = "Вы умерли.";
-                    } else {
-                        MainActivity.this.G.Health = split[0];
-                    }
-                    MainActivity.this.G.Rad = split[1];
-                    MainActivity.this.G.Bio = split[2];
-                  //  MainActivity.this.G.CurrentBio = split[4];
-                    if (Double.parseDouble(split[3]) >= 100.0d) {
-                        MainActivity.this.G.Health = "Вы умерли.";
-                    } else {
-                        MainActivity.this.G.Psy = split[3];
-                    }*/
-                  //  MainActivity.this.G.location.setLatitude(Double.parseDouble(split[0]));//5
-                  //  MainActivity.this.G.location.setLongitude(Double.parseDouble(split[1]));//6
-                    MainActivity.this.G.UpdateStats();  // обновляет координаты в реальном времени
-                  //  MainActivity.this.G.Messages.setText(task);
-                  //  MainActivity.this.G.CO.setText(split[1]);
-                }
-            }
-        };
-        IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
-        // регистрируем (включаем) BroadcastReceiver
-        registerReceiver(br, intFilt);
+
     }
     //Запуск службы, я надеюсь
     public void onStart(){
@@ -127,15 +89,15 @@ public class MainActivity extends AppCompatActivity {
     }
     public void onPause() {
         super.onPause();
-        unregisterReceiver(br);
-        //unregisterReceiver(this.broadcastReceiver);
+
+        unregisterReceiver(this.broadcastReceiver);
         //unregisterReceiver(this.broadcastReceiverHealth);
         //unregisterReceiver(this.broadcastReceiverMessages);
     }
 
     public void onResume() {
-        registerReceiver(this.br, new IntentFilter(BROADCAST_ACTION));
-        //registerReceiver(this.broadcastReceiver, new IntentFilter("StatsService.Update"));
+
+        registerReceiver(this.broadcastReceiver, new IntentFilter("StatsService.Update"));
         //registerReceiver(this.broadcastReceiverHealth, new IntentFilter("StatsService.HealthUpdate"));
         //registerReceiver(this.broadcastReceiverMessages, new IntentFilter("StatsService.Message"));
         super.onResume();
