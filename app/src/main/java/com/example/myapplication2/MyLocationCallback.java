@@ -12,11 +12,11 @@ import java.util.Calendar;
 import static com.example.myapplication2.MainActivity.BROADCAST_ACTION;
 
 public class MyLocationCallback extends LocationCallback {
+    private Calendar cal = Calendar.getInstance();
     private int Hour = this.cal.get(10);
     private int Minutes = this.cal.get(12);
     private Location MyCurrentLocation;
     private StatsService ServiceReference;
-    private Calendar cal = Calendar.getInstance();
     private int dayInt = this.cal.get(5);
 
     public MyLocationCallback(Location location, StatsService statsService) {
@@ -29,19 +29,19 @@ public class MyLocationCallback extends LocationCallback {
         for (Location location : locationResult.getLocations()) {
             this.MyCurrentLocation.setLatitude(location.getLatitude());
             this.MyCurrentLocation.setLongitude(location.getLongitude());
-          //  this.MyCurrentLocation.setProvider(location.getProvider());
-          //  this.MyCurrentLocation.setBearing(location.getBearing());
-          //  this.MyCurrentLocation.setAccuracy(location.getAccuracy());
-            if (!this.ServiceReference.IsDead.booleanValue() && this.ServiceReference.IsUnlocked.booleanValue()) {
-                GetTime();
+            this.MyCurrentLocation.setProvider(location.getProvider());
+            this.MyCurrentLocation.setBearing(location.getBearing());
+            this.MyCurrentLocation.setAccuracy(location.getAccuracy());
+         //   if (!this.ServiceReference.IsDead.booleanValue() && this.ServiceReference.IsUnlocked.booleanValue()) {
+               // GetTime();
                // TimeToDischarge();
-                this.ServiceReference.CheckAnomalys();
-                this.ServiceReference.CheckIfInAnyAnomaly();
-            }
-            if (this.ServiceReference.Health <= 0.0d) {
-                this.ServiceReference.IsDead = Boolean.valueOf(true);
-            }
-            StringBuilder stringBuilder = new StringBuilder();
+               // this.ServiceReference.CheckAnomalys();
+              //  this.ServiceReference.CheckIfInAnyAnomaly();
+         //   }
+         //   if (this.ServiceReference.Health <= 0.0d) {
+         //       this.ServiceReference.IsDead = Boolean.valueOf(true);
+         //   }
+           // StringBuilder stringBuilder = new StringBuilder();
          /*   stringBuilder.append(Double.toString(this.ServiceReference.Health));
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.Rad));
@@ -50,7 +50,7 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.Psy));
             stringBuilder.append(":");*/
-         Double task = this.ServiceReference.Health;
+     //    Double task = this.ServiceReference.Health;
            /* stringBuilder.append(Double.toString(this.ServiceReference.CurrentBio));
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLatitude()));/////может закомментить координаты, раз они уже передаются?
@@ -59,12 +59,12 @@ public class MyLocationCallback extends LocationCallback {
             //String task = stringBuilder.toString();
             //String task = "sdfffd";
            // Intent intent = new Intent("StatsService.Update");
-            Intent intent = new Intent(BROADCAST_ACTION);
-            intent.putExtra(MainActivity.PARAM_TASK, task);
+            //Intent intent = new Intent(BROADCAST_ACTION);
+           // intent.putExtra(MainActivity.PARAM_TASK, task);
             //intent.putExtra("Stats", stringBuilder2);
            // this.ServiceReference.sendBroadcast(intent);
         }
-        this.ServiceReference.SaveStats();
+      //  this.ServiceReference.SaveStats();
     }
 
     public void onLocationAvailability(LocationAvailability locationAvailability) {

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
@@ -50,7 +51,7 @@ public class StatsService extends Service {
     private MyLocationCallback LocationCallback;
     private boolean LocationUpdatesStarted = false;
     public double MaxHealth = 100.0d;
-    public Location MyCurrentLocation = new Location("");
+    public Location MyCurrentLocation = new Location("GPS");
     public double Psy = 0.0d;
     public int PsyProtection = 0;
     public double Rad = 0.0d;
@@ -742,7 +743,7 @@ public class StatsService extends Service {
     public int onStartCommand(Intent intent, int i, int i2) {
         super.onStartCommand(intent, i, i2);
         Toast.makeText(this, "Service has been started.", Toast.LENGTH_SHORT).show();
-        //CheckPermissions();
+        CheckPermissions();
        // registerReceiver(this.broadcastReceiver, new IntentFilter("Command"));
 
         // срань из интернета GPS вместо CheckPermissions()
@@ -766,7 +767,7 @@ public class StatsService extends Service {
 
     private void CheckPermissions() {
         while (!this.LocationUpdatesStarted) {
-            if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == 0) {
+            if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_GRANTED) {
                 LocationRequest create = LocationRequest.create();
                 create.setPriority(100).setInterval(1000).setFastestInterval(1000);
                 this.LocationCallback = new MyLocationCallback(this.MyCurrentLocation, this);
