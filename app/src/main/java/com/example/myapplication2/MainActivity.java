@@ -90,6 +90,38 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+    BroadcastReceiver broadcastReceiverHealth = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            byte var5;
+            label26: {
+                String var4 = intent.getStringExtra("Health");
+                int var3 = var4.hashCode();
+                if (var3 != 49586) {
+                    if (var3 == 50547 && var4.equals("300")) {
+                        var5 = 1;
+                        break label26;
+                    }
+                } else if (var4.equals("200")) {
+                    var5 = 0;
+                    break label26;
+                }
+
+                var5 = -1;
+            }
+
+            switch(var5) {
+                case 0:
+                    MainActivity.this.G.MaxHealth = "200";
+                    MainActivity.this.G.UpdateStats();
+                    break;
+                case 1:
+                    MainActivity.this.G.MaxHealth = "300";
+                    MainActivity.this.G.UpdateStats();
+            }
+
+        }
+
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,21 +155,21 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
 
         unregisterReceiver(this.broadcastReceiver);
-        //unregisterReceiver(this.broadcastReceiverHealth);
+        unregisterReceiver(this.broadcastReceiverHealth);
         unregisterReceiver(this.broadcastReceiverMessages);
     }
 
     public void onResume() {
 
         registerReceiver(this.broadcastReceiver, new IntentFilter("StatsService.Update"));
-        //registerReceiver(this.broadcastReceiverHealth, new IntentFilter("StatsService.HealthUpdate"));
+        registerReceiver(this.broadcastReceiverHealth, new IntentFilter("StatsService.HealthUpdate"));
         registerReceiver(this.broadcastReceiverMessages, new IntentFilter("StatsService.Message"));
         super.onResume();
     }
     //верхние кнопки
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         public int getCount() {
-            return 3;
+            return 4;
         }
 
         public SectionsPagerAdapter(FragmentManager fragmentManager) {
@@ -153,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 case 2:
                     return new PointTab(MainActivity.this.G);
                 case 3:
-                 /*   return new ChatTab();*/
+                    return new ChatTab();
                 default:
                     return null;
             }

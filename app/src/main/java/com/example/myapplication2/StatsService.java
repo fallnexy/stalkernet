@@ -59,428 +59,266 @@ public class StatsService extends Service {
     public SafeZone[] SafeZones;
     public String TypeAnomalyIn = "";
     public Boolean Vibrate = Boolean.valueOf(true);
-    //BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-      // public void onReceive(android.content.Context r8, Intent r9) {
-            /*
-            r7 = this;
-            r8 = "Command";
-            r8 = r9.getStringExtra(r8);
-            r9 = com.studio.FusedForegroundClient.StatsService.this;
-            r9 = r9.getApplicationContext();
-            r0 = 1;
-            r9 = android.widget.Toast.makeText(r9, r8, r0);
-            r9.show();
-            r9 = r8.hashCode();
-            r1 = 0;
-            switch(r9) {
-                case -2120901255: goto L_0x0115;
-                case -1756574876: goto L_0x010a;
-                case -1052620961: goto L_0x00ff;
-                case -782617084: goto L_0x00f5;
-                case -475738427: goto L_0x00eb;
-                case -258857420: goto L_0x00e0;
-                case -219690867: goto L_0x00d5;
-                case -159331209: goto L_0x00ca;
-                case -115337820: goto L_0x00c0;
-                case 71772: goto L_0x00b5;
-                case 76321168: goto L_0x00a9;
-                case 146202227: goto L_0x009d;
-                case 146203188: goto L_0x0091;
-                case 180714426: goto L_0x0086;
-                case 305958064: goto L_0x007b;
-                case 411921544: goto L_0x0070;
-                case 565354622: goto L_0x0064;
-                case 1307176114: goto L_0x0058;
-                case 1508674375: goto L_0x004d;
-                case 1796409274: goto L_0x0041;
-                case 1875682466: goto L_0x0035;
-                case 1952950435: goto L_0x002a;
-                case 2084039473: goto L_0x001e;
-                default: goto L_0x001c;
-            };
-        L_0x001c:
-            goto L_0x0120;
-        L_0x001e:
-            r9 = "SetBioProtection0";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0026:
-            r8 = 9;
-            goto L_0x0121;
-        L_0x002a:
-            r9 = "SetPsyProtection0";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0032:
-            r8 = 3;
-            goto L_0x0121;
-        L_0x0035:
-            r9 = "Discharge";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x003d:
-            r8 = 22;
-            goto L_0x0121;
-        L_0x0041:
-            r9 = "SetDischargeImmunityTrue";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0049:
-            r8 = 11;
-            goto L_0x0121;
-        L_0x004d:
-            r9 = "SetRadProtection50";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0055:
-            r8 = 4;
-            goto L_0x0121;
-        L_0x0058:
-            r9 = "SetBioProtection100";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0060:
-            r8 = 8;
-            goto L_0x0121;
-        L_0x0064:
-            r9 = "Monolith2";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x006c:
-            r8 = 19;
-            goto L_0x0121;
-        L_0x0070:
-            r9 = "SetPsyProtection50";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0078:
-            r8 = 1;
-            goto L_0x0121;
-        L_0x007b:
-            r9 = "ResetStats";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0083:
-            r8 = 0;
-            goto L_0x0121;
-        L_0x0086:
-            r9 = "SetBioProtection50";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x008e:
-            r8 = 7;
-            goto L_0x0121;
-        L_0x0091:
-            r9 = "SetMaxHealth200";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0099:
-            r8 = 14;
-            goto L_0x0121;
-        L_0x009d:
-            r9 = "SetMaxHealth100";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00a5:
-            r8 = 13;
-            goto L_0x0121;
-        L_0x00a9:
-            r9 = "OnVib";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00b1:
-            r8 = 20;
-            goto L_0x0121;
-        L_0x00b5:
-            r9 = "God";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00bd:
-            r8 = 17;
-            goto L_0x0121;
-        L_0x00c0:
-            r9 = "SetPsyProtection100";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00c8:
-            r8 = 2;
-            goto L_0x0121;
-        L_0x00ca:
-            r9 = "SetDischargeImmunityFalse";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00d2:
-            r8 = 12;
-            goto L_0x0121;
-        L_0x00d5:
-            r9 = "StopVib";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00dd:
-            r8 = 21;
-            goto L_0x0121;
-        L_0x00e0:
-            r9 = "Monolith";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00e8:
-            r8 = 16;
-            goto L_0x0121;
-        L_0x00eb:
-            r9 = "SetRadProtection100";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00f3:
-            r8 = 5;
-            goto L_0x0121;
-        L_0x00f5:
-            r9 = "SetRadProtection0";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x00fd:
-            r8 = 6;
-            goto L_0x0121;
-        L_0x00ff:
-            r9 = "MakeAlive";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0107:
-            r8 = 15;
-            goto L_0x0121;
-        L_0x010a:
-            r9 = "Unlock";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x0112:
-            r8 = 18;
-            goto L_0x0121;
-        L_0x0115:
-            r9 = "ComboResetProtections";
-            r8 = r8.equals(r9);
-            if (r8 == 0) goto L_0x0120;
-        L_0x011d:
-            r8 = 10;
-            goto L_0x0121;
-        L_0x0120:
-            r8 = -1;
-        L_0x0121:
-            r2 = 4641240890982006784; // 0x4069000000000000 float:0.0 double:200.0;
-            r9 = 50;
-            r4 = 100;
-            r5 = 0;
-            switch(r8) {
-                case 0: goto L_0x0224;
-                case 1: goto L_0x021f;
-                case 2: goto L_0x021a;
-                case 3: goto L_0x0215;
-                case 4: goto L_0x0210;
-                case 5: goto L_0x020b;
-                case 6: goto L_0x0206;
-                case 7: goto L_0x0200;
-                case 8: goto L_0x01fa;
-                case 9: goto L_0x01f4;
-                case 10: goto L_0x01e6;
-                case 11: goto L_0x01e0;
-                case 12: goto L_0x01da;
-                case 13: goto L_0x01c1;
-                case 14: goto L_0x01a3;
-                case 15: goto L_0x0181;
-                case 16: goto L_0x016f;
-                case 17: goto L_0x015d;
-                case 18: goto L_0x0153;
-                case 19: goto L_0x0149;
-                case 20: goto L_0x013f;
-                case 21: goto L_0x0135;
-                case 22: goto L_0x012e;
-                default: goto L_0x012c;
-            };
-        L_0x012c:
-            goto L_0x027a;
-        L_0x012e:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Discharge();
-            goto L_0x027a;
-        L_0x0135:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r9 = java.lang.Boolean.valueOf(r1);
-            r8.Vibrate = r9;
-            goto L_0x027a;
-        L_0x013f:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r9 = java.lang.Boolean.valueOf(r0);
-            r8.Vibrate = r9;
-            goto L_0x027a;
-        L_0x0149:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Health = r2;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.CurrentBio = r5;
-            goto L_0x027a;
-        L_0x0153:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r9 = java.lang.Boolean.valueOf(r0);
-            r8.IsUnlocked = r9;
-            goto L_0x027a;
-        L_0x015d:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.DischargeImmunity = r0;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.RadProtection = r4;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.BioProtection = r4;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.PsyProtection = r4;
-            goto L_0x027a;
-        L_0x016f:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.DischargeImmunity = r0;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.RadProtection = r9;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.BioProtection = r9;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.PsyProtection = r4;
-            goto L_0x027a;
-        L_0x0181:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r9 = com.studio.FusedForegroundClient.StatsService.this;
-            r2 = r9.MaxHealth;
-            r8.Health = r2;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Rad = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Bio = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.CurrentBio = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Psy = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r9 = java.lang.Boolean.valueOf(r1);
-            r8.IsDead = r9;
-            goto L_0x027a;
-        L_0x01a3:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r0 = 4643985272004935680; // 0x4072c00000000000 float:0.0 double:300.0;
-            r8.MaxHealth = r0;
-            r8 = new android.content.Intent;
-            r9 = "StatsService.HealthUpdate";
-            r8.<init>(r9);
-            r9 = "Health";
-            r0 = "300";
-            r8.putExtra(r9, r0);
-            r9 = com.studio.FusedForegroundClient.StatsService.this;
-            r9.sendBroadcast(r8);
-            goto L_0x027a;
-        L_0x01c1:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.MaxHealth = r2;
-            r8 = new android.content.Intent;
-            r9 = "StatsService.HealthUpdate";
-            r8.<init>(r9);
-            r9 = "Health";
-            r0 = "200";
-            r8.putExtra(r9, r0);
-            r9 = com.studio.FusedForegroundClient.StatsService.this;
-            r9.sendBroadcast(r8);
-            goto L_0x027a;
-        L_0x01da:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.DischargeImmunity = r1;
-            goto L_0x027a;
-        L_0x01e0:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.DischargeImmunity = r0;
-            goto L_0x027a;
-        L_0x01e6:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.PsyProtection = r1;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.RadProtection = r1;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.BioProtection = r1;
-            goto L_0x027a;
-        L_0x01f4:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.BioProtection = r1;
-            goto L_0x027a;
-        L_0x01fa:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.BioProtection = r4;
-            goto L_0x027a;
-        L_0x0200:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.BioProtection = r9;
-            goto L_0x027a;
-        L_0x0206:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.RadProtection = r1;
-            goto L_0x027a;
-        L_0x020b:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.RadProtection = r4;
-            goto L_0x027a;
-        L_0x0210:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.RadProtection = r9;
-            goto L_0x027a;
-        L_0x0215:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.PsyProtection = r1;
-            goto L_0x027a;
-        L_0x021a:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.PsyProtection = r4;
-            goto L_0x027a;
-        L_0x021f:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.PsyProtection = r9;
-            goto L_0x027a;
-        L_0x0224:
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Health = r2;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.MaxHealth = r2;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Rad = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Bio = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.Psy = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.CurrentBio = r5;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.RadProtection = r1;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.BioProtection = r1;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.PsyProtection = r1;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r8.DischargeImmunity = r1;
-            r8 = com.studio.FusedForegroundClient.StatsService.this;
-            r9 = java.lang.Boolean.valueOf(r1);
-            r8.IsDead = r9;
-            r8 = new android.content.Intent;
-            r9 = "StatsService.HealthUpdate";
-            r8.<init>(r9);
-            r9 = "Health";
-            r0 = "200";
-            r8.putExtra(r9, r0);
-            r9 = com.studio.FusedForegroundClient.StatsService.this;
-            r9.sendBroadcast(r8);
-            r8 = new android.content.Intent;
-            r9 = "StatsService.Message";
-            r8.<init>(r9);
-            r9 = "Message";
-            r0 = "A";
-            r8.putExtra(r9, r0);
-            r9 = com.studio.FusedForegroundClient.StatsService.this;
-            r9.sendBroadcast(r8);
-        L_0x027a:
-            return;
-            */
-       //     throw new UnsupportedOperationException("Method not decompiled: com.studio.FusedForegroundClient.StatsService$AnonymousClass1.onReceive(android.content.Context, android.content.Intent):void");
-      //  }
-  //  };
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+       public void onReceive(android.content.Context r8, Intent r9) {
+
+           byte var3;
+           label110: {
+               String var4 = r9.getStringExtra("Command");
+               Toast.makeText(StatsService.this.getApplicationContext(), var4, Toast.LENGTH_LONG).show();
+               switch(var4.hashCode()) {
+                   case -2120901255:
+                       if (var4.equals("ComboResetProtections")) {
+                           var3 = 10;
+                           break label110;
+                       }
+                       break;
+                   case -1756574876:
+                       if (var4.equals("Unlock")) {
+                           var3 = 18;
+                           break label110;
+                       }
+                       break;
+                   case -1052620961:
+                       if (var4.equals("MakeAlive")) {
+                           var3 = 15;
+                           break label110;
+                       }
+                       break;
+                   case -782617084:
+                       if (var4.equals("SetRadProtection0")) {
+                           var3 = 6;
+                           break label110;
+                       }
+                       break;
+                   case -475738427:
+                       if (var4.equals("SetRadProtection100")) {
+                           var3 = 5;
+                           break label110;
+                       }
+                       break;
+                   case -258857420:
+                       if (var4.equals("Monolith")) {
+                           var3 = 16;
+                           break label110;
+                       }
+                       break;
+                   case -219690867:
+                       if (var4.equals("StopVib")) {
+                           var3 = 21;
+                           break label110;
+                       }
+                       break;
+                   case -159331209:
+                       if (var4.equals("SetDischargeImmunityFalse")) {
+                           var3 = 12;
+                           break label110;
+                       }
+                       break;
+                   case -115337820:
+                       if (var4.equals("SetPsyProtection100")) {
+                           var3 = 2;
+                           break label110;
+                       }
+                       break;
+                   case 71772:
+                       if (var4.equals("God")) {
+                           var3 = 17;
+                           break label110;
+                       }
+                       break;
+                   case 76321168:
+                       if (var4.equals("OnVib")) {
+                           var3 = 20;
+                           break label110;
+                       }
+                       break;
+                   case 146202227:
+                       if (var4.equals("SetMaxHealth100")) {
+                           var3 = 13;
+                           break label110;
+                       }
+                       break;
+                   case 146203188:
+                       if (var4.equals("SetMaxHealth200")) {
+                           var3 = 14;
+                           break label110;
+                       }
+                       break;
+                   case 180714426:
+                       if (var4.equals("SetBioProtection50")) {
+                           var3 = 7;
+                           break label110;
+                       }
+                       break;
+                   case 305958064:
+                       if (var4.equals("ResetStats")) {
+                           var3 = 0;
+                           break label110;
+                       }
+                       break;
+                   case 411921544:
+                       if (var4.equals("SetPsyProtection50")) {
+                           var3 = 1;
+                           break label110;
+                       }
+                       break;
+                   case 565354622:
+                       if (var4.equals("Monolith2")) {
+                           var3 = 19;
+                           break label110;
+                       }
+                       break;
+                   case 1307176114:
+                       if (var4.equals("SetBioProtection100")) {
+                           var3 = 8;
+                           break label110;
+                       }
+                       break;
+                   case 1508674375:
+                       if (var4.equals("SetRadProtection50")) {
+                           var3 = 4;
+                           break label110;
+                       }
+                       break;
+                   case 1796409274:
+                       if (var4.equals("SetDischargeImmunityTrue")) {
+                           var3 = 11;
+                           break label110;
+                       }
+                       break;
+                   case 1875682466:
+                       if (var4.equals("Discharge")) {
+                           var3 = 22;
+                           break label110;
+                       }
+                       break;
+                   case 1952950435:
+                       if (var4.equals("SetPsyProtection0")) {
+                           var3 = 3;
+                           break label110;
+                       }
+                       break;
+                   case 2084039473:
+                       if (var4.equals("SetBioProtection0")) {
+                           var3 = 9;
+                           break label110;
+                       }
+               }
+
+               var3 = -1;
+           }
+
+           Intent var5;
+           switch(var3) {
+               case 0:
+                   StatsService.this.Health = 200.0D;
+                   StatsService.this.MaxHealth = 200.0D;
+                   StatsService.this.Rad = 0.0D;
+                   StatsService.this.Bio = 0.0D;
+                   StatsService.this.Psy = 0.0D;
+                   StatsService.this.CurrentBio = 0.0D;
+                   StatsService.this.RadProtection = 0;
+                   StatsService.this.BioProtection = 0;
+                   StatsService.this.PsyProtection = 0;
+                   StatsService.this.DischargeImmunity = false;
+                   StatsService.this.IsDead = false;
+                   var5 = new Intent("StatsService.HealthUpdate");
+                   var5.putExtra("Health", "200");
+                   StatsService.this.sendBroadcast(var5);
+                   var5 = new Intent("StatsService.Message");
+                   var5.putExtra("Message", "A");
+                   StatsService.this.sendBroadcast(var5);
+                   break;
+               case 1:
+                   StatsService.this.PsyProtection = 50;
+                   break;
+               case 2:
+                   StatsService.this.PsyProtection = 100;
+                   break;
+               case 3:
+                   StatsService.this.PsyProtection = 0;
+                   break;
+               case 4:
+                   StatsService.this.RadProtection = 50;
+                   break;
+               case 5:
+                   StatsService.this.RadProtection = 100;
+                   break;
+               case 6:
+                   StatsService.this.RadProtection = 0;
+                   break;
+               case 7:
+                   StatsService.this.BioProtection = 50;
+                   break;
+               case 8:
+                   StatsService.this.BioProtection = 100;
+                   break;
+               case 9:
+                   StatsService.this.BioProtection = 0;
+                   break;
+               case 10:
+                   StatsService.this.PsyProtection = 0;
+                   StatsService.this.RadProtection = 0;
+                   StatsService.this.BioProtection = 0;
+                   break;
+               case 11:
+                   StatsService.this.DischargeImmunity = true;
+                   break;
+               case 12:
+                   StatsService.this.DischargeImmunity = false;
+                   break;
+               case 13:
+                   StatsService.this.MaxHealth = 200.0D;
+                   var5 = new Intent("StatsService.HealthUpdate");
+                   var5.putExtra("Health", "200");
+                   StatsService.this.sendBroadcast(var5);
+                   break;
+               case 14:
+                   StatsService.this.MaxHealth = 300.0D;
+                   var5 = new Intent("StatsService.HealthUpdate");
+                   var5.putExtra("Health", "300");
+                   StatsService.this.sendBroadcast(var5);
+                   break;
+               case 15:
+                   StatsService.this.Health = StatsService.this.MaxHealth;
+                   StatsService.this.Rad = 0.0D;
+                   StatsService.this.Bio = 0.0D;
+                   StatsService.this.CurrentBio = 0.0D;
+                   StatsService.this.Psy = 0.0D;
+                   StatsService.this.IsDead = false;
+                   break;
+               case 16:
+                   StatsService.this.DischargeImmunity = true;
+                   StatsService.this.RadProtection = 50;
+                   StatsService.this.BioProtection = 50;
+                   StatsService.this.PsyProtection = 100;
+                   break;
+               case 17:
+                   StatsService.this.DischargeImmunity = true;
+                   StatsService.this.RadProtection = 100;
+                   StatsService.this.BioProtection = 100;
+                   StatsService.this.PsyProtection = 100;
+                   break;
+               case 18:
+                   StatsService.this.IsUnlocked = true;
+                   break;
+               case 19:
+                   StatsService.this.Health = 200.0D;
+                   StatsService.this.CurrentBio = 0.0D;
+                   break;
+               case 20:
+                   StatsService.this.Vibrate = true;
+                   break;
+               case 21:
+                   StatsService.this.Vibrate = false;
+                   break;
+               case 22:
+                   StatsService.this.Discharge();
+           }
+
+       }
+    };
     private FusedLocationProviderClient mFusedLocationProvider;
    // private PowerManager.WakeLock wl;
 
@@ -744,13 +582,13 @@ public class StatsService extends Service {
         super.onStartCommand(intent, i, i2);
         Toast.makeText(this, "Service has been started.", Toast.LENGTH_SHORT).show();
         CheckPermissions();
-       // registerReceiver(this.broadcastReceiver, new IntentFilter("Command"));
+        registerReceiver(this.broadcastReceiver, new IntentFilter("Command"));
         return START_REDELIVER_INTENT;
     }
 
     public void onDestroy() {
         super.onDestroy();
-       // unregisterReceiver(this.broadcastReceiver);
+        unregisterReceiver(this.broadcastReceiver);
         SaveStats();
       //  this.wl.release();
     }

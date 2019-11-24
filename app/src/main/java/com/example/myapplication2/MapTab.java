@@ -44,8 +44,9 @@ public class MapTab extends Fragment implements OnMapReadyCallback {
         this.mMap.getUiSettings().setZoomControlsEnabled(true);
         this.mMap.setMyLocationEnabled(true);
         AddGroundOverlay(this.mMap);
-        this.mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            public void onMapClick(LatLng latLng) {
+        this.mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
                 MapTab.this.mMap.addMarker(new MarkerOptions().position(latLng));
                 MapTab.this.LastMarker = new MarkerOptions().position(latLng);
                 MapTab.this.LastMarker.title("Point");

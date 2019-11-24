@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:background="@color/colorPrimaryDark"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnBroadcastCommand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ввести" />
+
+            <EditText
+                android:id="@+id/CommandLine"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:inputType="textPassword"
+                android:textColor="@color/common_google_signin_btn_text_dark_default" />
+        </LinearLayout>
+
+        <Button android:id="@+id/btnStopVib" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Отключить вибрацию" />
+        <Button android:id="@+id/btnOnVib" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Включить вибрацию" />
+    </LinearLayout>
+</LinearLayout>
