@@ -745,16 +745,6 @@ public class StatsService extends Service {
         Toast.makeText(this, "Service has been started.", Toast.LENGTH_SHORT).show();
         CheckPermissions();
        // registerReceiver(this.broadcastReceiver, new IntentFilter("Command"));
-
-     /*   // срань из интернета GPS вместо CheckPermissions()
-      //  int task = intent.getIntExtra(MainActivity.PARAM_TASK, 0);
-       // StringBuilder stringBuilder = new StringBuilder();
-        //stringBuilder.append("опана");
-      //  String task = stringBuilder.toString();
-        Intent intent2 = new Intent(MainActivity.BROADCAST_ACTION);
-      //  intent2.putExtra(MainActivity.PARAM_TASK, task);
-        intent2.putExtra(MainActivity.PARAM_STATUS, MainActivity.STATUS_START);
-        sendBroadcast(intent2);*/
         return START_REDELIVER_INTENT;
     }
 
@@ -779,22 +769,22 @@ public class StatsService extends Service {
     }
 //getAnomaly
     private void GetAnomalys() {
-        Anomaly[] anomalyArr = new Anomaly[48];
-        anomalyArr[0] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.354876d, 40.718417d), this);
-        anomalyArr[1] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.355037d, 40.722809d), this);
-        anomalyArr[2] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.355765d, 40.726628d), this);
+        Anomaly[] anomalyArr = new Anomaly[48];                                                                                                                            //паша
+        anomalyArr[0] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.5736101d, 40.5161934d), this);                     //64.354876d, 40.718417d
+        anomalyArr[1] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.526824d, 40.604426d), this); //64.526824, 40.604426; 64.355037d, 40.722809d
+        anomalyArr[2] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.526613d, 40.604308d), this); //64.526613, 40.604308; 64.355765d, 40.726628d
         LatLng latLng = new LatLng(64.355666d, 40.730297d);
         Double valueOf = Double.valueOf(100.0d);
         anomalyArr[3] = new Anomaly("Circle", "Psy", valueOf, Double.valueOf(35.0d), latLng, this);
         anomalyArr[3].minstrenght = 20;
-        anomalyArr[4] = new Anomaly("Circle", "Rad", Double.valueOf(6.0d), Double.valueOf(43.0d), new LatLng(64.353653d, 40.720639d), this);
+        anomalyArr[4] = new Anomaly("Circle", "Rad", Double.valueOf(6.0d), Double.valueOf(43.0d), new LatLng(64.526400d, 40.604193d), this); //64.526400, 40.604193; 64.353653d, 40.720639d
         anomalyArr[4].minstrenght = 4;
-        anomalyArr[5] = new Anomaly("Circle", "Psy", Double.valueOf(1.0d), Double.valueOf(20.0d), new LatLng(64.354245d, 40.723951d), this);
-        anomalyArr[6] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(43.0d), new LatLng(64.354504d, 40.729021d), this);
-        anomalyArr[7] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.354913d, 40.734928d), this);
+        anomalyArr[5] = new Anomaly("Circle", "Psy", Double.valueOf(1.0d), Double.valueOf(20.0d), new LatLng(64.526283d, 40.604053d), this);//64.526283, 40.604053; 64.354245d, 40.723951d
+        anomalyArr[6] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(43.0d), new LatLng(64.526261d, 40.603729d), this);//64.526261, 40.603729; 64.354504d, 40.729021d
+        anomalyArr[7] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.526201d, 40.603257d), this);//64.526201, 40.603257; 64.354913d, 40.734928d
         anomalyArr[8] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.355273d, 40.737138d), this);
         anomalyArr[9] = new Anomaly("Circle", "Rad", Double.valueOf(4.0d), Double.valueOf(43.0d), new LatLng(64.35564d, 40.739666d), this);
-        anomalyArr[10] = new Anomaly("Circle", "Bio", Double.valueOf(5.0d), Double.valueOf(43.0d), new LatLng(64.352632d, 40.720082d), this);
+        anomalyArr[10] = new Anomaly("Circle", "Bio", Double.valueOf(5.0d), Double.valueOf(43.0d), new LatLng(64.5736101d, 40.5161934d), this);                     //64.352632d, 40.720082d
         latLng = new LatLng(64.353251d, 40.722448d);
         anomalyArr[11] = new Anomaly("Circle", "Psy", Double.valueOf(10.0d), Double.valueOf(17.0d), latLng, this);
         anomalyArr[11].minstrenght = 10;

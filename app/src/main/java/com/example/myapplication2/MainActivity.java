@@ -1,6 +1,7 @@
 package com.example.myapplication2;
 //https://habr.com/ru/post/349102/ В Андроид 8 (у меня) службы все равно убиваются
 // и с этим надо что то делать (ссылка). startForegroundService - запуск службы для андроид 8
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -31,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     public Boolean ServiceIsRunning;
-    BroadcastReceiver br;
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String[] split = intent.getStringExtra("Stats").split(":");
@@ -53,12 +53,49 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.this.G.UpdateStats();
         }
     };
+    BroadcastReceiver broadcastReceiverMessages = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            byte var5;
+            label32: {
+                String var4 = intent.getStringExtra("Message");
+                int var3 = var4.hashCode();
+                if (var3 != 65) {
+                    if (var3 != 72) {
+                        if (var3 == 80 && var4.equals("P")) {
+                            var5 = 1;
+                            break label32;
+                        }
+                    } else if (var4.equals("H")) {
+                        var5 = 0;
+                        break label32;
+                    }
+                } else if (var4.equals("A")) {
+                    var5 = 2;
+                    break label32;
+                }
+
+                var5 = -1;
+            }
+
+            switch(var5) {
+                case 0:
+                    MainActivity.this.G.Messages.setText("Вы умерли, направляйтесь к мертвяку..");
+                    break;
+                case 1:
+                    MainActivity.this.G.Messages.setText("Вы умерли, подождите контролёра 5 минут и следуйте к мертвяку в режиме зомби.");
+                    break;
+                case 2:
+                    MainActivity.this.G.Messages.setText("");
+            }
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        G = new Globals(this);
+        G = new Globals(this); // отличие от оригинала
 
         //запускает GeneralTab
         this.mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -87,20 +124,20 @@ public class MainActivity extends AppCompatActivity {
 
         unregisterReceiver(this.broadcastReceiver);
         //unregisterReceiver(this.broadcastReceiverHealth);
-        //unregisterReceiver(this.broadcastReceiverMessages);
+        unregisterReceiver(this.broadcastReceiverMessages);
     }
 
     public void onResume() {
 
         registerReceiver(this.broadcastReceiver, new IntentFilter("StatsService.Update"));
         //registerReceiver(this.broadcastReceiverHealth, new IntentFilter("StatsService.HealthUpdate"));
-        //registerReceiver(this.broadcastReceiverMessages, new IntentFilter("StatsService.Message"));
+        registerReceiver(this.broadcastReceiverMessages, new IntentFilter("StatsService.Message"));
         super.onResume();
     }
     //верхние кнопки
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         public int getCount() {
-            return 1;
+            return 3;
         }
 
         public SectionsPagerAdapter(FragmentManager fragmentManager) {
@@ -111,12 +148,12 @@ public class MainActivity extends AppCompatActivity {
             switch (i) {
                 case 0:
                     return new GeneralTab(MainActivity.this.G);
-              /*  case 1:
+                case 1:
                     return new MapTab(MainActivity.this.G);
                 case 2:
                     return new PointTab(MainActivity.this.G);
                 case 3:
-                    return new ChatTab();*/
+                 /*   return new ChatTab();*/
                 default:
                     return null;
             }
@@ -139,5 +176,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         this.FineLocationPermissionGranted = true;
+    }
+
+    public void onRequestPermissionsResult(int i, @NonNull String[] strArr, @NonNull int[] iArr) {
+        if (i == 1) {
+            if (iArr.length <= 0 || iArr[0] != 0) {
+                this.FineLocationPermissionGranted = false;
+            } else {
+                this.FineLocationPermissionGranted = true;
+            }
+        }
     }
 }

@@ -50,7 +50,7 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.CurrentBio));
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLatitude()));/////может закомментить координаты, раз они уже передаются?
+            stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLatitude()));
             stringBuilder.append(":");
             stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLongitude()));
             String stringBuilder2 = stringBuilder.toString();
