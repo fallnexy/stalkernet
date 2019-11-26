@@ -772,7 +772,7 @@ public class StatsService extends Service {
    public void LoadStats() {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.MaxHealth = Double.parseDouble(defaultSharedPreferences.getString("MaxHealth", "200"));
-        this.Health = Double.parseDouble(defaultSharedPreferences.getString("Health", "100"));
+        this.Health = Double.parseDouble(defaultSharedPreferences.getString("Health", "200"));
         this.Rad = Double.parseDouble(defaultSharedPreferences.getString("Rad", "0"));
         this.Bio = Double.parseDouble(defaultSharedPreferences.getString("Bio", "0"));
         this.Psy = Double.parseDouble(defaultSharedPreferences.getString("Psy", "0"));

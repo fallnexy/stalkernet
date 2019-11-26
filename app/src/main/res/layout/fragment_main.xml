@@ -11,16 +11,12 @@
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
-<!--		<ImageView
+		<ImageView
 			android:id="@+id/ImageViewHealth"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:src="@drawable/healthsymbol" />
-		-->
-		<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="Health"/>
+			android:layout_width="56dp"
+			android:layout_height="56dp"
+			android:src="@drawable/healthsymbol2" />
+
 		<ProgressBar
 			android:id="@+id/ProgressHealth"
 			style="?android:attr/progressBarStyleHorizontal"
@@ -30,17 +26,13 @@
 			android:scaleY="8.0"
 			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
 
-		<!--
+
 		<ImageView
 			android:id="@+id/ImageViewRad"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:src="@drawable/radsymbol" />
-		-->
-		<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="RAD"/>
+			android:layout_width="56dp"
+			android:layout_height="56dp"
+			android:src="@drawable/radsymbol2" />
+
 		<ProgressBar
 			android:id="@+id/ProgressRad"
 			style="?android:attr/progressBarStyleHorizontal"
@@ -49,17 +41,13 @@
 			android:layout_margin="10dp"
 			android:scaleY="8.0"
 			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
-		<!--
+
 		<ImageView
 			android:id="@+id/ImageViewBio"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:src="@drawable/biosymbol" />
-		-->
-		<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="BIO"/>
+			android:layout_width="56dp"
+			android:layout_height="56dp"
+			android:src="@drawable/biosymbol2" />
+
 		<ProgressBar
 			android:id="@+id/ProgressBio"
 			style="?android:attr/progressBarStyleHorizontal"
@@ -69,17 +57,13 @@
 			android:scaleY="8.0"
 			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"
 			android:secondaryProgressTint="@color/common_google_signin_btn_text_dark_pressed"/>
-		<!--
+
 		<ImageView
 			android:id="@+id/ImageViewPsy"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:src="@drawable/psysymbol" />
-		-->
-		<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="PSI"/>
+			android:layout_width="56dp"
+			android:layout_height="56dp"
+			android:src="@drawable/psysymbol2" />
+
 		<ProgressBar
 			android:id="@+id/ProgressPsy"
 			style="?android:attr/progressBarStyleHorizontal"
