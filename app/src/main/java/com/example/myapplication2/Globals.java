@@ -72,7 +72,7 @@ public class Globals {
             parseDouble = 0;
         }
         this.BioBar.setProgress(parseDouble);
-       // this.BioBar.setSecondaryProgress((int) Double.parseDouble(this.CurrentBio));  нужно задать Currentbio, чтоб оно работало
+        this.BioBar.setSecondaryProgress((int) Double.parseDouble(this.CurrentBio));  //нужно задать Currentbio, чтоб оно работало - опоп, работает?
         try {
             i = (int) Double.parseDouble(this.Psy);
         } catch (Exception unused4) {

@@ -17,24 +17,28 @@
             android:id="@+id/tabItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:icon="@drawable/status_active"/>
             android:text="Главная" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:icon="@drawable/map_active"/>
             android:text="Карта" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:icon="@drawable/location_active"/>
             android:text="Точки" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:icon="@drawable/admin_active2"/>
             android:text="Коды" />
     </com.google.android.material.tabs.TabLayout>
 

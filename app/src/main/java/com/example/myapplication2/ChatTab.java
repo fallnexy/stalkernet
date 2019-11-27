@@ -26,7 +26,7 @@ public class ChatTab extends Fragment {
                     var2 = new Intent("Command");
                     switch(var4.hashCode()) {
                         case -2126025274:
-                            if (var4.equals("С‚РµРєРёР»Р°")) {
+                            if (var4.equals("текила")) {
                                 var3 = 13;
                                 break label94;
                             }
@@ -38,7 +38,7 @@ public class ChatTab extends Fragment {
                             }
                             break;
                         case -1631526413:
-                            if (var4.equals("СЃС‚СЂР°РЅРЅРёРє")) {
+                            if (var4.equals("странник")) {
                                 var3 = 10;
                                 break label94;
                             }
@@ -110,13 +110,13 @@ public class ChatTab extends Fragment {
                             }
                             break;
                         case 928548519:
-                            if (var4.equals("Р±СЂРѕРґСЏРіР°")) {
+                            if (var4.equals("бродяга")) {
                                 var3 = 11;
                                 break label94;
                             }
                             break;
                         case 1025116985:
-                            if (var4.equals("РІРёСЃРєРё")) {
+                            if (var4.equals("виски")) {
                                 var3 = 12;
                                 break label94;
                             }
