@@ -2,6 +2,7 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:background="@color/colorPrimaryDark"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -77,6 +78,7 @@
 			android:id="@+id/txtCoordinates"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 			android:text="text"
 			/>
 
@@ -84,12 +86,14 @@
 			android:id="@+id/txtMessages"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="V 0.27" />
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:text="V 0.28" />
 
 		<TextView
 			android:id="@+id/txtVersion"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="V 0.27" />
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:text="V 0.28" />
 	</LinearLayout>
 </LinearLayout>

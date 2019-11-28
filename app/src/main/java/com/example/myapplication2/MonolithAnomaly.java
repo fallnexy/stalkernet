@@ -10,7 +10,7 @@ import com.google.maps.android.data.kml.KmlPolygon;
 
 public class MonolithAnomaly extends Anomaly {
     public LatLng Center;
-    public Boolean IsInside = Boolean.valueOf(false);
+    public Boolean IsInside = Boolean.FALSE;
     private StatsService Service;
     public Polygon poly;
     public Double radius;
@@ -32,27 +32,27 @@ public class MonolithAnomaly extends Anomaly {
 
     public void Apply() {
         Intent intent;
-        if (this.Figure == KmlPolygon.GEOMETRY_TYPE) {
-            if (Boolean.valueOf(PolyUtil.containsLocation(new LatLng(this.Service.MyCurrentLocation.getLatitude(), this.Service.MyCurrentLocation.getLongitude()), this.poly.getPoints(), false)).booleanValue()) {
+        if (this.Figure.equals(KmlPolygon.GEOMETRY_TYPE)) {
+            if (PolyUtil.containsLocation(new LatLng(this.Service.MyCurrentLocation.getLatitude(), this.Service.MyCurrentLocation.getLongitude()), this.poly.getPoints(), false)) {
                 intent = new Intent("Command");
                 intent.putExtra("Command", "Monolith2");
                 this.Service.getApplicationContext().sendBroadcast(intent);
             } else {
-                this.IsInside = Boolean.valueOf(false);
+                this.IsInside = Boolean.FALSE;
             }
         }
-        if (this.Figure == "Circle") {
+        if (this.Figure.equals("Circle")) {
             Location location = new Location("");
             location.setLatitude(this.Center.latitude);
             location.setLongitude(this.Center.longitude);
-            if (((double) Float.valueOf(location.distanceTo(this.Service.MyCurrentLocation)).floatValue()) <= this.radius.doubleValue()) {
-                this.IsInside = Boolean.valueOf(true);
+            if (((double) location.distanceTo(this.Service.MyCurrentLocation)) <= this.radius) {
+                this.IsInside = Boolean.TRUE;
                 intent = new Intent("Command");
                 intent.putExtra("Command", "Monolith2");
                 this.Service.getApplicationContext().sendBroadcast(intent);
                 return;
             }
-            this.IsInside = Boolean.valueOf(false);
+            this.IsInside = Boolean.FALSE;
         }
     }
 }

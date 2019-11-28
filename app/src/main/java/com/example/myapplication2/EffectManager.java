@@ -6,25 +6,28 @@ import android.os.Build;
 import android.os.Vibrator;
 
 public class EffectManager {
-   // public MediaPlayer buzzer = MediaPlayer.create(this.context, R.raw.buzzer);
+    public MediaPlayer buzzer;
     private Context context;
-   // public MediaPlayer mediaplayer = MediaPlayer.create(this.context, R.raw.rad_1);
-   // public Vibrator vibrator = ((Vibrator) this.context.getSystemService(Context.VIBRATOR_SERVICE));
+    public MediaPlayer mediaplayer;
+    public Vibrator vibrator;
 
     public EffectManager(Context context) {
         this.context = context;
+        this.mediaplayer = MediaPlayer.create(this.context, R.raw.rad_1);
+        this.buzzer = MediaPlayer.create(this.context, R.raw.buzzer);
+        this.vibrator = ((Vibrator) this.context.getSystemService(Context.VIBRATOR_SERVICE));
     }
 
-   /* public void VibrateInPattern() {
+    public void VibrateInPattern() {
         long[] jArr = new long[]{0, 100, 4000};
         if (Build.VERSION.SDK_INT >= 26) {
             this.vibrator.vibrate(1000);
         } else {
             this.vibrator.vibrate(1000);
         }
-    }*/
+    }
 
-  /*  public void PlaySound(String str, double d) {
+    public void PlaySound(String str, double d) {
         int i = (int) d;
         this.mediaplayer.reset();
         if (str.equals("Psy")) {
@@ -139,17 +142,17 @@ public class EffectManager {
             }
         }
         this.mediaplayer.start();
-    }*/
+    }
 
-  /*  public void PlayBuzzer() {
+    public void PlayBuzzer() {
         this.buzzer.reset();
         this.buzzer = MediaPlayer.create(this.context, R.raw.buzzer);
         this.buzzer.start();
-    }*/
+    }
 
- /*   public void StopActions() {
+    public void StopActions() {
         if (this.vibrator != null) {
             this.vibrator.cancel();
         }
-    }*/
+    }
 }

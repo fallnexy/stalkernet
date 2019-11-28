@@ -41,11 +41,11 @@ public class StatsService extends Service {
     public boolean DischargeImmunity = false;
     public EffectManager EM;
     public double Health = 100.0d;
-    public Boolean IsDead = Boolean.valueOf(false);
-    public Boolean IsDischarging = Boolean.valueOf(false);
-    public Boolean IsInsideAnomaly = Boolean.valueOf(false);
-    public Boolean IsInsideSafeZone = Boolean.valueOf(true);
-    public Boolean IsUnlocked = Boolean.valueOf(true);
+    public Boolean IsDead = Boolean.FALSE;
+    public Boolean IsDischarging = Boolean.FALSE;
+    public Boolean IsInsideAnomaly = Boolean.FALSE;
+    public Boolean IsInsideSafeZone = Boolean.TRUE;
+    public Boolean IsUnlocked = Boolean.TRUE;
     public Date LastTimeChanged;
     public String LastTimeHitBy = "";
     private MyLocationCallback LocationCallback;
@@ -58,7 +58,7 @@ public class StatsService extends Service {
     public int RadProtection = 0;
     public SafeZone[] SafeZones;
     public String TypeAnomalyIn = "";
-    public Boolean Vibrate = Boolean.valueOf(true);
+    public Boolean Vibrate = Boolean.TRUE;
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
        public void onReceive(android.content.Context r8, Intent r9) {
 
@@ -320,7 +320,7 @@ public class StatsService extends Service {
        }
     };
     private FusedLocationProviderClient mFusedLocationProvider;
-   // private PowerManager.WakeLock wl;
+    private PowerManager.WakeLock wl;
 
     @Nullable
     public IBinder onBind(Intent intent) {
@@ -333,151 +333,8 @@ public class StatsService extends Service {
             return;
         }
         this.Health = d;
-        setDead(Boolean.valueOf(true));
+        setDead(Boolean.TRUE);
     }
-
-    /* JADX WARNING: Removed duplicated region for block: B:33:? A:{SYNTHETIC, RETURN} */
-    /* JADX WARNING: Removed duplicated region for block: B:27:0x00b8  */
-    /* JADX WARNING: Removed duplicated region for block: B:26:0x0099  */
-    /* JADX WARNING: Removed duplicated region for block: B:25:0x007a  */
-    /* JADX WARNING: Removed duplicated region for block: B:24:0x005b  */
-    /* JADX WARNING: Removed duplicated region for block: B:33:? A:{SYNTHETIC, RETURN} */
-    /* JADX WARNING: Removed duplicated region for block: B:27:0x00b8  */
-    /* JADX WARNING: Removed duplicated region for block: B:26:0x0099  */
-    /* JADX WARNING: Removed duplicated region for block: B:25:0x007a  */
-    /* JADX WARNING: Removed duplicated region for block: B:24:0x005b  */
-    /* JADX WARNING: Removed duplicated region for block: B:33:? A:{SYNTHETIC, RETURN} */
-    /* JADX WARNING: Removed duplicated region for block: B:27:0x00b8  */
-    /* JADX WARNING: Removed duplicated region for block: B:26:0x0099  */
-    /* JADX WARNING: Removed duplicated region for block: B:25:0x007a  */
-    /* JADX WARNING: Removed duplicated region for block: B:24:0x005b  */
-    /* JADX WARNING: Missing block: B:12:0x0034, code skipped:
-            if (r0.equals("Rad") == false) goto L_0x0055;
-     */
-   // public void setDead(Boolean r6) {
-        /*
-        r5 = this;
-        r6 = 0;
-        r0 = java.lang.Boolean.valueOf(r6);
-        r1 = r0.booleanValue();
-        if (r1 == 0) goto L_0x000f;
-    L_0x000b:
-        r5.IsDead = r0;
-        goto L_0x00d6;
-    L_0x000f:
-        r5.IsDead = r0;
-        r0 = r5.LastTimeHitBy;
-        r1 = -1;
-        r2 = r0.hashCode();
-        r3 = 66792; // 0x104e8 float:9.3596E-41 double:3.29996E-319;
-        r4 = 1;
-        if (r2 == r3) goto L_0x004b;
-    L_0x001e:
-        r3 = 68718; // 0x10c6e float:9.6294E-41 double:3.3951E-319;
-        if (r2 == r3) goto L_0x0041;
-    L_0x0023:
-        r3 = 80566; // 0x13ab6 float:1.12897E-40 double:3.9805E-319;
-        if (r2 == r3) goto L_0x0037;
-    L_0x0028:
-        r3 = 81909; // 0x13ff5 float:1.14779E-40 double:4.04684E-319;
-        if (r2 == r3) goto L_0x002e;
-    L_0x002d:
-        goto L_0x0055;
-    L_0x002e:
-        r2 = "Rad";
-        r0 = r0.equals(r2);
-        if (r0 == 0) goto L_0x0055;
-    L_0x0036:
-        goto L_0x0056;
-    L_0x0037:
-        r6 = "Psy";
-        r6 = r0.equals(r6);
-        if (r6 == 0) goto L_0x0055;
-    L_0x003f:
-        r6 = 1;
-        goto L_0x0056;
-    L_0x0041:
-        r6 = "Dis";
-        r6 = r0.equals(r6);
-        if (r6 == 0) goto L_0x0055;
-    L_0x0049:
-        r6 = 3;
-        goto L_0x0056;
-    L_0x004b:
-        r6 = "Bio";
-        r6 = r0.equals(r6);
-        if (r6 == 0) goto L_0x0055;
-    L_0x0053:
-        r6 = 2;
-        goto L_0x0056;
-    L_0x0055:
-        r6 = -1;
-    L_0x0056:
-        switch(r6) {
-            case 0: goto L_0x00b8;
-            case 1: goto L_0x0099;
-            case 2: goto L_0x007a;
-            case 3: goto L_0x005b;
-            default: goto L_0x0059;
-        };
-    L_0x0059:
-        goto L_0x00d6;
-    L_0x005b:
-        r6 = r5.getApplicationContext();
-        r0 = "Вы умерли от Выброса";
-        r6 = android.widget.Toast.makeText(r6, r0, r4);
-        r6.show();
-        r6 = new android.content.Intent;
-        r0 = "StatsService.Message";
-        r6.<init>(r0);
-        r0 = "Message";
-        r1 = "H";
-        r6.putExtra(r0, r1);
-        r5.sendBroadcast(r6);
-        goto L_0x00d6;
-    L_0x007a:
-        r6 = r5.getApplicationContext();
-        r0 = "Вы умерли от Био";
-        r6 = android.widget.Toast.makeText(r6, r0, r4);
-        r6.show();
-        r6 = new android.content.Intent;
-        r0 = "StatsService.Message";
-        r6.<init>(r0);
-        r0 = "Message";
-        r1 = "H";
-        r6.putExtra(r0, r1);
-        r5.sendBroadcast(r6);
-        goto L_0x00d6;
-    L_0x0099:
-        r6 = r5.getApplicationContext();
-        r0 = "Вы умерли от Пси";
-        r6 = android.widget.Toast.makeText(r6, r0, r4);
-        r6.show();
-        r6 = new android.content.Intent;
-        r0 = "StatsService.Message";
-        r6.<init>(r0);
-        r0 = "Message";
-        r1 = "P";
-        r6.putExtra(r0, r1);
-        r5.sendBroadcast(r6);
-        goto L_0x00d6;
-    L_0x00b8:
-        r6 = r5.getApplicationContext();
-        r0 = "Вы умерли от Радио";
-        r6 = android.widget.Toast.makeText(r6, r0, r4);
-        r6.show();
-        r6 = new android.content.Intent;
-        r0 = "StatsService.Message";
-        r6.<init>(r0);
-        r0 = "Message";
-        r1 = "H";
-        r6.putExtra(r0, r1);
-        r5.sendBroadcast(r6);
-    L_0x00d6:
-        return;
-        */
-    //    throw new UnsupportedOperationException("Method not decompiled: com.studio.FusedForegroundClient.StatsService.setDead(java.lang.Boolean):void");
-   // }
 
     public void setDead(Boolean var1) {
         byte var2 = 0;
@@ -544,8 +401,8 @@ public class StatsService extends Service {
 
     public void onCreate() {
         super.onCreate();
-       // this.wl = ((PowerManager) getSystemService("power")).newWakeLock(1, "My_Partial_Wake_Lock");
-       // this.wl.acquire();
+        this.wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(1, "STALKERNET:My_Partial_Wake_Lock");
+        this.wl.acquire(10*60*1000L /*10 minutes*/);   //timeout заставила студия поставить, не знаю как это работает
         this.EM = new EffectManager(this);
         GetAnomalys();
         CreateSafeZones();
@@ -590,7 +447,7 @@ public class StatsService extends Service {
         super.onDestroy();
         unregisterReceiver(this.broadcastReceiver);
         SaveStats();
-      //  this.wl.release();
+        this.wl.release();
     }
 
     private void CheckPermissions() {
@@ -605,170 +462,146 @@ public class StatsService extends Service {
             }
         }
     }
-//getAnomaly
+
     private void GetAnomalys() {
         Anomaly[] anomalyArr = new Anomaly[48];                                                                                                                            //паша
-        anomalyArr[0] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.5736101d, 40.5161934d), this);                     //64.354876d, 40.718417d
-        anomalyArr[1] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.526824d, 40.604426d), this); //64.526824, 40.604426; 64.355037d, 40.722809d
-        anomalyArr[2] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.526613d, 40.604308d), this); //64.526613, 40.604308; 64.355765d, 40.726628d
-        LatLng latLng = new LatLng(64.355666d, 40.730297d);
-        Double valueOf = Double.valueOf(100.0d);
-        anomalyArr[3] = new Anomaly("Circle", "Psy", valueOf, Double.valueOf(35.0d), latLng, this);
+        anomalyArr[0] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.5736101d, 40.5161934d), this);                     //64.354876d, 40.718417d
+        anomalyArr[1] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526824d, 40.604426d), this); //64.526824, 40.604426; 64.355037d, 40.722809d
+        anomalyArr[2] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526613d, 40.604308d), this); //64.526613, 40.604308; 64.355765d, 40.726628d
+        anomalyArr[3] = new Anomaly("Circle", "Psy", 100.0d, 35.0d, new LatLng(64.355666d, 40.730297d), this);
         anomalyArr[3].minstrenght = 20;
-        anomalyArr[4] = new Anomaly("Circle", "Rad", Double.valueOf(6.0d), Double.valueOf(43.0d), new LatLng(64.526400d, 40.604193d), this); //64.526400, 40.604193; 64.353653d, 40.720639d
+        anomalyArr[4] = new Anomaly("Circle", "Rad", 6.0d, 43.0d, new LatLng(64.526400d, 40.604193d), this); //64.526400, 40.604193; 64.353653d, 40.720639d
         anomalyArr[4].minstrenght = 4;
-        anomalyArr[5] = new Anomaly("Circle", "Psy", Double.valueOf(1.0d), Double.valueOf(20.0d), new LatLng(64.526283d, 40.604053d), this);//64.526283, 40.604053; 64.354245d, 40.723951d
-        anomalyArr[6] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(43.0d), new LatLng(64.526261d, 40.603729d), this);//64.526261, 40.603729; 64.354504d, 40.729021d
-        anomalyArr[7] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.526201d, 40.603257d), this);//64.526201, 40.603257; 64.354913d, 40.734928d
-        anomalyArr[8] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(47.0d), new LatLng(64.355273d, 40.737138d), this);
-        anomalyArr[9] = new Anomaly("Circle", "Rad", Double.valueOf(4.0d), Double.valueOf(43.0d), new LatLng(64.35564d, 40.739666d), this);
-        anomalyArr[10] = new Anomaly("Circle", "Bio", Double.valueOf(5.0d), Double.valueOf(43.0d), new LatLng(64.5736101d, 40.5161934d), this);                     //64.352632d, 40.720082d
-        latLng = new LatLng(64.353251d, 40.722448d);
-        anomalyArr[11] = new Anomaly("Circle", "Psy", Double.valueOf(10.0d), Double.valueOf(17.0d), latLng, this);
+        anomalyArr[5] = new Anomaly("Circle", "Psy", 1.0d, 20.0d, new LatLng(64.526283d, 40.604053d), this);//64.526283, 40.604053; 64.354245d, 40.723951d
+        anomalyArr[6] = new Anomaly("Circle", "Rad", 1.0d, 43.0d, new LatLng(64.526261d, 40.603729d), this);//64.526261, 40.603729; 64.354504d, 40.729021d
+        anomalyArr[7] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526201d, 40.603257d), this);//64.526201, 40.603257; 64.354913d, 40.734928d
+        anomalyArr[8] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.355273d, 40.737138d), this);
+        anomalyArr[9] = new Anomaly("Circle", "Rad", 4.0d, 43.0d, new LatLng(64.35564d, 40.739666d), this);
+        anomalyArr[10] = new Anomaly("Circle", "Bio", 5.0d, 43.0d, new LatLng(64.5736101d, 40.5161934d), this);                     //64.352632d, 40.720082d
+        anomalyArr[11] = new Anomaly("Circle", "Psy", 10.0d, 17.0d, new LatLng(64.353251d, 40.722448d), this);
         anomalyArr[11].minstrenght = 10;
-        latLng = new LatLng(64.353528d, 40.725061d);
-        valueOf = Double.valueOf(3.0d);
-        anomalyArr[12] = new Anomaly("Circle", "Rad", valueOf, Double.valueOf(45.0d), latLng, this);
-        anomalyArr[13] = new Anomaly("Circle", "Psy", Double.valueOf(10.0d), Double.valueOf(14.0d), new LatLng(64.353732d, 40.729691d), this);
+        anomalyArr[12] = new Anomaly("Circle", "Rad", 3.0d, 45.0d, new LatLng(64.353528d, 40.725061d), this);
+        anomalyArr[13] = new Anomaly("Circle", "Psy", 10.0d, 14.0d, new LatLng(64.353732d, 40.729691d), this);
         anomalyArr[13].minstrenght = 5;
-        latLng = new LatLng(64.353956d, 40.733538d);
-        anomalyArr[14] = new Anomaly("Circle", "Bio", Double.valueOf(4.0d), Double.valueOf(41.0d), latLng, this);
+        anomalyArr[14] = new Anomaly("Circle", "Bio", 4.0d, 41.0d, new LatLng(64.353956d, 40.733538d), this);
         anomalyArr[14].minstrenght = 2;
-        latLng = new LatLng(64.354117d, 40.738498d);
-        anomalyArr[15] = new Anomaly("Circle", "Bio", Double.valueOf(4.0d), Double.valueOf(43.0d), latLng, this);
+        anomalyArr[15] = new Anomaly("Circle", "Bio", 4.0d, 43.0d, new LatLng(64.354117d, 40.738498d), this);
         anomalyArr[15].minstrenght = 2;
-        anomalyArr[16] = new Anomaly("Circle", "Psy", Double.valueOf(80.0d), Double.valueOf(41.0d), new LatLng(64.353835d, 40.741092d), this);
+        anomalyArr[16] = new Anomaly("Circle", "Psy", 80.0d, 41.0d, new LatLng(64.353835d, 40.741092d), this);
         anomalyArr[16].minstrenght = 20;
-        latLng = new LatLng(64.354134d, 40.743004d);
-        anomalyArr[17] = new Anomaly("Circle", "Bio", Double.valueOf(4.0d), Double.valueOf(32.0d), latLng, this);
-        latLng = new LatLng(64.351863d, 40.720743d);
-        anomalyArr[18] = new Anomaly("Circle", "Bio", Double.valueOf(5.0d), Double.valueOf(43.0d), latLng, this);
-        anomalyArr[19] = new Anomaly("Circle", "Bio", Double.valueOf(3.0d), Double.valueOf(43.0d), new LatLng(64.352634d, 40.723915d), this);
-        anomalyArr[20] = new Anomaly("Circle", "Rad", Double.valueOf(2.0d), Double.valueOf(32.0d), new LatLng(64.352871d, 40.726926d), this);
-        anomalyArr[21] = new Anomaly("Circle", "Rad", Double.valueOf(4.0d), Double.valueOf(39.0d), new LatLng(64.353072d, 40.730551d), this);
-        latLng = new LatLng(64.351589d, 40.72423d);
-        anomalyArr[22] = new Anomaly("Circle", "Psy", Double.valueOf(10.0d), Double.valueOf(24.0d), latLng, this);
+        anomalyArr[17] = new Anomaly("Circle", "Bio", 4.0d, 32.0d, new LatLng(64.354134d, 40.743004d), this);
+        anomalyArr[18] = new Anomaly("Circle", "Bio", 5.0d, 43.0d, new LatLng(64.351863d, 40.720743d), this);
+        anomalyArr[19] = new Anomaly("Circle", "Bio", 3.0d, 43.0d, new LatLng(37.4219983d, -122.084d), this); //64.352634d, 40.723915d  эмулятор
+        anomalyArr[20] = new Anomaly("Circle", "Rad", 2.0d, 32.0d, new LatLng(64.352871d, 40.726926d), this);
+        anomalyArr[21] = new Anomaly("Circle", "Rad", 4.0d, 39.0d, new LatLng(64.353072d, 40.730551d), this);
+        anomalyArr[22] = new Anomaly("Circle", "Psy", 10.0d, 24.0d, new LatLng(64.351589d, 40.72423d), this);
         anomalyArr[22].minstrenght = 10;
-        latLng = new LatLng(64.351293d, 40.726321d);
-        valueOf = Double.valueOf(1.0d);
-        anomalyArr[23] = new Anomaly("Circle", "Bio", valueOf, Double.valueOf(34.0d), latLng, this);
-        anomalyArr[24] = new Anomaly("Circle", "Psy", Double.valueOf(100.0d), Double.valueOf(46.0d), new LatLng(64.352241d, 40.72768d), this);
+        anomalyArr[23] = new Anomaly("Circle", "Bio", 1.0d, 34.0d, new LatLng(64.351293d, 40.726321d), this);
+        anomalyArr[24] = new Anomaly("Circle", "Psy", 100.0d, 46.0d, new LatLng(64.352241d, 40.72768d), this);
         anomalyArr[24].minstrenght = 40;
-        anomalyArr[25] = new Anomaly("Circle", "Bio", Double.valueOf(2.0d), Double.valueOf(23.0d), new LatLng(64.351685d, 40.727501d), this);
-        anomalyArr[26] = new Anomaly("Circle", "Psy", Double.valueOf(20.0d), Double.valueOf(17.0d), new LatLng(64.352563d, 40.729143d), this);
+        anomalyArr[25] = new Anomaly("Circle", "Bio", 2.0d, 23.0d, new LatLng(64.351685d, 40.727501d), this);
+        anomalyArr[26] = new Anomaly("Circle", "Psy", 20.0d, 17.0d, new LatLng(64.352563d, 40.729143d), this);
         anomalyArr[26].minstrenght = 10;
-        anomalyArr[27] = new Anomaly("Circle", "Rad", Double.valueOf(1.0d), Double.valueOf(25.0d), new LatLng(64.352595d, 40.732628d), this);
-        anomalyArr[28] = new Anomaly("Circle", "Rad", Double.valueOf(2.0d), Double.valueOf(30.0d), new LatLng(64.351638d, 40.731446d), this);
-        latLng = new LatLng(64.352027d, 40.733248d);
-        anomalyArr[29] = new Anomaly("Circle", "Bio", Double.valueOf(5.0d), Double.valueOf(43.0d), latLng, this);
-        latLng = new LatLng(64.352743d, 40.735396d);
-        anomalyArr[30] = new Anomaly("Circle", "Rad", Double.valueOf(3.0d), Double.valueOf(36.0d), latLng, this);
-        latLng = new LatLng(64.353069d, 40.736801d);
-        anomalyArr[31] = new Anomaly("Circle", "Psy", Double.valueOf(10.0d), Double.valueOf(5.0d), latLng, this);
-        anomalyArr[32] = new Anomaly("Circle", "Psy", Double.valueOf(40.0d), Double.valueOf(30.0d), new LatLng(64.353463d, 40.738272d), this);
+        anomalyArr[27] = new Anomaly("Circle", "Rad", 1.0d, 25.0d, new LatLng(64.352595d, 40.732628d), this);
+        anomalyArr[28] = new Anomaly("Circle", "Rad", 2.0d, 30.0d, new LatLng(64.351638d, 40.731446d), this);
+        anomalyArr[29] = new Anomaly("Circle", "Bio", 5.0d, 43.0d, new LatLng(64.352027d, 40.733248d), this);
+        anomalyArr[30] = new Anomaly("Circle", "Rad", 3.0d, 36.0d, new LatLng(64.352743d, 40.735396d), this);
+        anomalyArr[31] = new Anomaly("Circle", "Psy", 10.0d, 5.0d, new LatLng(64.353069d, 40.736801d), this);
+        anomalyArr[32] = new Anomaly("Circle", "Psy", 40.0d, 30.0d, new LatLng(64.353463d, 40.738272d), this);
         anomalyArr[32].minstrenght = 10;
-        anomalyArr[33] = new Anomaly("Circle", "Bio", Double.valueOf(2.0d), Double.valueOf(26.0d), new LatLng(64.352924d, 40.739808d), this);
-        anomalyArr[34] = new Anomaly("Circle", "Psy", Double.valueOf(50.0d), Double.valueOf(30.0d), new LatLng(64.353323d, 40.742572d), this);
+        anomalyArr[33] = new Anomaly("Circle", "Bio", 2.0d, 26.0d, new LatLng(64.352924d, 40.739808d), this);
+        anomalyArr[34] = new Anomaly("Circle", "Psy", 50.0d, 30.0d, new LatLng(64.353323d, 40.742572d), this);
         anomalyArr[34].minstrenght = 10;
-        latLng = new LatLng(64.353684d, 40.744285d);
-        valueOf = Double.valueOf(100.0d);
-        anomalyArr[35] = new Anomaly("Circle", "Psy", valueOf, Double.valueOf(30.0d), latLng, this);
+        anomalyArr[35] = new Anomaly("Circle", "Psy", 100.0d, 30.0d, new LatLng(64.353684d, 40.744285d), this);
         anomalyArr[35].minstrenght = 20;
-        anomalyArr[36] = new Anomaly("Circle", "Psy", Double.valueOf(80.0d), Double.valueOf(24.0d), new LatLng(64.352946d, 40.741586d), this);
+        anomalyArr[36] = new Anomaly("Circle", "Psy", 80.0d, 24.0d, new LatLng(64.352946d, 40.741586d), this);
         anomalyArr[36].minstrenght = 20;
-        latLng = new LatLng(64.352136d, 40.739134d);
-        anomalyArr[37] = new Anomaly("Circle", "Psy", Double.valueOf(100.0d), Double.valueOf(34.0d), latLng, this);
+        anomalyArr[37] = new Anomaly("Circle", "Psy", 100.0d, 34.0d, new LatLng(64.352136d, 40.739134d), this);
         anomalyArr[37].minstrenght = 20;
-        latLng = new LatLng(64.352475d, 40.742778d);
-        valueOf = Double.valueOf(100.0d);
-        anomalyArr[38] = new Anomaly("Circle", "Psy", valueOf, Double.valueOf(28.0d), latLng, this);
+        anomalyArr[38] = new Anomaly("Circle", "Psy", 100.0d, 28.0d, new LatLng(64.352475d, 40.742778d), this);
         anomalyArr[38].minstrenght = 60;
-        anomalyArr[39] = new Anomaly("Circle", "Psy", Double.valueOf(100.0d), Double.valueOf(29.0d), new LatLng(64.352753d, 40.74444d), this);
+        anomalyArr[39] = new Anomaly("Circle", "Psy", 100.0d, 29.0d, new LatLng(64.352753d, 40.74444d), this);
         anomalyArr[39].minstrenght = 90;
-        latLng = new LatLng(64.349937d, 40.731093d);
-        anomalyArr[40] = new Anomaly("Circle", "Rad", Double.valueOf(10.0d), Double.valueOf(45.0d), latLng, this);
-        latLng = new LatLng(64.351069d, 40.735967d);
-        valueOf = Double.valueOf(3.0d);
-        anomalyArr[41] = new Anomaly("Circle", "Bio", valueOf, Double.valueOf(35.0d), latLng, this);
-        anomalyArr[42] = new Anomaly("Circle", "Rad", Double.valueOf(3.0d), Double.valueOf(59.0d), new LatLng(64.3512d, 40.738147d), this);
-        anomalyArr[43] = new Anomaly("Circle", "Psy", Double.valueOf(30.0d), Double.valueOf(26.0d), new LatLng(64.350528d, 40.737087d), this);
+        anomalyArr[40] = new Anomaly("Circle", "Rad", 10.0d, 45.0d, new LatLng(64.349937d, 40.731093d), this);
+        anomalyArr[41] = new Anomaly("Circle", "Bio", 3.0d, 35.0d, new LatLng(64.351069d, 40.735967d), this);
+        anomalyArr[42] = new Anomaly("Circle", "Rad", 3.0d, 59.0d, new LatLng(64.3512d, 40.738147d), this);
+        anomalyArr[43] = new Anomaly("Circle", "Psy", 30.0d, 26.0d, new LatLng(64.350528d, 40.737087d), this);
         anomalyArr[43].minstrenght = 10;
-        anomalyArr[44] = new Anomaly("Circle", "Psy", Double.valueOf(5.0d), Double.valueOf(43.0d), new LatLng(64.351336d, 40.742537d), this);
-        anomalyArr[45] = new MonolithAnomaly("Circle", "",Double.valueOf(8.0d), Double.valueOf(0), new LatLng(64.352518d, 40.743582d), this); //добавлено str2, d2
-        anomalyArr[46] = new MonolithAnomaly("Circle", "",Double.valueOf(50.0d), Double.valueOf(0), new LatLng(64.3523367d, 40.7430442d), this); //добавлено str2, d2
-        latLng = new LatLng(64.51027d, 40.6791d);
-        anomalyArr[47] = new Anomaly("Circle", "Bio", Double.valueOf(10.0d), Double.valueOf(10.0d), latLng, this);
+        anomalyArr[44] = new Anomaly("Circle", "Psy", 5.0d, 43.0d, new LatLng(64.351336d, 40.742537d), this);
+        anomalyArr[45] = new MonolithAnomaly("Circle", "", 8.0d, (double) 0, new LatLng(64.352518d, 40.743582d), this); //добавлено str2, d2
+        anomalyArr[46] = new MonolithAnomaly("Circle", "", 50.0d, (double) 0, new LatLng(64.3523367d, 40.7430442d), this); //добавлено str2, d2
+        anomalyArr[47] = new Anomaly("Circle", "Bio", 10.0d, 10.0d, new LatLng(64.51027d, 40.6791d), this);
         this.Anomalys = anomalyArr;
     }
-//CheckAnomalys()
+
     public void CheckAnomalys() {
         for (int i = 0; i <= 47; i++) {
             this.Anomalys[i].Apply();
         }
     }
-//CheckIfInAnyAnomaly()
+
     public void CheckIfInAnyAnomaly() {
         int i = 0;
-        this.IsInsideAnomaly = Boolean.valueOf(false);
+        this.IsInsideAnomaly = Boolean.FALSE;
         while (i <= 47) {
-            if (this.Anomalys[i].IsInside.booleanValue()) {
-                this.IsInsideAnomaly = Boolean.valueOf(true);
+            if (this.Anomalys[i].IsInside) {
+                this.IsInsideAnomaly = Boolean.TRUE;
             }
             i++;
         }
-        if (!this.IsInsideAnomaly.booleanValue()) {
+        if (!this.IsInsideAnomaly) {
             this.Rad = 0.0d;
             this.Psy = 0.0d;
             this.Bio = 0.0d;
-       //     this.EM.StopActions();
+            this.EM.StopActions();
         }
     }
 
     public void CreateSafeZones() {
         SafeZone[] safeZoneArr = new SafeZone[7];
-        safeZoneArr[0] = new SafeZone("Circle", Double.valueOf(62.0d), new LatLng(64.356037d, 40.72262d), this);
-        safeZoneArr[1] = new SafeZone("Circle", Double.valueOf(78.0d), new LatLng(64.357008d, 40.721367d), this);
-        safeZoneArr[2] = new SafeZone("Circle", Double.valueOf(18.0d), new LatLng(64.3524816d, 40.7320684d), this);
-        safeZoneArr[3] = new SafeZone("Circle", Double.valueOf(23.0d), new LatLng(64.351917d, 40.725722d), this);
-        safeZoneArr[4] = new SafeZone("Circle", Double.valueOf(16.0d), new LatLng(64.3525714d, 40.7430442d), this);
-        safeZoneArr[5] = new SafeZone("Circle", Double.valueOf(25.0d), new LatLng(64.508752d, 40.681068d), this);
-        safeZoneArr[6] = new SafeZone("Circle", Double.valueOf(46.0d), new LatLng(64.667986d, 40.522734d), this);
+        safeZoneArr[0] = new SafeZone("Circle", 62.0d, new LatLng(64.356037d, 40.72262d), this);
+        safeZoneArr[1] = new SafeZone("Circle", 78.0d, new LatLng(64.357008d, 40.721367d), this);
+        safeZoneArr[2] = new SafeZone("Circle", 18.0d, new LatLng(64.3524816d, 40.7320684d), this);
+        safeZoneArr[3] = new SafeZone("Circle", 23.0d, new LatLng(64.351917d, 40.725722d), this);
+        safeZoneArr[4] = new SafeZone("Circle", 16.0d, new LatLng(64.3525714d, 40.7430442d), this);
+        safeZoneArr[5] = new SafeZone("Circle", 25.0d, new LatLng(64.508752d, 40.681068d), this);
+        safeZoneArr[6] = new SafeZone("Circle", 46.0d, new LatLng(64.667986d, 40.522734d), this);
         this.SafeZones = safeZoneArr;
     }
-//CheckIfInAnySafezone()
+
     public void CheckIfInAnySafezone() {
         int i = 0;
-        this.IsInsideSafeZone = Boolean.valueOf(false);
+        this.IsInsideSafeZone = Boolean.FALSE;
         while (i <= 6) {
             this.SafeZones[i].Apply();
-            if (this.SafeZones[i].IsInside.booleanValue()) {
-                this.IsInsideSafeZone = Boolean.valueOf(true);
+            if (this.SafeZones[i].IsInside) {
+                this.IsInsideSafeZone = Boolean.TRUE;
             }
             i++;
         }
     }
-//Discharge()
+
     public void Discharge() {
-      //  this.EM.PlayBuzzer();
+        this.EM.PlayBuzzer();
         Toast.makeText(getApplicationContext(), "Близиться выброс.", Toast.LENGTH_SHORT).show();
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 StatsService.this.CheckIfInAnySafezone();
-        //        StatsService.this.EM.PlayBuzzer();
-                if (!(StatsService.this.IsInsideSafeZone.booleanValue() || StatsService.this.DischargeImmunity)) {
+                StatsService.this.EM.PlayBuzzer();
+                if (!(StatsService.this.IsInsideSafeZone || StatsService.this.DischargeImmunity)) {
                     StatsService.this.LastTimeHitBy = "Dis";
-                    StatsService.this.setDead(Boolean.valueOf(true));
+                    StatsService.this.setDead(Boolean.TRUE);
                     StatsService.this.Health = 0.0d;
                     Intent intent = new Intent("StatsService.Message");
                     intent.putExtra("Message", "H");
                     StatsService.this.sendBroadcast(intent);
                 }
                 Toast.makeText(StatsService.this.getApplicationContext(), "Выброс Окончен!!", Toast.LENGTH_SHORT).show();
-                StatsService.this.IsDischarging = Boolean.valueOf(false);
+                StatsService.this.IsDischarging = Boolean.FALSE;
             }
         }, 60000);
     }
-//LoadStats()
+
    public void LoadStats() {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.MaxHealth = Double.parseDouble(defaultSharedPreferences.getString("MaxHealth", "200"));
@@ -780,9 +613,9 @@ public class StatsService extends Service {
         this.RadProtection = Integer.parseInt(defaultSharedPreferences.getString("RadProtection", "0"));
         this.BioProtection = Integer.parseInt(defaultSharedPreferences.getString("BioProtection", "0"));
         this.DischargeImmunity = Boolean.parseBoolean(defaultSharedPreferences.getString("DischargeImmunity", "false"));
-        this.IsUnlocked = Boolean.valueOf(Boolean.parseBoolean(defaultSharedPreferences.getString("Lock", "true")));
+        this.IsUnlocked = Boolean.parseBoolean(defaultSharedPreferences.getString("Lock", "true"));
     }
-//SaveStats()
+
     public void SaveStats() {
         SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(this).edit();
         edit.putString("MaxHealth", Double.toString(this.MaxHealth));
@@ -794,7 +627,7 @@ public class StatsService extends Service {
         edit.putString("BioProtection", Integer.toString(this.BioProtection));
         edit.putString("RadProtection", Integer.toString(this.RadProtection));
         edit.putString("DischargeImmunity", Boolean.toString(this.DischargeImmunity));
-        edit.putString("Lock", Boolean.toString(this.IsUnlocked.booleanValue()));
+        edit.putString("Lock", Boolean.toString(this.IsUnlocked));
         edit.commit();
     }
 }

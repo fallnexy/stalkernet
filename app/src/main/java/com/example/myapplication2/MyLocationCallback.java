@@ -30,29 +30,29 @@ public class MyLocationCallback extends LocationCallback {
             this.MyCurrentLocation.setProvider(location.getProvider());
             this.MyCurrentLocation.setBearing(location.getBearing());
             this.MyCurrentLocation.setAccuracy(location.getAccuracy());
-            if (!this.ServiceReference.IsDead.booleanValue() && this.ServiceReference.IsUnlocked.booleanValue()) {
+            if (!this.ServiceReference.IsDead && this.ServiceReference.IsUnlocked) {
                 GetTime();
                 TimeToDischarge();
                 this.ServiceReference.CheckAnomalys();
                 this.ServiceReference.CheckIfInAnyAnomaly();
             }
             if (this.ServiceReference.Health <= 0.0d) {
-                this.ServiceReference.IsDead = Boolean.valueOf(true);
+                this.ServiceReference.IsDead = Boolean.TRUE;
             }
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(Double.toString(this.ServiceReference.Health));
+            stringBuilder.append(this.ServiceReference.Health);
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.Rad));
+            stringBuilder.append(this.ServiceReference.Rad);
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.Bio));
+            stringBuilder.append(this.ServiceReference.Bio);
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.Psy));
+            stringBuilder.append(this.ServiceReference.Psy);
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.CurrentBio));
+            stringBuilder.append(this.ServiceReference.CurrentBio);
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLatitude()));
+            stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLatitude());
             stringBuilder.append(":");
-            stringBuilder.append(Double.toString(this.ServiceReference.MyCurrentLocation.getLongitude()));
+            stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLongitude());
             String stringBuilder2 = stringBuilder.toString();
             Intent intent = new Intent("StatsService.Update");
             intent.putExtra("Stats", stringBuilder2);
@@ -73,42 +73,42 @@ public class MyLocationCallback extends LocationCallback {
     }
 //timeToDischarge
     private void TimeToDischarge() {
-        if (!this.ServiceReference.IsDischarging.booleanValue()) {
+        if (!this.ServiceReference.IsDischarging) {
             if (this.dayInt == 14 && this.Minutes == 20 && this.Hour == 13) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 15 && this.Minutes == 35 && this.Hour == 15) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 16 && this.Minutes == 30 && this.Hour == 5) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 12 && this.Minutes == 0 && this.Hour == 18) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 12 && this.Minutes == 20 && this.Hour == 18) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 13 && this.Minutes == 0 && this.Hour == 10) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 13 && this.Minutes == 20 && this.Hour == 10) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 13 && this.Minutes == 0 && this.Hour == 12) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
             if (this.dayInt == 13 && this.Minutes == 20 && this.Hour == 12) {
                 this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.valueOf(true);
+                this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
         }
     }

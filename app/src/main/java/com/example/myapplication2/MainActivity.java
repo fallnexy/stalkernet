@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean FineLocationPermissionGranted;
     private int Fine_Location_RequestCode = 1;
-    public Globals G /*= new Globals()*/;
+    public Globals G;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     public Boolean ServiceIsRunning;
@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 MainActivity.this.G.Psy = split[3];
             }
-            MainActivity.this.G.location.setLatitude(Double.parseDouble(split[5]));//0
-            MainActivity.this.G.location.setLongitude(Double.parseDouble(split[6]));//1
+            MainActivity.this.G.location.setLatitude(Double.parseDouble(split[5]));
+            MainActivity.this.G.location.setLongitude(Double.parseDouble(split[6]));
             MainActivity.this.G.UpdateStats();
         }
     };
@@ -143,9 +143,9 @@ public class MainActivity extends AppCompatActivity {
     //Запуск службы, я надеюсь
     public void onStart(){
         super.onStart();
-        this.ServiceIsRunning = Boolean.valueOf(isMyServiceRunning(StatsService.class));
+        this.ServiceIsRunning = isMyServiceRunning(StatsService.class);
         Intent intent = new Intent(this, StatsService.class);
-        if (Build.VERSION.SDK_INT < 26 || this.ServiceIsRunning.booleanValue()) {
+        if (Build.VERSION.SDK_INT < 26 || this.ServiceIsRunning) {
             startService(intent);
         } else {
             startForegroundService(intent);
