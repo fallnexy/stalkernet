@@ -74,11 +74,11 @@ public class MyLocationCallback extends LocationCallback {
 //timeToDischarge
     private void TimeToDischarge() {
         if (!this.ServiceReference.IsDischarging) {
-            if (this.dayInt == 14 && this.Minutes == 20 && this.Hour == 13) {
+            if (this.dayInt == 28 && this.Minutes == 10 && this.Hour == 0) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
-            if (this.dayInt == 15 && this.Minutes == 35 && this.Hour == 15) {
+            if (this.dayInt == 29 && this.Minutes == 10 && this.Hour == 1) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }

@@ -43,6 +43,7 @@ public class Globals {
     public ArrayList<String> StringMarkerArray = new ArrayList();
     public Location location = new Location("GPS");
     public GoogleMap map;
+    public TextView HealthPercent;
 
     private LocationManager locationManager;
 
@@ -50,7 +51,7 @@ public class Globals {
         this.mContext = mContext;
     }
 
-    public void UpdateStats() {
+    public void UpdateStats() { //именно эта штука обновяет статы, которые есть в GeneralTab
         int parseDouble;
         this.HealthBar.setMax(Integer.parseInt(this.MaxHealth));
         int i = 0;
@@ -60,6 +61,8 @@ public class Globals {
             parseDouble = 0;
         }
         this.HealthBar.setProgress(parseDouble);
+        String healthPercent = 100 * parseDouble / Double.parseDouble(this.MaxHealth) +"%";
+        this.HealthPercent.setText(healthPercent);
         try {
             parseDouble = (int) Double.parseDouble(this.Rad);
         } catch (Exception unused2) {

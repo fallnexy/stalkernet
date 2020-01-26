@@ -18,14 +18,28 @@
 			android:layout_height="56dp"
 			android:src="@drawable/healthsymbol2" />
 
-		<ProgressBar
-			android:id="@+id/ProgressHealth"
-			style="?android:attr/progressBarStyleHorizontal"
+		<FrameLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_margin="10dp"
-			android:scaleY="8.0"
-			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+			android:layout_height="wrap_content">
+
+			<ProgressBar
+				android:id="@+id/ProgressHealth"
+				style="?android:attr/progressBarStyleHorizontal"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_margin="10dp"
+				android:progressTint="@color/common_google_signin_btn_text_dark_pressed"
+				android:scaleY="8.0" />
+
+			<TextView
+				android:id="@+id/txtHealthPercent"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:text="TextView"
+				android:textColor="@color/colorAccent"
+				android:visibility="visible" />
+		</FrameLayout>
 
 
 		<ImageView
@@ -40,8 +54,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
-			android:scaleY="8.0"
-			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+			android:progressTint="@color/Yellow"
+			android:scaleY="8.0" />
 
 		<ImageView
 			android:id="@+id/ImageViewBio"
@@ -55,9 +69,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
+			android:progressTint="@color/green"
 			android:scaleY="8.0"
-			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"
-			android:secondaryProgressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+			android:secondaryProgressTint="@color/secondaryGreen" />
 
 		<ImageView
 			android:id="@+id/ImageViewPsy"
@@ -71,8 +85,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
-			android:scaleY="8.0"
-			android:progressTint="@color/common_google_signin_btn_text_dark_pressed"/>
+			android:progressTint="@color/blue"
+			android:scaleY="8.0" />
 
 		<TextView
 			android:id="@+id/txtCoordinates"

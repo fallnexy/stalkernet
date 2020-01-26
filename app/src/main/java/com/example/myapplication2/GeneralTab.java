@@ -32,12 +32,14 @@ public class GeneralTab extends Fragment {
         //((ImageView) inflate.findViewById(R.id.ImageViewPsy)).setImageResource(getResources().getIdentifier("@drawable/psysymbol", null, getActivity().getPackageName()));
         TextView textView = (TextView) inflate.findViewById(R.id.txtCoordinates);
         TextView textView2 = (TextView) inflate.findViewById(R.id.txtMessages);
+        TextView txtHealthPercent = inflate.findViewById(R.id.txtHealthPercent);
         this.G.HealthBar = progressBar;
         this.G.RadBar = progressBar2;
         this.G.BioBar = progressBar3;
         this.G.PsyBar = progressBar4;
         this.G.CO = textView;
         this.G.Messages = textView2;
+        this.G.HealthPercent = txtHealthPercent;
         return inflate;
     }
 }

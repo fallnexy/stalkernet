@@ -11,7 +11,7 @@ import com.google.maps.android.data.kml.KmlPolygon;
 public class SafeZone {
     public LatLng Center;
     public String Figure;
-    public Boolean IsInside = Boolean.valueOf(false);
+    public Boolean IsInside = Boolean.FALSE;
     private StatsService Service;
     public Polygon poly;
     public Double radius;
@@ -30,24 +30,24 @@ public class SafeZone {
     }
 
     public void Apply() {
-        if (this.Figure == KmlPolygon.GEOMETRY_TYPE) {
-            if (Boolean.valueOf(PolyUtil.containsLocation(new LatLng(this.Service.MyCurrentLocation.getLatitude(), this.Service.MyCurrentLocation.getLongitude()), this.poly.getPoints(), false)).booleanValue()) {
-                this.Service.IsInsideSafeZone = Boolean.valueOf(true);
+        if (this.Figure.equals(KmlPolygon.GEOMETRY_TYPE)) {
+            if (PolyUtil.containsLocation(new LatLng(this.Service.MyCurrentLocation.getLatitude(), this.Service.MyCurrentLocation.getLongitude()), this.poly.getPoints(), false)) {
+                this.Service.IsInsideSafeZone = Boolean.TRUE;
             } else {
-                this.IsInside = Boolean.valueOf(false);
+                this.IsInside = Boolean.FALSE;
             }
         }
-        if (this.Figure == "Circle") {
+        if (this.Figure.equals("Circle")) {
             Location location = new Location("");
             location.setLatitude(this.Center.latitude);
             location.setLongitude(this.Center.longitude);
-            if (((double) Float.valueOf(location.distanceTo(this.Service.MyCurrentLocation)).floatValue()) <= this.radius.doubleValue()) {
-                this.IsInside = Boolean.valueOf(true);
-                Toast.makeText(this.Service.getApplicationContext(), Boolean.toString(this.IsInside.booleanValue()), Toast.LENGTH_SHORT).show();
-                this.Service.IsInsideSafeZone = Boolean.valueOf(true);
+            if (((double) location.distanceTo(this.Service.MyCurrentLocation)) <= this.radius) {
+                this.IsInside = Boolean.TRUE;
+                Toast.makeText(this.Service.getApplicationContext(), Boolean.toString(this.IsInside), Toast.LENGTH_SHORT).show();
+                this.Service.IsInsideSafeZone = Boolean.TRUE;
                 return;
             }
-            this.IsInside = Boolean.valueOf(false);
+            this.IsInside = Boolean.FALSE;
         }
     }
 }

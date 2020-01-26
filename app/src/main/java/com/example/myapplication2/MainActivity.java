@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
     //верхние кнопки
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         public int getCount() {
-            return 4;
+            return 5;
         }
 
         public SectionsPagerAdapter(FragmentManager fragmentManager) {
@@ -186,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
                     return new PointTab(MainActivity.this.G);
                 case 3:
                     return new ChatTab();
+                case 4:
+                    return new QRTab();
                 default:
                     return null;
             }

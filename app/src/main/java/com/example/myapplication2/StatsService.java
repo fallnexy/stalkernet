@@ -465,7 +465,7 @@ public class StatsService extends Service {
 
     private void GetAnomalys() {
         Anomaly[] anomalyArr = new Anomaly[48];                                                                                                                            //паша
-        anomalyArr[0] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.5736101d, 40.5161934d), this);                     //64.354876d, 40.718417d
+        anomalyArr[0] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.5236101d, 40.5161934d), this);                     //64.354876d, 40.718417d
         anomalyArr[1] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526824d, 40.604426d), this); //64.526824, 40.604426; 64.355037d, 40.722809d
         anomalyArr[2] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526613d, 40.604308d), this); //64.526613, 40.604308; 64.355765d, 40.726628d
         anomalyArr[3] = new Anomaly("Circle", "Psy", 100.0d, 35.0d, new LatLng(64.355666d, 40.730297d), this);
@@ -477,7 +477,7 @@ public class StatsService extends Service {
         anomalyArr[7] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526201d, 40.603257d), this);//64.526201, 40.603257; 64.354913d, 40.734928d
         anomalyArr[8] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.355273d, 40.737138d), this);
         anomalyArr[9] = new Anomaly("Circle", "Rad", 4.0d, 43.0d, new LatLng(64.35564d, 40.739666d), this);
-        anomalyArr[10] = new Anomaly("Circle", "Bio", 5.0d, 43.0d, new LatLng(64.5736101d, 40.5161934d), this);                     //64.352632d, 40.720082d
+        anomalyArr[10] = new Anomaly("Circle", "Bio", 5.0d, 43.0d, new LatLng(64.5236101d, 40.5161934d), this);                     //64.352632d, 40.720082d
         anomalyArr[11] = new Anomaly("Circle", "Psy", 10.0d, 17.0d, new LatLng(64.353251d, 40.722448d), this);
         anomalyArr[11].minstrenght = 10;
         anomalyArr[12] = new Anomaly("Circle", "Rad", 3.0d, 45.0d, new LatLng(64.353528d, 40.725061d), this);

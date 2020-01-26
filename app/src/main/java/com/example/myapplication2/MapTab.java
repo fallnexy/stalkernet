@@ -54,8 +54,8 @@ public class MapTab extends Fragment implements OnMapReadyCallback {
                 MapTab.this.G.Adapter.notifyDataSetChanged();
             }
         });
-        CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.36016771016875d, 40.75285586089982d));
-        CameraUpdate zoomTo = CameraUpdateFactory.zoomTo(15.0f);
+        CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.35342867d, 40.7328d));
+        CameraUpdate zoomTo = CameraUpdateFactory.zoomTo(13.65f);
         this.mMap.moveCamera(newLatLng);
         this.mMap.animateCamera(zoomTo);
     }
