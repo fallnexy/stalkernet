@@ -35,6 +35,9 @@ public class Globals {
     public ProgressBar HealthBar;
     public ArrayList<MarkerOptions> MarkerArray = new ArrayList();
     public String MaxHealth = "200";
+    public String MaxRad = "100";                                                                     //
+    public String MaxBio = "100";                                                                     //
+    public String MaxPsi = "100";                                                                     //
     public TextView Messages;
     public String Psy;
     public ProgressBar PsyBar;
@@ -44,6 +47,7 @@ public class Globals {
     public Location location = new Location("GPS");
     public GoogleMap map;
     public TextView HealthPercent;
+    public int ScienceQR;                                                                          //
 
     private LocationManager locationManager;
 
@@ -52,6 +56,7 @@ public class Globals {
     }
 
     public void UpdateStats() { //именно эта штука обновяет статы, которые есть в GeneralTab
+
         int parseDouble;
         this.HealthBar.setMax(Integer.parseInt(this.MaxHealth));
         int i = 0;
@@ -63,12 +68,16 @@ public class Globals {
         this.HealthBar.setProgress(parseDouble);
         String healthPercent = 100 * parseDouble / Double.parseDouble(this.MaxHealth) +"%";
         this.HealthPercent.setText(healthPercent);
+
+        this.RadBar.setMax(Integer.parseInt(this.MaxRad));                                           //
         try {
             parseDouble = (int) Double.parseDouble(this.Rad);
         } catch (Exception unused2) {
             parseDouble = 0;
         }
         this.RadBar.setProgress(parseDouble);
+
+        this.RadBar.setMax(Integer.parseInt(this.MaxBio));
         try {
             parseDouble = (int) Double.parseDouble(this.Bio);
         } catch (Exception unused3) {
@@ -76,6 +85,8 @@ public class Globals {
         }
         this.BioBar.setProgress(parseDouble);
         this.BioBar.setSecondaryProgress((int) Double.parseDouble(this.CurrentBio));  //нужно задать Currentbio, чтоб оно работало - опоп, работает?
+
+        this.RadBar.setMax(Integer.parseInt(this.MaxPsi));
         try {
             i = (int) Double.parseDouble(this.Psy);
         } catch (Exception unused4) {
@@ -91,7 +102,7 @@ public class Globals {
         textView.setText(stringBuilder.toString());
     }
 
-
+    //карта
     public void AddGroundOverlay(GoogleMap googleMap) {
         googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
     }
@@ -101,4 +112,5 @@ public class Globals {
             this.map.addMarker((MarkerOptions) this.MarkerArray.get(i));
         }
     }
+
 }

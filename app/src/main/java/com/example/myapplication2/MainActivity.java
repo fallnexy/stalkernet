@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             }
             MainActivity.this.G.location.setLatitude(Double.parseDouble(split[5]));
             MainActivity.this.G.location.setLongitude(Double.parseDouble(split[6]));
+            MainActivity.this.G.ScienceQR = Integer.parseInt(split[7]);
             MainActivity.this.G.UpdateStats();
         }
     };
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.G.Messages.setText("Вы умерли, направляйтесь к мертвяку..");
                     break;
                 case 1:
-                    MainActivity.this.G.Messages.setText("Вы умерли, подождите контролёра 5 минут и следуйте к мертвяку в режиме зомби.");
+                    MainActivity.this.G.Messages.setText("Вы умерли, подождите контролёра 5 минут, если его нет, то следуйте к мертвяку в режиме зомби.");
                     break;
                 case 2:
                     MainActivity.this.G.Messages.setText("");
@@ -187,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 case 3:
                     return new ChatTab();
                 case 4:
-                    return new QRTab();
+                    return new QRTab(MainActivity.this.G);
                 default:
                     return null;
             }

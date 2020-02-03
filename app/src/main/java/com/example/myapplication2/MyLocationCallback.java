@@ -53,6 +53,8 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLatitude());
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLongitude());
+            stringBuilder.append(":");                               //qr ученого
+            stringBuilder.append(this.ServiceReference.ScienceQR);
             String stringBuilder2 = stringBuilder.toString();
             Intent intent = new Intent("StatsService.Update");
             intent.putExtra("Stats", stringBuilder2);

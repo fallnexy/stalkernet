@@ -14,14 +14,14 @@ import java.util.Date;
 public class Anomaly {
     public LatLng Center;
     public String Figure;
-    private boolean FirstTimeInside = true;
+ /*   private boolean FirstTimeInside = true;*/
     public Boolean IsInside = Boolean.FALSE;
     private Date LastTimeInside;
     private StatsService Service;
     public String Type;
-    private int hours;
+   /* private int hours;
     private long mills;
-    private int mins;
+    private int mins;*/
     public int minstrenght = 1;
     public Polygon poly;
     public Double radius;
@@ -36,12 +36,70 @@ public class Anomaly {
     }
 
     public Anomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService) {
-        this.Figure = str;
-        this.Type = str2;
-        this.strenght = d;
-        this.Center = latLng;
-        this.radius = d2;
-        this.Service = statsService;
+        Figure = str;
+        Type = str2;
+        strenght = d;
+        Center = latLng;
+        radius = d2;
+        Service = statsService;
+    }
+//для сталкерской рулетки
+    public Anomaly(String str, String str2, Double d, Double d2, StatsService statsService){
+        Figure = str;
+        Type = str2;
+        strenght = d;
+        radius = d2;
+        Service = statsService;
+    }
+
+
+    public void AnomalyResult(double valueOf){
+        int round;
+        Service.LastTimeHitBy = Type;
+        IsInside = Boolean.TRUE;
+        Service.TypeAnomalyIn = Type;
+        round = (int) Math.round(strenght * (1 - (valueOf / radius)));
+        if (round <= minstrenght) {
+            round = minstrenght;
+        }
+        switch (Type){
+            case "Rad":
+                round -= (round / 100) * Service.RadProtection;
+                Service.Rad += round;
+                Service.setHealth(Service.Health - round);
+                if (Service.Rad >= 100.0d) {
+                    Service.setDead(Boolean.TRUE);
+                    Service.setHealth(0.0d);
+                    Intent intent2 = new Intent("StatsService.Message");
+                    intent2.putExtra("Message", "H");
+                    Service.sendBroadcast(intent2);
+                }
+                return;
+            case "Bio":
+                round -= (round / 100) * Service.BioProtection;
+                Service.Bio += round;
+                Service.setHealth(Service.Health - round);
+                if (Service.Bio >= 100.0d) {
+                    Service.setDead(Boolean.TRUE);
+                    Service.setHealth(0.0d);
+                    Intent intent2 = new Intent("StatsService.Message");
+                    intent2.putExtra("Message", "P");
+                    Service.sendBroadcast(intent2);
+                }
+                return;
+            case "Psy":
+                round -= (round / 100) * Service.PsyProtection;
+                Service.Psy += round;
+                Service.setHealth(Service.Health - round);
+                if (Service.Psy >= 100.0d) {
+                    Service.setDead(Boolean.TRUE);
+                    Service.setHealth(0.0d);
+                    Intent intent2 = new Intent("StatsService.Message");
+                    intent2.putExtra("Message", "P");
+                    Service.sendBroadcast(intent2);
+                }
+                return;
+        }
     }
 
     public void Apply() {
@@ -67,24 +125,44 @@ public class Anomaly {
                 this.IsInside = Boolean.FALSE;
             }
         }
-        if (this.Figure.equals("Circle")) {
+        if (Figure.equals("QR")){
+            double valueOf = 0;
+            AnomalyResult(valueOf);
+            this.Service.LastTimeChanged = Calendar.getInstance().getTime();
+            this.Service.EM.StopActions();
+            if (!this.Service.IsDead) {
+                this.Service.EM.PlaySound(this.Type, this.strenght);
+                if (this.Service.Vibrate) {
+                    this.Service.EM.VibrateInPattern();
+                }
+            }
+        }
+        if (Figure.equals("Circle")) {
             Location location = new Location("");
-            location.setLatitude(this.Center.latitude);
-            location.setLongitude(this.Center.longitude);
-            float valueOf = location.distanceTo(this.Service.MyCurrentLocation);
-            if (((double) (float) valueOf) <= this.radius) {
-                int round;
+            location.setLatitude(Center.latitude);
+            location.setLongitude(Center.longitude);
+            double valueOf = location.distanceTo(Service.MyCurrentLocation);
+            if (valueOf <= radius) {
+                AnomalyResult(valueOf);
+                /*int round;
                 if (this.Type.equals("Rad")) {
                     this.Service.LastTimeHitBy = this.Type;
                     this.IsInside = Boolean.TRUE;
                     this.Service.TypeAnomalyIn = "Rad";
-                    round = (int) Math.round((this.strenght / 100.0d) * (100.0d - (((double) (float) valueOf) / (this.radius / 100.0d))));
+                    round = (int) Math.round(this.strenght * (1 - (valueOf / this.radius)));
                     if (round <= this.minstrenght) {
                         round = this.minstrenght;
                     }
                     round -= (round / 100) * this.Service.RadProtection;
-                    this.Service.Rad = (double) (round - ((int) ((((double) round) / 100.0d) * ((double) this.Service.RadProtection))));
-                    this.Service.setHealth(this.Service.Health - this.Service.Rad);
+                    this.Service.Rad += round*//*(double) (round - ((int) ((((double) round) / 100.0d) * ((double) this.Service.RadProtection))))*/;
+                   /* this.Service.setHealth(this.Service.Health - *//*this.Service.Rad*/ /*round);
+                    if (this.Service.Rad >= 100.0d) {
+                        this.Service.setDead(Boolean.TRUE);
+                        this.Service.setHealth(0.0d);
+                        Intent intent2 = new Intent("StatsService.Message");
+                        intent2.putExtra("Message", "H");
+                        this.Service.sendBroadcast(intent2);
+                    }*/
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                     this.Service.EM.StopActions();
                     if (!this.Service.IsDead) {
@@ -93,24 +171,24 @@ public class Anomaly {
                             this.Service.EM.VibrateInPattern();
                         }
                     }
-                }
-                if (this.Type.equals("Bio")) {
+              /*  }*/
+               /* if (this.Type.equals("Bio")) {
                     this.Service.LastTimeHitBy = this.Type;
                     this.IsInside = Boolean.TRUE;
-                    Intent intent;
-                    if (this.FirstTimeInside) {
-                        this.FirstTimeInside = false;
-                        this.LastTimeInside = Calendar.getInstance().getTime();
+                    Intent intent;*/
+                   /* if (this.FirstTimeInside) {
+                        this.FirstTimeInside = false;*/
+                      /*  this.LastTimeInside = Calendar.getInstance().getTime();
                         this.Service.TypeAnomalyIn = "Bio";
-                        round = (int) Math.round((this.strenght / 100.0d) * (100.0d - (((double) (float) valueOf) / (this.radius / 100.0d))));
+                        int  round = (int) Math.round(this.strenght * (1 - (valueOf / this.radius)));
                         if (round <= this.minstrenght) {
                             round = this.minstrenght;
                         }
                         round -= (round / 100) * this.Service.BioProtection;
-                        this.Service.Bio = (double) (round - ((int) ((((double) round) / 100.0d) * ((double) this.Service.BioProtection))));
-                        this.Service.setHealth(this.Service.Health - this.Service.Bio);
-                        this.Service.CurrentBio += this.strenght;
-                        if (this.Service.CurrentBio >= 100.0d) {
+                        this.Service.Bio += round *//*(double) (round - ((int) ((((double) round) / 100.0d) * ((double) this.Service.BioProtection))))*/;
+                      /*  this.Service.setHealth(this.Service.Health - round*//*this.Service.Bio*//*);*/
+                        //this.Service.CurrentBio += this.strenght;
+                      /*  if (this.Service.*//*Current*//*Bio >= 100.0d) {
                             this.Service.setHealth(0.0d);
                             intent = new Intent("StatsService.Message");
                             intent.putExtra("Message", "P");
@@ -123,11 +201,12 @@ public class Anomaly {
                             if (this.Service.Vibrate) {
                                 this.Service.EM.VibrateInPattern();
                             }
-                        }
-                    } else {
+                        }*/
+                        // непонятная фигня, которая предполагает, что если умер в один момент, то жди контролера и зомби
+                  /*  }*/ /*else {
                         this.Service.LastTimeHitBy = this.Type;
                         this.Service.TypeAnomalyIn = "Bio";
-                        round = (int) Math.round((this.strenght / 100.0d) * (100.0d - (((double) (float) valueOf) / (this.radius / 100.0d))));
+                        round = (int) Math.round(this.strenght * (1 - (((double) (float) valueOf) / this.radius)));
                         if (round <= this.minstrenght) {
                             round = this.minstrenght;
                         }
@@ -156,20 +235,20 @@ public class Anomaly {
                             }
                         }
                         this.LastTimeInside = Calendar.getInstance().getTime();
-                    }
-                }
+                    }*/
+              /*  }
                 if (this.Type.equals("Psy")) {
                     this.Service.LastTimeHitBy = this.Type;
                     this.IsInside = Boolean.TRUE;
                     this.Service.TypeAnomalyIn = "Psy";
                     this.Service.IsInsideAnomaly = Boolean.TRUE;
-                    int round2 = (int) Math.round((this.strenght / 100.0d) * (100.0d - (((double) (float) valueOf) / (this.radius / 100.0d))));
+                    int round2 = (int) Math.round(this.strenght * (1 - (valueOf / this.radius)));
                     if (round2 <= this.minstrenght) {
                         round2 = this.minstrenght;
                     }
                     round2 -= (int) ((((double) round2) / 100.0d) * ((double) this.Service.PsyProtection));
-                    this.Service.Psy = (double) (round2 - ((round2 / 100) * this.Service.PsyProtection));
-                    this.Service.setHealth(this.Service.Health - (this.Service.Psy / 10.0d));
+                    this.Service.Psy += round2*//*(double) (round2 - ((round2 / 100) * this.Service.PsyProtection))*/;
+                  /*  this.Service.setHealth(this.Service.Health - (this.Service.Psy / 10.0d));
                     if (this.Service.Psy >= 100.0d) {
                         this.Service.setDead(Boolean.TRUE);
                         this.Service.setHealth(0.0d);
@@ -188,7 +267,7 @@ public class Anomaly {
                         return;
                     }
                     return;
-                }
+                }*/
                 return;
             }
             this.IsInside = Boolean.FALSE;

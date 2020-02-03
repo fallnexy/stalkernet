@@ -22,16 +22,16 @@ public class GeneralTab extends Fragment {
     @Nullable
     public View onCreateView(@NonNull LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
         View inflate = layoutInflater.inflate(R.layout.fragment_main, viewGroup, false);
-        ProgressBar progressBar = (ProgressBar) inflate.findViewById(R.id.ProgressHealth);
-        ProgressBar progressBar2 = (ProgressBar) inflate.findViewById(R.id.ProgressRad);
-        ProgressBar progressBar3 = (ProgressBar) inflate.findViewById(R.id.ProgressBio);
-        ProgressBar progressBar4 = (ProgressBar) inflate.findViewById(R.id.ProgressPsy);
+        ProgressBar progressBar = inflate.findViewById(R.id.ProgressHealth);
+        ProgressBar progressBar2 = inflate.findViewById(R.id.ProgressRad);
+        ProgressBar progressBar3 = inflate.findViewById(R.id.ProgressBio);
+        ProgressBar progressBar4 = inflate.findViewById(R.id.ProgressPsy);
        // ((ImageView) inflate.findViewById(R.id.ImageViewHealth)).setImageResource(getResources().getIdentifier("@drawable/healthsymbol", null, getActivity().getPackageName()));
         //((ImageView) inflate.findViewById(R.id.ImageViewRad)).setImageResource(getResources().getIdentifier("@drawable/radsymbol", null, getActivity().getPackageName()));
         //((ImageView) inflate.findViewById(R.id.ImageViewBio)).setImageResource(getResources().getIdentifier("@drawable/biosymbol", null, getActivity().getPackageName()));
         //((ImageView) inflate.findViewById(R.id.ImageViewPsy)).setImageResource(getResources().getIdentifier("@drawable/psysymbol", null, getActivity().getPackageName()));
-        TextView textView = (TextView) inflate.findViewById(R.id.txtCoordinates);
-        TextView textView2 = (TextView) inflate.findViewById(R.id.txtMessages);
+        TextView textView = inflate.findViewById(R.id.txtCoordinates);
+        TextView textView2 = inflate.findViewById(R.id.txtMessages);
         TextView txtHealthPercent = inflate.findViewById(R.id.txtHealthPercent);
         this.G.HealthBar = progressBar;
         this.G.RadBar = progressBar2;

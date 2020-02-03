@@ -30,6 +30,13 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:id="@+id/btnScienceQR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/toResearch"
+        android:visibility="invisible" />
+
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -50,4 +57,5 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:checked="false" />
+
 </LinearLayout>
