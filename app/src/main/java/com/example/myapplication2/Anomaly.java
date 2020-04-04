@@ -52,7 +52,7 @@ public class Anomaly {
         Service = statsService;
     }
 
-
+// метод внутри apply()
     public void AnomalyResult(double valueOf){
         int round;
         Service.LastTimeHitBy = Type;
@@ -99,9 +99,36 @@ public class Anomaly {
                     Service.sendBroadcast(intent2);
                 }
                 return;
+            case "Ges":
+
+                return;
+        }
+    }
+//гештальт, надо добавить защиту и сообщение исправить
+// Service.GestaltOpen - если гештальт открыт, то его надо закрыть
+    public void Gestalt(double valueOf){
+        if (valueOf > radius && Service.GestaltOpen){
+            int round;
+            Service.LastTimeHitBy = Type;
+            Service.TypeAnomalyIn = Type;
+            round = (int) Math.round(strenght * (radius / valueOf));
+            if (round <= minstrenght) {
+                round = minstrenght;
+            }
+            Service.setHealth(Service.Health - round);
+            if (Service.Health <= 0.0d) {
+                Service.setDead(Boolean.TRUE);
+                Service.setHealth(0.0d);
+                Intent intent2 = new Intent("StatsService.Message");
+                intent2.putExtra("Message", "H");
+                Service.sendBroadcast(intent2);
+            }
+            this.Service.LastTimeChanged = Calendar.getInstance().getTime();
+            this.Service.EM.StopActions();
         }
     }
 
+// этот метод вызыается в StatService
     public void Apply() {
         if (this.Figure.equals(KmlPolygon.GEOMETRY_TYPE)) {
             if (PolyUtil.containsLocation(new LatLng(this.Service.MyCurrentLocation.getLatitude(), this.Service.MyCurrentLocation.getLongitude()), this.poly.getPoints(), false)) {
@@ -142,7 +169,20 @@ public class Anomaly {
             location.setLatitude(Center.latitude);
             location.setLongitude(Center.longitude);
             double valueOf = location.distanceTo(Service.MyCurrentLocation);
+
+            if (Type.equals("Ges")){
+                Gestalt(valueOf);
+            }
+
             if (valueOf <= radius) {
+                if (Type.equals("Ges") && Service.GestaltOpen == Boolean.FALSE) {
+                    Service.GestaltOpen = Boolean.TRUE;
+                }
+                if (Type.equals("Ges")){
+                    Intent intent2 = new Intent("StatsService.Message");  // отправляет сообщение на главный экран "Не выходи из виброзоны, пока не закроешь гештальт."
+                    intent2.putExtra("Message", "G");
+                    Service.sendBroadcast(intent2);
+                }
                 AnomalyResult(valueOf);
                 /*int round;
                 if (this.Type.equals("Rad")) {
@@ -247,7 +287,7 @@ public class Anomaly {
                         round2 = this.minstrenght;
                     }
                     round2 -= (int) ((((double) round2) / 100.0d) * ((double) this.Service.PsyProtection));
-                    this.Service.Psy += round2*//*(double) (round2 - ((round2 / 100) * this.Service.PsyProtection))*/;
+                    this.Service.Psy += round2*//*(double) (round2 - ((round2 / 100) * this.Service.PsyProtection));*/
                   /*  this.Service.setHealth(this.Service.Health - (this.Service.Psy / 10.0d));
                     if (this.Service.Psy >= 100.0d) {
                         this.Service.setDead(Boolean.TRUE);

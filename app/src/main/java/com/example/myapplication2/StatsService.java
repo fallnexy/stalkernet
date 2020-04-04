@@ -1,5 +1,5 @@
 package com.example.myapplication2;
-
+// необходимо задавать число аномалий и зон безопасности
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -24,8 +24,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -36,7 +35,11 @@ import static android.app.NotificationManager.IMPORTANCE_HIGH;
 
 public class StatsService extends Service {
     private static final int ID_SERVICE = 101;
-    public Anomaly[] Anomalys;
+    private static final int NUMBER_OF_ANOMALIES = 48;
+    private static final int NUMBER_OF_GESTALT_ANOMALIES = 2;
+    private static final int NUMBER_OF_SAVE_ZONES = 7;
+    private int currentGestalts = 0;
+    public Anomaly[] anomalies;
     public double Bio = 0.0d;
     public int BioProtection = 0;
     public double CurrentBio = 0.0d;
@@ -64,6 +67,8 @@ public class StatsService extends Service {
     public Boolean Vibrate = Boolean.TRUE;
     public int ScienceQR = 0;
 
+    public boolean GestaltOpen = Boolean.FALSE;
+
 
     BroadcastReceiver broadcastReceiverQR = new BroadcastReceiver() {
         @Override
@@ -72,13 +77,13 @@ public class StatsService extends Service {
             // значение изменений увеличены для теста, кроме последних трех
             switch (var4){
                 case "RadPlusOne":
-                    Anomalys[48].Apply();
+                    anomalies[NUMBER_OF_ANOMALIES].Apply();
                     break;
                 case "BioPlusOne":
-                    Anomalys[49].Apply();
+                    anomalies[NUMBER_OF_ANOMALIES + 1].Apply();
                     break;
                 case "PsyPlusOne":
-                    Anomalys[50].Apply();
+                    anomalies[NUMBER_OF_ANOMALIES + 2].Apply();
                     break;
                 case "HpPlusFive":
                     Health += 10;
@@ -109,25 +114,56 @@ public class StatsService extends Service {
     };
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
        public void onReceive(android.content.Context context, Intent intent) {
-
+//принимает команды command
            byte var3;
            label110: {
                String var4 = intent.getStringExtra("Command");
                Toast.makeText(StatsService.this.getApplicationContext(), var4, Toast.LENGTH_LONG).show();
                switch(var4.hashCode()) {
-                   case -1930888214:
-                       if (var4.equals("ScienceQRoff")) {
-                           var3 = 24;
+                   case 305958064:
+                       if (var4.equals("ResetStats")) {
+                           var3 = 0;
                            break label110;
                        }
                        break;
+                   case 411921544:
+                       if (var4.equals("SetPsyProtection50")) {
+                           var3 = 1;
+                           break label110;
+                       }
+                       break;
+                   case -115337820:
+                       if (var4.equals("SetPsyProtection100")) {
+                           var3 = 2;
+                           break label110;
+                       }
+                       break;
+                   case 1952950435:
+                       if (var4.equals("SetPsyProtection0")) {
+                           var3 = 3;
+                           break label110;
+                       }
+                       break;
+                       // новые коды далее
                    case -1555514523:
                        if (var4.equals("ScienceQR")) {
                            var3 = 23;
                            break label110;
                        }
                        break;
-                   // старые коды
+                   case -1930888214:
+                       if (var4.equals("ScienceQRoff")) {
+                           var3 = 24;
+                           break label110;
+                       }
+                       break;
+                   case 2064168356:
+                       if (var4.equals("geshtalt closed")) {
+                           var3 = 25;
+                           break label110;
+                       }
+                       break;
+                   // старые коды далее
                    case -2120901255:
                        if (var4.equals("ComboResetProtections")) {
                            var3 = 10;
@@ -176,12 +212,6 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case -115337820:
-                       if (var4.equals("SetPsyProtection100")) {
-                           var3 = 2;
-                           break label110;
-                       }
-                       break;
                    case 71772:
                        if (var4.equals("God")) {
                            var3 = 17;
@@ -212,18 +242,6 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case 305958064:
-                       if (var4.equals("ResetStats")) {
-                           var3 = 0;
-                           break label110;
-                       }
-                       break;
-                   case 411921544:
-                       if (var4.equals("SetPsyProtection50")) {
-                           var3 = 1;
-                           break label110;
-                       }
-                       break;
                    case 565354622:
                        if (var4.equals("Monolith2")) {
                            var3 = 19;
@@ -251,12 +269,6 @@ public class StatsService extends Service {
                    case 1875682466:
                        if (var4.equals("Discharge")) {
                            var3 = 22;
-                           break label110;
-                       }
-                       break;
-                   case 1952950435:
-                       if (var4.equals("SetPsyProtection0")) {
-                           var3 = 3;
                            break label110;
                        }
                        break;
@@ -364,9 +376,10 @@ public class StatsService extends Service {
                case 18:
                    StatsService.this.IsUnlocked = true;
                    break;
-               case 19:
+               case 19://Monolith2
                    StatsService.this.Health = 200.0D;
-                   StatsService.this.CurrentBio = 0.0D;
+                   StatsService.this.Bio = 0.0D;
+                   StatsService.this.Rad = 0.0D;
                    break;
                case 20:
                    StatsService.this.Vibrate = true;
@@ -376,12 +389,17 @@ public class StatsService extends Service {
                    break;
                case 22:
                    StatsService.this.Discharge();
+                   break;
                    //новые коды
                case 23:
                    StatsService.this.ScienceQR = 1;
                    break;
                case 24:
                    StatsService.this.ScienceQR = 0;
+                   break;
+               case 25:
+                   GestaltOpen = Boolean.FALSE;
+                   GeshtaltLockout();
                    break;
            }
 
@@ -472,7 +490,7 @@ public class StatsService extends Service {
         this.wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(1, "STALKERNET:My_Partial_Wake_Lock");
         this.wl.acquire(10*60*1000L /*10 minutes*/);   //timeout заставила студия поставить, не знаю как это работает
         this.EM = new EffectManager(this);
-        GetAnomalys();
+        GetAnomalies();
         CreateSafeZones();
         LoadStats();
         this.mFusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
@@ -532,17 +550,34 @@ public class StatsService extends Service {
             }
         }
     }
-// список аномалий
-    private void GetAnomalys() {
-        Anomaly[] anomalyArr = new Anomaly[51];                                                                                                                            //me
-        anomalyArr[0] = new Anomaly("Circle", "Rad", 5.0d, 100.0d, new LatLng(64.573684d, 45.516567d), this);                     //64.573714, 40.516067
-        anomalyArr[1] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526824d, 45.604426d), this); //64.526824, 40.604426; 64.355037d, 40.722809d
+
+    // гештальт аномалию 60 сек. не проверяют в списке аномалий
+    private void GeshtaltLockout(){
+        currentGestalts = NUMBER_OF_GESTALT_ANOMALIES;
+        GestaltOpen = Boolean.FALSE;
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                GestaltOpen = Boolean.FALSE;
+                currentGestalts = 0;
+            }
+        }, 60000);
+    }
+
+    // список аномалий
+    // d - сила
+    // d2 - радиус
+    // гештальт должен идти первым
+    private void GetAnomalies() {
+        Anomaly[] anomalyArr = new Anomaly[51];                                                                                          // 64.536258, 40.585447 - стрелковая 13 //me
+        anomalyArr[0] = new Anomaly("Circle", "Ges", 1.0d, 10.0d, new LatLng(64.57392d, 40.51583d), this); // над домом                    //64.573714, 40.516067
+        anomalyArr[1] = new Anomaly("Circle", "Ges", 1.0d, 20.0d, new LatLng(64.536258d, 40.585447d), this); //64.526824, 40.604426; 64.355037d, 40.722809d
         anomalyArr[2] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526613d, 45.604308d), this); //64.526613, 40.604308; 64.355765d, 40.726628d
         anomalyArr[3] = new Anomaly("Circle", "Psy", 100.0d, 35.0d, new LatLng(64.355666d, 40.730297d), this);
         anomalyArr[3].minstrenght = 20;
         anomalyArr[4] = new Anomaly("Circle", "Rad", 6.0d, 43.0d, new LatLng(64.526400d, 45.604193d), this); //64.526400, 40.604193; 64.353653d, 40.720639d
         anomalyArr[4].minstrenght = 4;
-        anomalyArr[5] = new Anomaly("Circle", "Psy", 5.0d, 40.0d, new LatLng(64.573874d, 40.526857d), this);//64.526283, 40.604053; 64.354245d, 40.723951d
+        anomalyArr[5] = new Anomaly("Circle", "Psy", 5.0d, 40.0d, new LatLng(64.573874d, 45.526857d), this);//64.526283, 40.604053; 64.354245d, 40.723951d
         anomalyArr[6] = new Anomaly("Circle", "Rad", 1.0d, 43.0d, new LatLng(64.526261d, 45.603729d), this);//64.526261, 40.603729; 64.354504d, 40.729021d
         anomalyArr[7] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526201d, 45.603257d), this);//64.526201, 40.603257; 64.354913d, 40.734928d
         anomalyArr[8] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.355273d, 40.737138d), this);
@@ -598,41 +633,42 @@ public class StatsService extends Service {
         anomalyArr[43] = new Anomaly("Circle", "Psy", 30.0d, 26.0d, new LatLng(64.350528d, 40.737087d), this);
         anomalyArr[43].minstrenght = 10;
         anomalyArr[44] = new Anomaly("Circle", "Psy", 5.0d, 43.0d, new LatLng(64.351336d, 40.742537d), this);
-        anomalyArr[45] = new MonolithAnomaly("Circle", "", 8.0d, (double) 0, new LatLng(64.352518d, 40.743582d), this); //добавлено str2, d2
+        anomalyArr[45] = new MonolithAnomaly("Circle", "", 100.0d, (double) 0, new LatLng(64.573684d, 45.516567d), this); //добавлено str2, d2   // 45 -> 40 и аномалия будет над моим домом
         anomalyArr[46] = new MonolithAnomaly("Circle", "", 50.0d, (double) 0, new LatLng(64.3523367d, 40.7430442d), this); //добавлено str2, d2
         anomalyArr[47] = new Anomaly("Circle", "Bio", 10.0d, 10.0d, new LatLng(64.51027d, 40.6791d), this);
         anomalyArr[48] = new Anomaly("QR", "Rad", 10d, 1d, this);  //QR рулетка - нигде не учитывается
         anomalyArr[49] = new Anomaly("QR", "Bio", 10d, 1d, this);  //QR рулетка - нигде не учитывается
         anomalyArr[50] = new Anomaly("QR", "Psy", 10d, 1d, this);  //QR рулетка - нигде не учитывается
-        Anomalys = anomalyArr;
+        anomalies = anomalyArr;
     }
 
+    // применяет аномалии
     public void CheckAnomalys() {
-        for (int i = 0; i <= 47; i++) {
-            Anomalys[i].Apply();
+        for (int i = currentGestalts; i < NUMBER_OF_ANOMALIES; i++) {
+            anomalies[i].Apply();
         }
     }
 
-// число аномалий задается цифрой 47, надо зменить, чтоб не было ошибок
-    /* рад выводится само со временем
-    пси выводится сразу
-    био само не выводится
-     */
+    // проверяет на нахождение в аномалии, если гештальт закрыт, то ВСЕ гештальты минуту не принимаются в расчет
     public void CheckIfInAnyAnomaly() {
-        int i = 0;
+        int i = currentGestalts;
         this.IsInsideAnomaly = Boolean.FALSE;
-        while (i <= 47) {
-            if (this.Anomalys[i].IsInside) {
+        while (i < NUMBER_OF_ANOMALIES) {
+            if (this.anomalies[i].IsInside) {
                 this.IsInsideAnomaly = Boolean.TRUE;
             }
             i++;
         }
+        /*
+        рад выводится само со временем
+        пси выводится сразу
+        био само не выводится
+         */
         if (!this.IsInsideAnomaly) {
             if (Rad > 0) {
                 Rad -= 0.1;
             }
             Psy = 0.0d;
-           // this.Bio = 0.0d;
             this.EM.StopActions();
         }
     }
@@ -648,11 +684,11 @@ public class StatsService extends Service {
         safeZoneArr[6] = new SafeZone("Circle", 46.0d, new LatLng(64.667986d, 40.522734d), this);
         this.SafeZones = safeZoneArr;
     }
-//// число зон безопасности задается цифрой 6, надо зменить, чтоб не было ошибок
+
     public void CheckIfInAnySafezone() {
         int i = 0;
         this.IsInsideSafeZone = Boolean.FALSE;
-        while (i <= 6) {
+        while (i < NUMBER_OF_SAVE_ZONES) {
             this.SafeZones[i].Apply();
             if (this.SafeZones[i].IsInside) {
                 this.IsInsideSafeZone = Boolean.TRUE;
@@ -684,15 +720,15 @@ public class StatsService extends Service {
 
    public void LoadStats() {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        this.MaxHealth = Double.parseDouble(defaultSharedPreferences.getString("MaxHealth", "200"));
-        this.Health = Double.parseDouble(defaultSharedPreferences.getString("Health", "200"));
-        this.Rad = Double.parseDouble(defaultSharedPreferences.getString("Rad", "0"));
-        this.Bio = Double.parseDouble(defaultSharedPreferences.getString("Bio", "0"));
-        this.Psy = Double.parseDouble(defaultSharedPreferences.getString("Psy", "0"));
-        this.PsyProtection = Integer.parseInt(defaultSharedPreferences.getString("PsyProtection", "0"));
-        this.RadProtection = Integer.parseInt(defaultSharedPreferences.getString("RadProtection", "0"));
-        this.BioProtection = Integer.parseInt(defaultSharedPreferences.getString("BioProtection", "0"));
-        this.ScienceQR = Integer.parseInt(defaultSharedPreferences.getString("ScienceQR", "0"));
+        this.MaxHealth = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("MaxHealth", "200")));
+        this.Health = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Health", "200")));
+        this.Rad = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Rad", "0")));
+        this.Bio = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Bio", "0")));
+        this.Psy = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Psy", "0")));
+        this.PsyProtection = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("PsyProtection", "0")));
+        this.RadProtection = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("RadProtection", "0")));
+        this.BioProtection = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("BioProtection", "0")));
+        this.ScienceQR = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("ScienceQR", "0")));
         this.DischargeImmunity = Boolean.parseBoolean(defaultSharedPreferences.getString("DischargeImmunity", "false"));
         this.IsUnlocked = Boolean.parseBoolean(defaultSharedPreferences.getString("Lock", "true"));
     }

@@ -137,8 +137,14 @@ public class EffectManager {
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.rad_10);
                     break;
                 default:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.rad_10);
                     break;
+            }
+        }
+        if (str.equals("Ges")){
+            switch (i){
+                case 1:
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.gestalt_on);
             }
         }
         this.mediaplayer.start();

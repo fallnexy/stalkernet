@@ -62,7 +62,12 @@ public class MainActivity extends AppCompatActivity {
                 int var3 = var4.hashCode();
                 if (var3 != 65) {
                     if (var3 != 72) {
-                        if (var3 == 80 && var4.equals("P")) {
+                        if (var3 != 80) {
+                            if (var3 == 71 && var4.equals("G")) {
+                                var5 = 3;
+                                break label32;
+                            }
+                        } else if (var4.equals("P")){
                             var5 = 1;
                             break label32;
                         }
@@ -87,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2:
                     MainActivity.this.G.Messages.setText("");
+                    break;
+                case 3:
+                    MainActivity.this.G.Messages.setText("Не выходи из виброзоны, пока не закроешь гештальт.");
             }
 
         }

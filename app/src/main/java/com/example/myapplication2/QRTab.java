@@ -114,6 +114,11 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "ScienceQRoff");
                             QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
                             return;
+                        case "geshtalt closed":
+                            barcodeValue.setText("Поздравляем, гештальт закрыт! У вас минута, чтоб свалить отсюда");
+                            intent.putExtra("Command", "geshtalt closed");
+                            QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                            return;
                         case "a":
                             barcodeValue.setText("приветствую тебя, товарищ сталкер");
                             return;
@@ -133,11 +138,13 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
-                    String str = "ScienceQ"; //"Соня не убивала" -1022716346
+                    String str = "geshtalt closed"; //"Соня не убивала" -1022716346
                                               //"ScienceQR" -1555514523
                                               //"ScienceQRoff" -1930888214
+                                              //"G" 71
+                                              // "geshtalt closed" 2064168356
                     statusMessage.setText(R.string.barcode_failure);
-                    Log.d(TAG, "No barcode captured, intent data is null" + str.hashCode());
+                    Log.d(TAG, "No barcode captured, intent data is null " + str.hashCode());
                 }
             } else {
                 statusMessage.setText(String.format(getString(R.string.barcode_error),
