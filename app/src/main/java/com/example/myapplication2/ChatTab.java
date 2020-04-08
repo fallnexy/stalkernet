@@ -29,27 +29,27 @@ public class ChatTab extends Fragment {
                     switch(code.hashCode()) {
 
                             // старые коды
-                        case -2126025274:
-                            if (code.equals("текила")) {
-                                var3 = 13;
-                                break label94;
-                            }
-                            break;
                         case -2059769973:
                             if (code.equals("гагарин")) {
                                 var3 = 0;
                                 break label94;
                             }
                             break;
-                        case -1631526413:
-                            if (code.equals("странник")) {
-                                var3 = 10;
+                        case 54148120:
+                            if (code.equals("91000")) {
+                                var3 = 1;
                                 break label94;
                             }
                             break;
-                        case 1508416:
-                            if (code.equals("1111")) {
-                                var3 = 18;
+                        case 54148275:
+                            if (code.equals("91050")) {
+                                var3 = 2;
+                                break label94;
+                            }
+                            break;
+                        case 54149081:
+                            if (code.equals("91100")) {
+                                var3 = 3;
                                 break label94;
                             }
                             break;
@@ -89,27 +89,9 @@ public class ChatTab extends Fragment {
                                 break label94;
                             }
                             break;
-                        case 54148120:
-                            if (code.equals("91000")) {
-                                var3 = 1;
-                                break label94;
-                            }
-                            break;
-                        case 54148275:
-                            if (code.equals("91050")) {
-                                var3 = 2;
-                                break label94;
-                            }
-                            break;
-                        case 54149081:
-                            if (code.equals("91100")) {
-                                var3 = 3;
-                                break label94;
-                            }
-                            break;
-                        case 54331765:
-                            if (code.equals("97531")) {
-                                var3 = 14;
+                        case -1631526413:
+                            if (code.equals("странник")) {
+                                var3 = 10;
                                 break label94;
                             }
                             break;
@@ -125,9 +107,15 @@ public class ChatTab extends Fragment {
                                 break label94;
                             }
                             break;
-                        case 1534645504:
-                            if (code.equals("404404")) {
-                                var3 = 16;
+                        case -2126025274:
+                            if (code.equals("текила")) {
+                                var3 = 13;
+                                break label94;
+                            }
+                            break;
+                        case 54331765:
+                            if (code.equals("97531")) {
+                                var3 = 14;
                                 break label94;
                             }
                             break;
@@ -137,9 +125,32 @@ public class ChatTab extends Fragment {
                                 break label94;
                             }
                             break;
+                        case 1534645504:
+                            if (code.equals("404404")) {
+                                var3 = 16;
+                                break label94;
+                            }
+                            break;
                         case 1662424529:
                             if (code.equals("яестьгрут")) {
                                 var3 = 17;
+                                break label94;
+                            }
+                        case 1508416:
+                            if (code.equals("1111")) {
+                                var3 = 18;
+                                break label94;
+                            }
+                            break;
+                            // новые коды
+                        case -1925203169: //гештальт защита
+                            if (code.equals("всегдазакрыт")) {
+                                var3 = 19;
+                                break label94;
+                            }
+                        case 1974805046: //гештальт защита снята
+                            if (code.equals("теперьоткрыт")) {
+                                var3 = 20;
                                 break label94;
                             }
                     }
@@ -223,6 +234,15 @@ public class ChatTab extends Fragment {
                     case 18:
                         intent.putExtra("Command", "Discharge");
                         ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        break;
+                    case 19:
+                        intent.putExtra("Command", "SetGesProtection");
+                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        break;
+                    case 20:
+                        intent.putExtra("Command", "SetGesProtectionOFF");
+                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        break;
                 }
 
             }

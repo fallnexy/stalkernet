@@ -26,6 +26,7 @@ public class Anomaly {
     public Polygon poly;
     public Double radius;
     public Double strenght;
+    public Integer gesStatus;
 
     public Anomaly(String str, String str2, Double d, Polygon polygon, StatsService statsService) {
         this.Figure = str;
@@ -35,13 +36,14 @@ public class Anomaly {
         this.Service = statsService;
     }
 
-    public Anomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService) {
+    public Anomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gestaltStatus) {
         Figure = str;
         Type = str2;
         strenght = d;
         Center = latLng;
         radius = d2;
         Service = statsService;
+        gesStatus = gestaltStatus;
     }
 //для сталкерской рулетки
     public Anomaly(String str, String str2, Double d, Double d2, StatsService statsService){
@@ -104,14 +106,15 @@ public class Anomaly {
                 return;
         }
     }
-//гештальт, надо добавить защиту и сообщение исправить
-// Service.GestaltOpen - если гештальт открыт, то его надо закрыть
-    public void Gestalt(double valueOf){
-        if (valueOf > radius && Service.GestaltOpen){
+
+    //гештальт, надо добавить защиту и сообщение исправить
+// Service.GestaltOpen - если гештальт открыт, то его надо закрыть.  1 - закрыто, 2 - открыто
+    public void Gestalt(double distanceToAnomaly){
+        if (distanceToAnomaly > radius && gesStatus == 2){
             int round;
             Service.LastTimeHitBy = Type;
             Service.TypeAnomalyIn = Type;
-            round = (int) Math.round(strenght * (radius / valueOf));
+            round = (int) Math.round(strenght * (radius / distanceToAnomaly));
             if (round <= minstrenght) {
                 round = minstrenght;
             }
@@ -175,9 +178,6 @@ public class Anomaly {
             }
 
             if (valueOf <= radius) {
-                if (Type.equals("Ges") && Service.GestaltOpen == Boolean.FALSE) {
-                    Service.GestaltOpen = Boolean.TRUE;
-                }
                 if (Type.equals("Ges")){
                     Intent intent2 = new Intent("StatsService.Message");  // отправляет сообщение на главный экран "Не выходи из виброзоны, пока не закроешь гештальт."
                     intent2.putExtra("Message", "G");

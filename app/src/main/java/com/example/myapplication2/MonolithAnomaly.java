@@ -22,8 +22,8 @@ public class MonolithAnomaly extends Anomaly {
         this.Service = statsService;
     }
 
-    public MonolithAnomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService) {
-        super(str, str2, d, d2, latLng,statsService);
+    public MonolithAnomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gesStatus) {
+        super(str, str2, d, d2, latLng, statsService, gesStatus);
         this.Figure = str;
         this.Center = latLng;
         this.radius = d;
@@ -44,15 +44,15 @@ public class MonolithAnomaly extends Anomaly {
         if (this.Figure.equals("Circle")) {
             Location location = new Location("");
             location.setLatitude(this.Center.latitude);
-            location.setLongitude(this.Center.longitude);
-            if (((double) location.distanceTo(this.Service.MyCurrentLocation)) <= this.radius) {
-                this.IsInside = Boolean.TRUE;
-                intent = new Intent("Command");
-                intent.putExtra("Command", "Monolith2");
-                this.Service.getApplicationContext().sendBroadcast(intent);
-                return;
-            }
-            this.IsInside = Boolean.FALSE;
+        location.setLongitude(this.Center.longitude);
+        if (((double) location.distanceTo(this.Service.MyCurrentLocation)) <= this.radius) {
+            this.IsInside = Boolean.TRUE;
+            intent = new Intent("Command");
+            intent.putExtra("Command", "Monolith2");
+            this.Service.getApplicationContext().sendBroadcast(intent);
+            return;
         }
+        this.IsInside = Boolean.FALSE;
+    }
     }
 }

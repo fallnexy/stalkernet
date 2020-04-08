@@ -14,12 +14,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class MapTab extends Fragment implements OnMapReadyCallback {
+public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private Globals G;
     public MarkerOptions LastMarker;
     private GoogleMap mMap;
@@ -43,15 +44,16 @@ public class MapTab extends Fragment implements OnMapReadyCallback {
         this.mMap.getUiSettings().setCompassEnabled(true);
         this.mMap.getUiSettings().setZoomControlsEnabled(true);
         this.mMap.setMyLocationEnabled(true);
+        mMap.setOnMarkerClickListener(this);
         AddGroundOverlay(this.mMap);
         this.mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                MapTab.this.mMap.addMarker(new MarkerOptions().position(latLng));
-                MapTab.this.LastMarker = new MarkerOptions().position(latLng);
-                MapTab.this.LastMarker.title("Point");
-                MapTab.this.G.MarkerArray.add(MapTab.this.LastMarker);
-                MapTab.this.G.Adapter.notifyDataSetChanged();
+                mMap.addMarker(new MarkerOptions().position(latLng));
+                LastMarker = new MarkerOptions().position(latLng);
+                LastMarker.title("Point");
+                G.MarkerArray.add(MapTab.this.LastMarker);
+                G.Adapter.notifyDataSetChanged();
             }
         });
         CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.35342867d, 40.7328d));
@@ -61,5 +63,30 @@ public class MapTab extends Fragment implements OnMapReadyCallback {
     }
     public void AddGroundOverlay(GoogleMap googleMap) {
         googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
+    }
+
+    int iconNumber = 0;
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        switch (iconNumber) {
+            case 0:
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.radsymbol2));
+                break;
+            case 1:
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.biosymbol2));
+                break;
+            case 2:
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.psysymbol2));
+                break;
+            case 3:
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                break;
+        }
+        iconNumber++;
+        if (iconNumber == 4){
+            iconNumber = 0;
+        }
+
+        return false;
     }
 }

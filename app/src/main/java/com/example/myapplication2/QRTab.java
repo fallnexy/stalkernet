@@ -115,8 +115,13 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "geshtalt closed":
-                            barcodeValue.setText("Поздравляем, гештальт закрыт! У вас минута, чтоб свалить отсюда");
+                            barcodeValue.setText("Поздравляем, гештальт 1 закрыт! У вас минута, чтоб свалить отсюда");
                             intent.putExtra("Command", "geshtalt closed");
+                            QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "geshtalt closed 2":
+                            barcodeValue.setText("Поздравляем, гештальт 2 закрыт! У вас минута, чтоб свалить отсюда");
+                            intent.putExtra("Command", "geshtalt closed 2");
                             QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "a":
@@ -138,11 +143,16 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
-                    String str = "geshtalt closed"; //"Соня не убивала" -1022716346
+                    String str = "SetGesProtectionOFF"; //"Соня не убивала" -1022716346
                                               //"ScienceQR" -1555514523
                                               //"ScienceQRoff" -1930888214
                                               //"G" 71
                                               // "geshtalt closed" 2064168356
+                                              // "geshtalt closed 2" -609099594
+                                              // "всегдазакрыт" -1925203169
+                                              //  "SetGesProtection" 317294316
+                                              //  "теперьоткрыт" 1974805046
+                                              //  "SetGesProtectionOFF" -707972381
                     statusMessage.setText(R.string.barcode_failure);
                     Log.d(TAG, "No barcode captured, intent data is null " + str.hashCode());
                 }
