@@ -1,5 +1,7 @@
 package com.example.myapplication2;
 // необходимо задавать число аномалий и зон безопасности
+
+//необходимо сохранять gesstatus
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -36,15 +38,21 @@ import static android.app.NotificationManager.IMPORTANCE_HIGH;
 public class StatsService extends Service {
     private static final int ID_SERVICE = 101;
     private static final int NUMBER_OF_ANOMALIES = 48;
-    private static final int NUMBER_OF_GESTALT_ANOMALIES = 2;
+    private static final int NUMBER_OF_GESTALT_ANOMALIES = 1;
     private static final int NUMBER_OF_SAVE_ZONES = 7;
     public Anomaly[] anomalies;
+    public SafeZone[] SafeZones;
+    public double Health = 200.0d;
+    public double MaxHealth = 200.0d;
     public double Bio = 0.0d;
     public int BioProtection = 0;
     public double CurrentBio = 0.0d;
+    public double Psy = 0.0d;
+    public int PsyProtection = 0;
+    public double Rad = 0.0d;
+    public int RadProtection = 0;
     public boolean DischargeImmunity = false;
     public EffectManager EM;
-    public double Health = 100.0d;
     public Boolean IsDead = Boolean.FALSE;
     public Boolean IsDischarging = Boolean.FALSE;
     public Boolean IsInsideAnomaly = Boolean.FALSE;
@@ -54,14 +62,8 @@ public class StatsService extends Service {
     public String LastTimeHitBy = "";
     private MyLocationCallback LocationCallback;
     private boolean LocationUpdatesStarted = false;
-    public double MaxHealth = 100.0d;
     public double MaxRad = 100.0d;
     public Location MyCurrentLocation = new Location("GPS");
-    public double Psy = 0.0d;
-    public int PsyProtection = 0;
-    public double Rad = 0.0d;
-    public int RadProtection = 0;
-    public SafeZone[] SafeZones;
     public String TypeAnomalyIn = "";
     public Boolean Vibrate = Boolean.TRUE;
     public int ScienceQR = 0;
@@ -69,6 +71,7 @@ public class StatsService extends Service {
     public int gesStatus;
     public int[] gesLockoutList = {0, 0};
     public boolean GestaltProtection = false;
+
 
 
     BroadcastReceiver broadcastReceiverQR = new BroadcastReceiver() {
@@ -127,51 +130,135 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
+                   case 1952950435:
+                       if (var4.equals("SetPsyProtection0")) {
+                           var3 = 1;
+                           break label110;
+                       }
+                       break;
                    case 411921544:
                        if (var4.equals("SetPsyProtection50")) {
-                           var3 = 1;
+                           var3 = 2;
                            break label110;
                        }
                        break;
                    case -115337820:
                        if (var4.equals("SetPsyProtection100")) {
-                           var3 = 2;
-                           break label110;
-                       }
-                       break;
-                   case 1952950435:
-                       if (var4.equals("SetPsyProtection0")) {
                            var3 = 3;
-                           break label110;
-                       }
-                       break;
-                   case 1508674375:
-                       if (var4.equals("SetRadProtection50")) {
-                           var3 = 4;
-                           break label110;
-                       }
-                       break;
-                   case -475738427:
-                       if (var4.equals("SetRadProtection100")) {
-                           var3 = 5;
                            break label110;
                        }
                        break;
                    case -782617084:
                        if (var4.equals("SetRadProtection0")) {
+                           var3 = 4;
+                           break label110;
+                       }
+                       break;
+                   case 1508674375:
+                       if (var4.equals("SetRadProtection50")) {
+                           var3 = 5;
+                           break label110;
+                       }
+                       break;
+                   case -475738427:
+                       if (var4.equals("SetRadProtection100")) {
                            var3 = 6;
+                           break label110;
+                       }
+                       break;
+                   case 2084039473:
+                       if (var4.equals("SetBioProtection0")) {
+                           var3 = 7;
                            break label110;
                        }
                        break;
                    case 180714426:
                        if (var4.equals("SetBioProtection50")) {
-                           var3 = 7;
+                           var3 = 8;
                            break label110;
                        }
                        break;
                    case 1307176114:
                        if (var4.equals("SetBioProtection100")) {
-                           var3 = 8;
+                           var3 = 9;
+                           break label110;
+                       }
+                       break;
+                   case 1796409274:
+                       if (var4.equals("SetDischargeImmunityTrue")) {
+                           var3 = 10;
+                           break label110;
+                       }
+                       break;
+                   case -159331209:
+                       if (var4.equals("SetDischargeImmunityFalse")) {
+                           var3 = 11;
+                           break label110;
+                       }
+                       break;
+                   case 146202227:
+                       if (var4.equals("SetMaxHealth100")) {
+                           var3 = 12;
+                           break label110;
+                       }
+                       break;
+                   case 146203188:
+                       if (var4.equals("SetMaxHealth200")) {
+                           var3 = 13;
+                           break label110;
+                       }
+                       break;
+                   case -1052620961:
+                       if (var4.equals("MakeAlive")) {
+                           var3 = 14;
+                           break label110;
+                       }
+                       break;
+                   case -2120901255:
+                       if (var4.equals("ComboResetProtections")) {
+                           var3 = 15;
+                           break label110;
+                       }
+                       break;
+                   case -258857420:
+                       if (var4.equals("Monolith")) {
+                           var3 = 16;
+                           break label110;
+                       }
+                       break;
+                   case 71772:
+                       if (var4.equals("God")) {
+                           var3 = 17;
+                           break label110;
+                       }
+                       break;
+                   case -1756574876:
+                       if (var4.equals("Unlock")) {
+                           var3 = 18;
+                           break label110;
+                       }
+                       break;
+                   case 565354622:
+                       if (var4.equals("Monolith2")) {
+                           var3 = 19;
+                           break label110;
+                       }
+                       break;
+                   case 76321168:
+                       if (var4.equals("OnVib")) {
+                           var3 = 20;
+                           break label110;
+                       }
+                       break;
+                   case -219690867:
+                       if (var4.equals("StopVib")) {
+                           var3 = 21;
+                           break label110;
+                       }
+                       break;
+                   case 1875682466:
+                       if (var4.equals("Discharge")) {
+                           var3 = 22;
                            break label110;
                        }
                        break;
@@ -212,96 +299,12 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   // старые коды далее
-                   case -2120901255:
-                       if (var4.equals("ComboResetProtections")) {
-                           var3 = 10;
-                           break label110;
-                       }
-                       break;
-                   case -1756574876:
-                       if (var4.equals("Unlock")) {
-                           var3 = 18;
-                           break label110;
-                       }
-                       break;
-                   case -1052620961:
-                       if (var4.equals("MakeAlive")) {
-                           var3 = 15;
-                           break label110;
-                       }
-                       break;
-                   case -258857420:
-                       if (var4.equals("Monolith")) {
-                           var3 = 16;
-                           break label110;
-                       }
-                       break;
-                   case -219690867:
-                       if (var4.equals("StopVib")) {
-                           var3 = 21;
-                           break label110;
-                       }
-                       break;
-                   case -159331209:
-                       if (var4.equals("SetDischargeImmunityFalse")) {
-                           var3 = 12;
-                           break label110;
-                       }
-                       break;
-                   case 71772:
-                       if (var4.equals("God")) {
-                           var3 = 17;
-                           break label110;
-                       }
-                       break;
-                   case 76321168:
-                       if (var4.equals("OnVib")) {
-                           var3 = 20;
-                           break label110;
-                       }
-                       break;
-                   case 146202227:
-                       if (var4.equals("SetMaxHealth100")) {
-                           var3 = 13;
-                           break label110;
-                       }
-                       break;
-                   case 146203188:
-                       if (var4.equals("SetMaxHealth200")) {
-                           var3 = 14;
-                           break label110;
-                       }
-                       break;
-                   case 565354622:
-                       if (var4.equals("Monolith2")) {
-                           var3 = 19;
-                           break label110;
-                       }
-                       break;
-                   case 1796409274:
-                       if (var4.equals("SetDischargeImmunityTrue")) {
-                           var3 = 11;
-                           break label110;
-                       }
-                       break;
-                   case 1875682466:
-                       if (var4.equals("Discharge")) {
-                           var3 = 22;
-                           break label110;
-                       }
-                       break;
-                   case 2084039473:
-                       if (var4.equals("SetBioProtection0")) {
-                           var3 = 9;
-                           break label110;
-                       }
                }
 
                var3 = -1;
            }
 
-           Intent var5;
+           Intent intent1;
            switch(var3) {
                case 0:
                    Health = 200.0D;
@@ -313,74 +316,77 @@ public class StatsService extends Service {
                    RadProtection = 0;
                    BioProtection = 0;
                    PsyProtection = 0;
+                   ScienceQR = 0; // больше не ученый
                    GestaltProtection = false;
-                   gesStatus = 1;
+                   for (int i = 0; i < NUMBER_OF_GESTALT_ANOMALIES; i++){
+                       anomalies[i].gesStatus = 1;
+                   }   // 1 - гештальт закрыт
                    DischargeImmunity = false;
                    IsDead = false;
-                   var5 = new Intent("StatsService.HealthUpdate");
-                   var5.putExtra("Health", "200");
-                   sendBroadcast(var5);
-                   var5 = new Intent("StatsService.Message");
-                   var5.putExtra("Message", "A");
-                   sendBroadcast(var5);
+                   intent1 = new Intent("StatsService.HealthUpdate");
+                   intent1.putExtra("Health", "200");
+                   sendBroadcast(intent1);
+                   intent1 = new Intent("StatsService.Message");
+                   intent1.putExtra("Message", "A");
+                   sendBroadcast(intent1);
                    break;
                case 1:
-                   StatsService.this.PsyProtection = 50;
+                   PsyProtection = 0;
                    break;
                case 2:
-                   StatsService.this.PsyProtection = 100;
+                   PsyProtection = 50;
                    break;
                case 3:
-                   StatsService.this.PsyProtection = 0;
+                   PsyProtection = 100;
                    break;
                case 4:
-                   StatsService.this.RadProtection = 50;
+                   RadProtection = 0;
                    break;
                case 5:
-                   StatsService.this.RadProtection = 100;
+                   RadProtection = 50;
                    break;
                case 6:
-                   StatsService.this.RadProtection = 0;
+                   RadProtection = 100;
                    break;
                case 7:
-                   StatsService.this.BioProtection = 50;
+                   BioProtection = 0;
                    break;
                case 8:
-                   StatsService.this.BioProtection = 100;
+                   BioProtection = 50;
                    break;
                case 9:
-                   StatsService.this.BioProtection = 0;
+                   BioProtection = 100;
                    break;
                case 10:
-                   StatsService.this.PsyProtection = 0;
-                   StatsService.this.RadProtection = 0;
-                   StatsService.this.BioProtection = 0;
+                   DischargeImmunity = true;
                    break;
                case 11:
-                   StatsService.this.DischargeImmunity = true;
+                   DischargeImmunity = false;
                    break;
                case 12:
-                   StatsService.this.DischargeImmunity = false;
+                   MaxHealth = 200.0D;
+                   intent1 = new Intent("StatsService.HealthUpdate");
+                   intent1.putExtra("Health", "200");
+                   sendBroadcast(intent1);
                    break;
                case 13:
-                   StatsService.this.MaxHealth = 200.0D;
-                   var5 = new Intent("StatsService.HealthUpdate");
-                   var5.putExtra("Health", "200");
-                   StatsService.this.sendBroadcast(var5);
+                   MaxHealth = 300.0D;
+                   intent1 = new Intent("StatsService.HealthUpdate");
+                   intent1.putExtra("Health", "300");
+                   sendBroadcast(intent1);
                    break;
                case 14:
-                   StatsService.this.MaxHealth = 300.0D;
-                   var5 = new Intent("StatsService.HealthUpdate");
-                   var5.putExtra("Health", "300");
-                   StatsService.this.sendBroadcast(var5);
+                   Health = MaxHealth;
+                   Rad = 0.0D;
+                   Bio = 0.0D;
+                   CurrentBio = 0.0D;
+                   Psy = 0.0D;
+                   IsDead = false;
                    break;
                case 15:
-                   StatsService.this.Health = StatsService.this.MaxHealth;
-                   StatsService.this.Rad = 0.0D;
-                   StatsService.this.Bio = 0.0D;
-                   StatsService.this.CurrentBio = 0.0D;
-                   StatsService.this.Psy = 0.0D;
-                   StatsService.this.IsDead = false;
+                   PsyProtection = 0;
+                   RadProtection = 0;
+                   BioProtection = 0;
                    break;
                case 16: //monolith
                    DischargeImmunity = true;
@@ -390,27 +396,28 @@ public class StatsService extends Service {
                    GestaltProtection = true;
                    break;
                case 17: //god
-                   StatsService.this.DischargeImmunity = true;
-                   StatsService.this.RadProtection = 100;
-                   StatsService.this.BioProtection = 100;
-                   StatsService.this.PsyProtection = 100;
+                   DischargeImmunity = true;
+                   RadProtection = 100;
+                   BioProtection = 100;
+                   PsyProtection = 100;
+                   GestaltProtection = true;
                    break;
                case 18:
-                   StatsService.this.IsUnlocked = true;
+                   IsUnlocked = true;
                    break;
                case 19://Monolith2
-                   StatsService.this.Health = 200.0D;
-                   StatsService.this.Bio = 0.0D;
-                   StatsService.this.Rad = 0.0D;
+                   Health = 200.0D;
+                   Bio = 0.0D;
+                   Rad = 0.0D;
                    break;
                case 20:
-                   StatsService.this.Vibrate = true;
+                   Vibrate = true;
                    break;
                case 21:
-                   StatsService.this.Vibrate = false;
+                   Vibrate = false;
                    break;
                case 22:
-                   StatsService.this.Discharge();
+                   Discharge();
                    break;
                    //новые коды
                case 23:
@@ -588,12 +595,11 @@ public class StatsService extends Service {
     }
 
     // гештальт аномалию 60 сек. нельзя снова открыть
-    private void GestaltLockout(int gesIndex){
-              final int jk = gesIndex;
+    private void GestaltLockout(final int gesIndex){
        Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {
-                gesLockoutList[jk] = 0;
+                gesLockoutList[gesIndex] = 0;
             }
         }, 60000);
     }
@@ -606,10 +612,10 @@ public class StatsService extends Service {
     private void GetAnomalies() {
         gesStatus = 1;
         Anomaly[] anomalyArr = new Anomaly[51];                                                                                          // 64.536258, 40.585447 - стрелковая 13 //me
-        anomalyArr[0] = new Anomaly("Circle", "Ges", 1.0d, 15.0d, new LatLng(64.57384, 45.51660), this, gesStatus); // над домом                    //64.573714, 40.516067
-        anomalyArr[1] = new Anomaly("Circle", "Ges", 1.0d, 15.0d, new LatLng(64.57366d, 45.51679d), this, gesStatus); //64.526824, 40.604426; 64.355037d, 40.722809d
-        anomalyArr[2] = new Anomaly("Circle", "Rad", 1.0d, 47.0d, new LatLng(64.526613d, 45.604308d), this, 0); //64.526613, 40.604308; 64.355765d, 40.726628d
-        anomalyArr[3] = new Anomaly("Circle", "Psy", 100.0d, 35.0d, new LatLng(64.355666d, 40.730297d), this, 0);
+        anomalyArr[0] = new Anomaly("Circle", "Ges", 1.0d, 50.0d, new LatLng(64.54921d, 40.51925d), this, gesStatus); // над домом                    //64.573714, 40.516067
+        anomalyArr[1] = new Anomaly("Circle", "Bio", 1.0d, 50.0d, new LatLng(64.54502d, 40.51701d), this, 0); //64.526824, 40.604426; 64.355037d, 40.722809d
+        anomalyArr[2] = new Anomaly("Circle", "Rad", 1.0d, 50.0d, new LatLng(64.54723d, 40.51820d), this, 0); //64.526613, 40.604308; 64.355765d, 40.726628d
+        anomalyArr[3] = new Anomaly("Circle", "Psy", 1.0d, 40.0d, new LatLng(64.57949d, 40.51345d), this, 0);
         anomalyArr[3].minstrenght = 20;
         anomalyArr[4] = new Anomaly("Circle", "Rad", 6.0d, 43.0d, new LatLng(64.526400d, 45.604193d), this, 0); //64.526400, 40.604193; 64.353653d, 40.720639d
         anomalyArr[4].minstrenght = 4;
@@ -745,18 +751,18 @@ public class StatsService extends Service {
         Toast.makeText(getApplicationContext(), "Близиться выброс.", Toast.LENGTH_SHORT).show();
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                StatsService.this.CheckIfInAnySafezone();
-                StatsService.this.EM.PlayBuzzer();
-                if (!(StatsService.this.IsInsideSafeZone || StatsService.this.DischargeImmunity)) {
-                    StatsService.this.LastTimeHitBy = "Dis";
-                    StatsService.this.setDead(Boolean.TRUE);
-                    StatsService.this.Health = 0.0d;
+                CheckIfInAnySafezone();
+                EM.PlayBuzzer();
+                if (!(IsInsideSafeZone || DischargeImmunity)) {
+                    LastTimeHitBy = "Dis";
+                    setDead(Boolean.TRUE);
+                    Health = 0.0d;
                     Intent intent = new Intent("StatsService.Message");
                     intent.putExtra("Message", "H");
-                    StatsService.this.sendBroadcast(intent);
+                    sendBroadcast(intent);
                 }
-                Toast.makeText(StatsService.this.getApplicationContext(), "Выброс Окончен!!", Toast.LENGTH_SHORT).show();
-                StatsService.this.IsDischarging = Boolean.FALSE;
+                Toast.makeText(getApplicationContext(), "Выброс Окончен!!", Toast.LENGTH_SHORT).show();
+                IsDischarging = Boolean.FALSE;
             }
         }, 60000);
     }
@@ -771,6 +777,8 @@ public class StatsService extends Service {
         this.PsyProtection = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("PsyProtection", "0")));
         this.RadProtection = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("RadProtection", "0")));
         this.BioProtection = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("BioProtection", "0")));
+        this.GestaltProtection = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("GesProtection", "false")));
+        this.anomalies[0].gesStatus = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("GesStatus", "1")));
         this.ScienceQR = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("ScienceQR", "0")));
         this.DischargeImmunity = Boolean.parseBoolean(defaultSharedPreferences.getString("DischargeImmunity", "false"));
         this.IsUnlocked = Boolean.parseBoolean(defaultSharedPreferences.getString("Lock", "true"));
@@ -786,6 +794,8 @@ public class StatsService extends Service {
         edit.putString("PsyProtection", Integer.toString(this.PsyProtection));
         edit.putString("BioProtection", Integer.toString(this.BioProtection));
         edit.putString("RadProtection", Integer.toString(this.RadProtection));
+        edit.putString("GesProtection", Boolean.toString(this.GestaltProtection));
+        edit.putString("GesStatus", Integer.toString(this.anomalies[0].gesStatus));
         edit.putString("ScienceQR", Integer.toString(this.ScienceQR));
         edit.putString("DischargeImmunity", Boolean.toString(this.DischargeImmunity));
         edit.putString("Lock", Boolean.toString(this.IsUnlocked));

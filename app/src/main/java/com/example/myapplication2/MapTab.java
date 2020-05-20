@@ -21,12 +21,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
-    private Globals G;
+    private Globals globals;
     public MarkerOptions LastMarker;
     private GoogleMap mMap;
 
     public MapTab(Globals globals) {
-        this.G = globals;
+        this.globals = globals;
     }
 
     @Nullable
@@ -39,7 +39,7 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
-        this.G.map = this.mMap;
+        this.globals.map = this.mMap;
         this.mMap.setMapType(0);
         this.mMap.getUiSettings().setCompassEnabled(true);
         this.mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -52,8 +52,8 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
                 mMap.addMarker(new MarkerOptions().position(latLng));
                 LastMarker = new MarkerOptions().position(latLng);
                 LastMarker.title("Point");
-                G.MarkerArray.add(MapTab.this.LastMarker);
-                G.Adapter.notifyDataSetChanged();
+                globals.MarkerArray.add(LastMarker);
+                globals.Adapter.notifyDataSetChanged();
             }
         });
         CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.35342867d, 40.7328d));

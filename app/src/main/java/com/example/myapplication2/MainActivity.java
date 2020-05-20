@@ -18,40 +18,38 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
 
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
 
     private boolean FineLocationPermissionGranted;
     private int Fine_Location_RequestCode = 1;
-    public Globals G;
+    public Globals globals;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     public Boolean ServiceIsRunning;
+
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String[] split = intent.getStringExtra("Stats").split(":");
             if (Double.parseDouble(split[0]) <= 0.0d) {
-                MainActivity.this.G.Health = "Вы умерли.";
+                globals.Health = "Вы умерли.";
             } else {
-                MainActivity.this.G.Health = split[0];
+                globals.Health = split[0];
             }
-            MainActivity.this.G.Rad = split[1];
-            MainActivity.this.G.Bio = split[2];
-            MainActivity.this.G.CurrentBio = split[4];
+            globals.Rad = split[1];
+            globals.Bio = split[2];
+            globals.CurrentBio = split[4];
             if (Double.parseDouble(split[3]) >= 100.0d) {
-                MainActivity.this.G.Health = "Вы умерли.";
+                globals.Health = "Вы умерли.";
             } else {
-                MainActivity.this.G.Psy = split[3];
+                globals.Psy = split[3];
             }
-            MainActivity.this.G.location.setLatitude(Double.parseDouble(split[5]));
-            MainActivity.this.G.location.setLongitude(Double.parseDouble(split[6]));
-            MainActivity.this.G.ScienceQR = Integer.parseInt(split[7]);
-            MainActivity.this.G.UpdateStats();
+            globals.location.setLatitude(Double.parseDouble(split[5]));
+            globals.location.setLongitude(Double.parseDouble(split[6]));
+            globals.ScienceQR = Integer.parseInt(split[7]);
+            globals.UpdateStats();
         }
     };
     BroadcastReceiver broadcastReceiverMessages = new BroadcastReceiver() {
@@ -85,16 +83,17 @@ public class MainActivity extends AppCompatActivity {
 
             switch(var5) {
                 case 0:
-                    MainActivity.this.G.Messages.setText("Вы умерли, направляйтесь к мертвяку..");
+                    globals.Messages.setText("Вы умерли, направляйтесь к мертвяку..");
                     break;
                 case 1:
-                    MainActivity.this.G.Messages.setText("Вы умерли, подождите контролёра 5 минут, если его нет, то следуйте к мертвяку в режиме зомби.");
+                    globals.Messages.setText("Вы умерли, подождите контролёра 5 минут, если его нет, то следуйте к мертвяку в режиме зомби.");
                     break;
                 case 2:
-                    MainActivity.this.G.Messages.setText("");
+                    globals.Messages.setText("");
                     break;
                 case 3:
-                    MainActivity.this.G.Messages.setText("Не выходи из виброзоны, пока не закроешь гештальт.");
+                    globals.Messages.setText("Не выходи из виброзоны, пока не закроешь гештальт.");
+                    break;
             }
 
         }
@@ -120,12 +119,12 @@ public class MainActivity extends AppCompatActivity {
 
             switch(var5) {
                 case 0:
-                    MainActivity.this.G.MaxHealth = "200";
-                    MainActivity.this.G.UpdateStats();
+                    globals.MaxHealth = "200";
+                    globals.UpdateStats();
                     break;
                 case 1:
-                    MainActivity.this.G.MaxHealth = "300";
-                    MainActivity.this.G.UpdateStats();
+                    globals.MaxHealth = "300";
+                    globals.UpdateStats();
             }
 
         }
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        G = new Globals(this); // отличие от оригинала
+        globals = new Globals(this); // отличие от оригинала
 
         //запускает GeneralTab
         this.mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -188,15 +187,15 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int i) {
             switch (i) {
                 case 0:
-                    return new GeneralTab(MainActivity.this.G);
+                    return new GeneralTab(globals);
                 case 1:
-                    return new MapTab(MainActivity.this.G);
+                    return new MapTab(globals);
                 case 2:
-                    return new PointTab(MainActivity.this.G);
+                    return new PointTab(globals);
                 case 3:
                     return new ChatTab();
                 case 4:
-                    return new QRTab(MainActivity.this.G);
+                    return new QRTab(globals);
                 default:
                     return null;
             }

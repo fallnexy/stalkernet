@@ -54,8 +54,8 @@ public class Globals {
     public Globals(Context mContext) {
         this.mContext = mContext;
     }
-
-    public void UpdateStats() { //именно эта штука обновяет статы, которые есть в GeneralTab
+    //именно эта штука обновяет статы, которые есть в GeneralTab
+    public void UpdateStats() {
 
         int parseDouble;
         this.HealthBar.setMax(Integer.parseInt(this.MaxHealth));
@@ -106,7 +106,7 @@ public class Globals {
     public void AddGroundOverlay(GoogleMap googleMap) {
         googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
     }
-
+    // маркеры на карте
     public void redrawMarkers() {
         for (int i = 0; i < this.MarkerArray.size(); i++) {
             this.map.addMarker((MarkerOptions) this.MarkerArray.get(i));

@@ -55,20 +55,20 @@ public class Anomaly {
     }
 
 // метод внутри apply()
-    public void AnomalyResult(double valueOf){
-        int round;
+    public void AnomalyResult(double distanceToAnomaly){
+        int damage;
         Service.LastTimeHitBy = Type;
         IsInside = Boolean.TRUE;
         Service.TypeAnomalyIn = Type;
-        round = (int) Math.round(strenght * (1 - (valueOf / radius)));
-        if (round <= minstrenght) {
-            round = minstrenght;
+        damage = (int) Math.round(strenght * (1 - (distanceToAnomaly / radius)));
+        if (damage <= minstrenght) {
+            damage = minstrenght;
         }
         switch (Type){
             case "Rad":
-                round -= (round / 100) * Service.RadProtection;
-                Service.Rad += round;
-                Service.setHealth(Service.Health - round);
+                damage -= (damage / 100) * Service.RadProtection;
+                Service.Rad += damage;
+                Service.setHealth(Service.Health - damage);
                 if (Service.Rad >= 100.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
@@ -78,9 +78,9 @@ public class Anomaly {
                 }
                 return;
             case "Bio":
-                round -= (round / 100) * Service.BioProtection;
-                Service.Bio += round;
-                Service.setHealth(Service.Health - round);
+                damage -= (damage / 100) * Service.BioProtection;
+                Service.Bio += damage;
+                Service.setHealth(Service.Health - damage);
                 if (Service.Bio >= 100.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
@@ -90,9 +90,9 @@ public class Anomaly {
                 }
                 return;
             case "Psy":
-                round -= (round / 100) * Service.PsyProtection;
-                Service.Psy += round;
-                Service.setHealth(Service.Health - round);
+                damage -= (damage / 100) * Service.PsyProtection;
+                Service.Psy += damage;
+                Service.setHealth(Service.Health - damage);
                 if (Service.Psy >= 100.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
@@ -111,14 +111,14 @@ public class Anomaly {
 // Service.GestaltOpen - если гештальт открыт, то его надо закрыть.  1 - закрыто, 2 - открыто
     public void Gestalt(double distanceToAnomaly){
         if (distanceToAnomaly > radius && gesStatus == 2){
-            int round;
+            int damage;
             Service.LastTimeHitBy = Type;
             Service.TypeAnomalyIn = Type;
-            round = (int) Math.round(strenght * (radius / distanceToAnomaly));
-            if (round <= minstrenght) {
-                round = minstrenght;
+            damage = (int) Math.round(strenght) /* (distanceToAnomaly / radius))*/; //урон не зависит от расстояния, потому что сталкер может из далека зацепить гештальт
+            if (damage <= minstrenght) {
+                damage = minstrenght;
             }
-            Service.setHealth(Service.Health - round);
+            Service.setHealth(Service.Health - damage);
             if (Service.Health <= 0.0d) {
                 Service.setDead(Boolean.TRUE);
                 Service.setHealth(0.0d);
@@ -171,25 +171,25 @@ public class Anomaly {
             Location location = new Location("");
             location.setLatitude(Center.latitude);
             location.setLongitude(Center.longitude);
-            double valueOf = location.distanceTo(Service.MyCurrentLocation);
+            double distanceToAnomaly = location.distanceTo(Service.MyCurrentLocation);
 
             if (Type.equals("Ges")){
-                Gestalt(valueOf);
+                Gestalt(distanceToAnomaly);
             }
 
-            if (valueOf <= radius) {
+            if (distanceToAnomaly <= radius) {
                 if (Type.equals("Ges")){
                     Intent intent2 = new Intent("StatsService.Message");  // отправляет сообщение на главный экран "Не выходи из виброзоны, пока не закроешь гештальт."
                     intent2.putExtra("Message", "G");
                     Service.sendBroadcast(intent2);
                 }
-                AnomalyResult(valueOf);
+                AnomalyResult(distanceToAnomaly);
                 /*int round;
                 if (this.Type.equals("Rad")) {
                     this.Service.LastTimeHitBy = this.Type;
                     this.IsInside = Boolean.TRUE;
                     this.Service.TypeAnomalyIn = "Rad";
-                    round = (int) Math.round(this.strenght * (1 - (valueOf / this.radius)));
+                    round = (int) Math.round(this.strenght * (1 - (distanceToAnomaly / this.radius)));
                     if (round <= this.minstrenght) {
                         round = this.minstrenght;
                     }
@@ -220,7 +220,7 @@ public class Anomaly {
                         this.FirstTimeInside = false;*/
                       /*  this.LastTimeInside = Calendar.getInstance().getTime();
                         this.Service.TypeAnomalyIn = "Bio";
-                        int  round = (int) Math.round(this.strenght * (1 - (valueOf / this.radius)));
+                        int  round = (int) Math.round(this.strenght * (1 - (distanceToAnomaly / this.radius)));
                         if (round <= this.minstrenght) {
                             round = this.minstrenght;
                         }
@@ -246,7 +246,7 @@ public class Anomaly {
                   /*  }*/ /*else {
                         this.Service.LastTimeHitBy = this.Type;
                         this.Service.TypeAnomalyIn = "Bio";
-                        round = (int) Math.round(this.strenght * (1 - (((double) (float) valueOf) / this.radius)));
+                        round = (int) Math.round(this.strenght * (1 - (((double) (float) distanceToAnomaly) / this.radius)));
                         if (round <= this.minstrenght) {
                             round = this.minstrenght;
                         }
@@ -282,7 +282,7 @@ public class Anomaly {
                     this.IsInside = Boolean.TRUE;
                     this.Service.TypeAnomalyIn = "Psy";
                     this.Service.IsInsideAnomaly = Boolean.TRUE;
-                    int round2 = (int) Math.round(this.strenght * (1 - (valueOf / this.radius)));
+                    int round2 = (int) Math.round(this.strenght * (1 - (distanceToAnomaly / this.radius)));
                     if (round2 <= this.minstrenght) {
                         round2 = this.minstrenght;
                     }

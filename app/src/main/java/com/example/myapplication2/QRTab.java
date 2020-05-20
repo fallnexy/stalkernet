@@ -1,17 +1,15 @@
 package com.example.myapplication2;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -25,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class QRTab extends Fragment implements View.OnClickListener{
-    private Globals G;
+    private Globals globals;
     // use a compound button so either checkbox or switch widgets work.
     private CompoundButton autoFocus;
     private CompoundButton useFlash;
@@ -40,7 +38,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
     private Button btnScienceQR;
 
     public QRTab(Globals globals) {
-        this.G = globals;
+        this.globals = globals;
     }
 
     @Nullable
@@ -56,10 +54,10 @@ public class QRTab extends Fragment implements View.OnClickListener{
         inflate.findViewById(R.id.read_barcode).setOnClickListener(this);
         btnScienceQR = inflate.findViewById(R.id.btnScienceQR);
         btnScienceQR.setOnClickListener(this);
-        if (G.ScienceQR == 1) {
+        if (globals.ScienceQR == 1) {
             btnScienceQR.setVisibility(View.VISIBLE);
         }
-        if (G.ScienceQR == 0){
+        if (globals.ScienceQR == 0){
             btnScienceQR.setVisibility(View.INVISIBLE);
         }
         return inflate;
@@ -125,7 +123,8 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "a":
-                            barcodeValue.setText("приветствую тебя, товарищ сталкер");
+                            Spanned str = Html.fromHtml("<font color=\"red\">Привет.</font> <font color=\"yellow\">как </font> <font color=\"blue\">дела?</font>");
+                            barcodeValue.setText(str);
                             return;
                         case "a1":
                             if (scienceQR) {
@@ -166,50 +165,41 @@ public class QRTab extends Fragment implements View.OnClickListener{
         }
     }
 
-    public void stalkerRoulette (){
-        int randomStalkerRoulette = random.nextInt(8);
+    // отправляет результат рулетки
+    private void stalkerRouletteSolved (String command, String text){
         Intent intent;
         intent = new Intent("StRoulette");
+        intent.putExtra("StRoulette", command);
+        barcodeValue.setText(text);
+        Objects.requireNonNull(getActivity()).getApplicationContext().sendBroadcast(intent);
+    }
+// знчения в рулекте увеличены
+    private void stalkerRoulette(){
+        int randomStalkerRoulette = random.nextInt(8);
         switch(randomStalkerRoulette) {
             case 0:
-                intent.putExtra("StRoulette", "RadPlusOne");
-                barcodeValue.setText("+10 rad");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("RadPlusOne", "+10 rad");
                 break;
             case 1:
-                intent.putExtra("StRoulette", "BioPlusOne");
-                barcodeValue.setText("+10 bio");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("BioPlusOne", "+10 bio");
                 break;
             case 2:
-                intent.putExtra("StRoulette", "PsyPlusOne");
-                barcodeValue.setText("+10 psy");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("PsyPlusOne", "+10 psy");
                 break;
             case 3:
-                intent.putExtra("StRoulette", "HpPlusFive");
-                barcodeValue.setText("+10 hp");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("HpPlusFive", "+10 hp");
                 break;
             case 4:
-                intent.putExtra("StRoulette", "HpPlusSeven");
-                barcodeValue.setText("+20 hp");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("HpPlusSeven", "+20 hp");
                 break;
             case 5:
-                intent.putExtra("StRoulette", "HpMinus25perCent");
-                barcodeValue.setText("-25% hp");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("HpMinus25perCent", "-25% hp");
                 break;
             case 6:
-                intent.putExtra("StRoulette", "HpMinus20perCent");
-                barcodeValue.setText("-20% hp");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("HpMinus20perCent", "-20% hp");
                 break;
             case 7:
-                intent.putExtra("StRoulette", "HpMinus10perCent");
-                barcodeValue.setText("-10% hp");
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                stalkerRouletteSolved ("HpMinus10perCent", "-10% hp");
                 break;
         }
 

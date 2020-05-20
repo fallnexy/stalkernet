@@ -27,7 +27,6 @@ public class ChatTab extends Fragment {
                     editText.setText("");
                     intent = new Intent("Command");
                     switch(code.hashCode()) {
-
                             // старые коды
                         case -2059769973:
                             if (code.equals("гагарин")) {
