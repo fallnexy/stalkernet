@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,27 +26,18 @@ import static android.content.Context.LOCATION_SERVICE;
 public class Globals {
     Context mContext;
     public ArrayAdapter<MarkerOptions> Adapter;
-    public String Bio;
-    public ProgressBar BioBar;
+    public String Health, Rad, Bio, Psy;
+    public ProgressBar HealthBar, RadBar, BioBar, PsyBar;
+    public String MaxHealth = "200", MaxRad = "100", MaxBio = "100", MaxPsi = "100";
     public TextView CO;
-    public String CurrentBio;
-    public String Health;
-    public ProgressBar HealthBar;
-    public ArrayList<MarkerOptions> MarkerArray = new ArrayList();
-    public String MaxHealth = "200";
-    public String MaxRad = "100";                                                                     //
-    public String MaxBio = "100";                                                                     //
-    public String MaxPsi = "100";                                                                     //
     public TextView Messages;
-    public String Psy;
-    public ProgressBar PsyBar;
-    public String Rad;
-    public ProgressBar RadBar;
+    public TextView HealthPercent;
+    public String CurrentBio;
+    public ArrayList<MarkerOptions> MarkerArray = new ArrayList();
     public ArrayList<String> StringMarkerArray = new ArrayList();
     public Location location = new Location("GPS");
     public GoogleMap map;
-    public TextView HealthPercent;
-    public int ScienceQR;                                                                          //
+    public int ScienceQR;          // не работает
 
     private LocationManager locationManager;
 
@@ -58,47 +48,47 @@ public class Globals {
     public void UpdateStats() {
 
         int parseDouble;
-        this.HealthBar.setMax(Integer.parseInt(this.MaxHealth));
+        HealthBar.setMax(Integer.parseInt(MaxHealth));
         int i = 0;
         try {
-            parseDouble = (int) Double.parseDouble(this.Health);
+            parseDouble = (int) Double.parseDouble(Health);
         } catch (Exception unused) {
             parseDouble = 0;
         }
-        this.HealthBar.setProgress(parseDouble);
-        String healthPercent = 100 * parseDouble / Double.parseDouble(this.MaxHealth) +"%";
-        this.HealthPercent.setText(healthPercent);
+        HealthBar.setProgress(parseDouble);
+        String healthPercent = 100 * parseDouble / Double.parseDouble(MaxHealth) +"%";
+        HealthPercent.setText(healthPercent);
 
-        this.RadBar.setMax(Integer.parseInt(this.MaxRad));                                           //
+        this.RadBar.setMax(Integer.parseInt(MaxRad));                                           //
         try {
-            parseDouble = (int) Double.parseDouble(this.Rad);
+            parseDouble = (int) Double.parseDouble(Rad);
         } catch (Exception unused2) {
             parseDouble = 0;
         }
-        this.RadBar.setProgress(parseDouble);
+        RadBar.setProgress(parseDouble);
 
-        this.RadBar.setMax(Integer.parseInt(this.MaxBio));
+        RadBar.setMax(Integer.parseInt(MaxBio));
         try {
-            parseDouble = (int) Double.parseDouble(this.Bio);
+            parseDouble = (int) Double.parseDouble(Bio);
         } catch (Exception unused3) {
             parseDouble = 0;
         }
-        this.BioBar.setProgress(parseDouble);
-        this.BioBar.setSecondaryProgress((int) Double.parseDouble(this.CurrentBio));  //нужно задать Currentbio, чтоб оно работало - опоп, работает?
+        BioBar.setProgress(parseDouble);
+        BioBar.setSecondaryProgress((int) Double.parseDouble(CurrentBio));  //нужно задать Currentbio, чтоб оно работало - опоп, работает?
 
-        this.RadBar.setMax(Integer.parseInt(this.MaxPsi));
+        RadBar.setMax(Integer.parseInt(MaxPsi));
         try {
-            i = (int) Double.parseDouble(this.Psy);
+            i = (int) Double.parseDouble(Psy);
         } catch (Exception unused4) {
         }
-        this.PsyBar.setProgress(i);
+        PsyBar.setProgress(i);
 
        // GPS изначальное, которое не работает - уже работает
-        TextView textView = this.CO;
+        TextView textView = CO;
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(String.valueOf(this.location.getLatitude()));
+        stringBuilder.append(String.valueOf(location.getLatitude()));
         stringBuilder.append(" - ");
-        stringBuilder.append(String.valueOf(this.location.getLongitude()));
+        stringBuilder.append(String.valueOf(location.getLongitude()));
         textView.setText(stringBuilder.toString());
     }
 
@@ -108,8 +98,8 @@ public class Globals {
     }
     // маркеры на карте
     public void redrawMarkers() {
-        for (int i = 0; i < this.MarkerArray.size(); i++) {
-            this.map.addMarker((MarkerOptions) this.MarkerArray.get(i));
+        for (int i = 0; i < MarkerArray.size(); i++) {
+            map.addMarker((MarkerOptions) MarkerArray.get(i));
         }
     }
 

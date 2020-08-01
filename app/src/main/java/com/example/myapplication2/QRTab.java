@@ -1,7 +1,9 @@
 package com.example.myapplication2;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -15,6 +17,8 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
@@ -36,6 +40,9 @@ public class QRTab extends Fragment implements View.OnClickListener{
     private Random random = new Random();
     private boolean scienceQR = false;
     private Button btnScienceQR;
+
+    long firstTime;
+    long secondTime;
 
     public QRTab(Globals globals) {
         this.globals = globals;
@@ -60,6 +67,9 @@ public class QRTab extends Fragment implements View.OnClickListener{
         if (globals.ScienceQR == 0){
             btnScienceQR.setVisibility(View.INVISIBLE);
         }
+        firstTime = Calendar.getInstance().getTimeInMillis();
+        secondTime = 0;
+        LoadBarcodeText();
         return inflate;
     }
 
@@ -136,6 +146,32 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "abba":
                             stalkerRoulette();
                             return;
+                            ///////////////////////////////////тест вместо майской игры
+                        case "592681177718822":
+                            barcodeValue.setText("Это устройство выглядит ремонтопригодным и наверняка сможет выполнять свои функции, если удастся собрать и присоединить необходимые детали.\n" +
+                                    "\n" +
+                                    "Осмотр показывает, что могут потребоваться:\n" +
+                                    "- Медицинский картридж-электрод\n" +
+                                    "- Индикатор прогрева\n" +
+                                    "- Микроконтроллер управления\n" +
+                                    "- Автономный источник питания");
+                            return;
+                        case "57755871758525502745":
+                            barcodeValue.setText("Накопитель данных.\n" +
+                                    "\n" +
+                                    "Сканеру удаётся получить доступ к некоторой части файлов на диске.\n" +
+                                    "“вить в лабо&^@орию через %&нкт периметра номер т$и. На*бол$;ш%й п)))ежуток между па*2%л^ми о”и*ается в )@:18. Проследуйте по м%№(р;ту ?з**гая а?о№№ль#ых об””зо?^ний через ^очки 13, 1, 28, 45,”");
+                            return;
+                        case "6671791881":
+                            firstTime = Calendar.getInstance().getTimeInMillis();
+                            if (firstTime - secondTime > 360000) {
+                                stalkerRouletteSolved ("BioPlusOne", "+10 bio");
+                                barcodeValue.setText("Этот артефакт определённо опасен. Его истинные свойства остаются неизвестны, однако обладая необходимым оборудованием и знаниями наверняка получится извлечь из него пользу.");
+                                secondTime = firstTime;
+                            } else {
+                                barcodeValue.setText("иди своей дорогой, сталкер");
+                            }
+                            return;
                         default:
                             stalkerRoulette();
                     }
@@ -203,6 +239,25 @@ public class QRTab extends Fragment implements View.OnClickListener{
                 break;
         }
 
+    }
+// сохраняет текст от последнего отсканированного qr
+    public void SaveBarcodeText() {
+        SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+        edit.putString("BarcodeValue", String.valueOf(barcodeValue.getText()));
+        edit.putString("SecondTime", String.valueOf(secondTime)); //майский тест
+        edit.commit();
+    }
+// загружает текст от последнего отсканированного qr
+    public void LoadBarcodeText() {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        barcodeValue.setText(defaultSharedPreferences.getString("BarcodeValue", "ждем-с сканирования"));
+        secondTime = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("SecondTime", "0"))); // майски тест
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        SaveBarcodeText();
     }
 }
 

@@ -10,11 +10,8 @@
     <string name="read_barcode">Взаимодействовать</string>
     <string name="auto_focus">Автофокус</string>
     <string name="use_flash">Вспышка</string>
-    <string name="barcode_success">Barcode read successfully</string>
+    <string name="barcode_success">QR прочитан успешно</string>
     <string name="barcode_failure">QR код не найден</string>
     <string name="barcode_error">"Error reading barcode: %1$s"</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="toResearch">Исследовать</string>
 </resources>

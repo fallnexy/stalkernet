@@ -42,17 +42,12 @@ public class StatsService extends Service {
     private static final int NUMBER_OF_SAVE_ZONES = 7;
     public Anomaly[] anomalies;
     public SafeZone[] SafeZones;
-    public double Health = 200.0d;
-    public double MaxHealth = 200.0d;
-    public double Bio = 0.0d;
-    public int BioProtection = 0;
-    public double CurrentBio = 0.0d;
-    public double Psy = 0.0d;
-    public int PsyProtection = 0;
-    public double Rad = 0.0d;
-    public int RadProtection = 0;
-    public boolean DischargeImmunity = false;
     public EffectManager EM;
+    public double Health = 200.0d, MaxHealth = 200.0d;
+    public double Bio = 0.0d, Psy = 0.0d, Rad = 0.0d;
+    public int BioProtection = 0, PsyProtection = 0, RadProtection = 0;
+    public double CurrentBio = 0.0d;
+    public boolean DischargeImmunity = false;
     public Boolean IsDead = Boolean.FALSE;
     public Boolean IsDischarging = Boolean.FALSE;
     public Boolean IsInsideAnomaly = Boolean.FALSE;
@@ -66,7 +61,7 @@ public class StatsService extends Service {
     public Location MyCurrentLocation = new Location("GPS");
     public String TypeAnomalyIn = "";
     public Boolean Vibrate = Boolean.TRUE;
-    public int ScienceQR = 0;
+    public int ScienceQR = 0;// не работает
 
     public int gesStatus;
     public int[] gesLockoutList = {0, 0};
@@ -458,10 +453,10 @@ public class StatsService extends Service {
 
     public void setHealth(double d) {
         if (d > 0.0d) {
-            this.Health = d;
+            Health = d;
             return;
         }
-        this.Health = d;
+        Health = d;
         setDead(Boolean.TRUE);
     }
 

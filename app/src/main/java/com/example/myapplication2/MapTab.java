@@ -1,5 +1,8 @@
 package com.example.myapplication2;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +20,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -24,43 +29,77 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
     private Globals globals;
     public MarkerOptions LastMarker;
     private GoogleMap mMap;
-
+    DBHelper dbHelper;
     public MapTab(Globals globals) {
         this.globals = globals;
     }
 
+
     @Nullable
     public View onCreateView(LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, Bundle bundle) {
         View inflate = layoutInflater.inflate(R.layout.fragment_map, viewGroup, false);
-        ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);  // почему здесь не R.row.map?
+        ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);  // почему здесь не R.row.map? - потому что это не картинка, а layout
+        dbHelper = new DBHelper(getActivity());
         return inflate;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.mMap = googleMap;
-        this.globals.map = this.mMap;
-        this.mMap.setMapType(0);
-        this.mMap.getUiSettings().setCompassEnabled(true);
-        this.mMap.getUiSettings().setZoomControlsEnabled(true);
-        this.mMap.setMyLocationEnabled(true);
+        mMap = googleMap;
+        globals.map = this.mMap;
+        mMap.setMapType(0);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setMyLocationEnabled(true);
         mMap.setOnMarkerClickListener(this);
         AddGroundOverlay(this.mMap);
-        this.mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        Cursor cursor = database.query(DBHelper.TABLE_MARKERS, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
+            int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME);
+            int iconIndex = cursor.getColumnIndex(DBHelper.KEY_ICON);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE);
+            int commentIndex = cursor.getColumnIndex(DBHelper.KEY_COMMENT);
+            do {
+                mMap.addMarker(new MarkerOptions().position(new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex))).title(cursor.getString(idIndex)));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        dbHelper.close();
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 mMap.addMarker(new MarkerOptions().position(latLng));
                 LastMarker = new MarkerOptions().position(latLng);
                 LastMarker.title("Point");
+                double lat = LastMarker.getPosition().latitude;
+                double lon = LastMarker.getPosition().longitude;
                 globals.MarkerArray.add(LastMarker);
                 globals.Adapter.notifyDataSetChanged();
+
+                SQLiteDatabase database = dbHelper.getWritableDatabase();
+                ContentValues contentValues = new ContentValues();
+
+                contentValues.put(DBHelper.KEY_NAME, "name");
+                contentValues.put(DBHelper.KEY_ICON, "icon");
+                contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(lat));
+                contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(lon));
+                contentValues.put(DBHelper.KEY_COMMENT, "comment");
+                database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
+
+                dbHelper.close();
             }
         });
         CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.35342867d, 40.7328d));
         CameraUpdate zoomTo = CameraUpdateFactory.zoomTo(13.65f);
-        this.mMap.moveCamera(newLatLng);
-        this.mMap.animateCamera(zoomTo);
+        mMap.moveCamera(newLatLng);
+        mMap.animateCamera(zoomTo);
     }
+    //сюда ставится карта
     public void AddGroundOverlay(GoogleMap googleMap) {
         googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
     }
@@ -68,7 +107,7 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
     int iconNumber = 0;
     @Override
     public boolean onMarkerClick(Marker marker) {
-        switch (iconNumber) {
+        /*switch (iconNumber) {
             case 0:
                 marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.radsymbol2));
                 break;
@@ -85,8 +124,16 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
         iconNumber++;
         if (iconNumber == 4){
             iconNumber = 0;
-        }
+        }*/
 
         return false;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //.clear(); //слишком долго каждый раз новую карту грузить
+
+
     }
 }

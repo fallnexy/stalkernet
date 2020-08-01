@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -146,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(this.mViewPager));
         CheckPermissions(this);
 
-
     }
     //Запуск службы, я надеюсь
     public void onStart(){
@@ -193,9 +193,9 @@ public class MainActivity extends AppCompatActivity {
                 case 2:
                     return new PointTab(globals);
                 case 3:
-                    return new ChatTab();
-                case 4:
                     return new QRTab(globals);
+                case 4:
+                    return new ChatTab();
                 default:
                     return null;
             }
@@ -213,19 +213,19 @@ public class MainActivity extends AppCompatActivity {
     // пока работает просто так
     private void CheckPermissions(Activity activity) {
         if (ContextCompat.checkSelfPermission(activity, "android.permission.ACCESS_FINE_LOCATION") != 0) {
-            this.FineLocationPermissionGranted = false;
-            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.ACCESS_FINE_LOCATION"}, this.Fine_Location_RequestCode);
+            FineLocationPermissionGranted = false;
+            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.ACCESS_FINE_LOCATION"}, Fine_Location_RequestCode);
             return;
         }
-        this.FineLocationPermissionGranted = true;
+        FineLocationPermissionGranted = true;
     }
 
     public void onRequestPermissionsResult(int i, @NonNull String[] strArr, @NonNull int[] iArr) {
         if (i == 1) {
             if (iArr.length <= 0 || iArr[0] != 0) {
-                this.FineLocationPermissionGranted = false;
+                FineLocationPermissionGranted = false;
             } else {
-                this.FineLocationPermissionGranted = true;
+                FineLocationPermissionGranted = true;
             }
         }
     }
