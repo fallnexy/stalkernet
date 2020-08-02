@@ -33,7 +33,7 @@ public class MyLocationCallback extends LocationCallback {
             if (!this.ServiceReference.IsDead && this.ServiceReference.IsUnlocked) {
                 GetTime();
                 TimeToDischarge();
-                this.ServiceReference.CheckAnomalys();
+                this.ServiceReference.CheckAnomalies();
                 this.ServiceReference.CheckIfInAnyAnomaly();
             }
             if (this.ServiceReference.Health <= 0.0d) {
@@ -76,7 +76,7 @@ public class MyLocationCallback extends LocationCallback {
 //timeToDischarge
     private void TimeToDischarge() {
         if (!this.ServiceReference.IsDischarging) {
-            if (this.dayInt == 28 && this.Minutes == 10 && this.Hour == 0) {
+            if (this.dayInt == 2 && this.Minutes == 30 && this.Hour == 21) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }

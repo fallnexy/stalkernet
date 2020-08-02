@@ -66,9 +66,8 @@ public class Anomaly {
         }
         switch (Type){
             case "Rad":
-                damage -= (damage / 100) * Service.RadProtection;
-                Service.Rad += damage;
-                Service.setHealth(Service.Health - damage);
+                Service.Rad += damage * (1 - Service.RadProtection / 100d);
+                Service.setHealth(Service.Health - damage * (1 - Service.RadProtection / 100d));
                 if (Service.Rad >= 100.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
@@ -77,10 +76,9 @@ public class Anomaly {
                     Service.sendBroadcast(intent2);
                 }
                 return;
-            case "Bio":
-                damage -= (damage / 100) * Service.BioProtection;
-                Service.Bio += damage;
-                Service.setHealth(Service.Health - damage);
+            case "Bio": ;
+                Service.Bio += damage * (1 - Service.BioProtection / 100d);
+                Service.setHealth(Service.Health - damage * (1 - Service.BioProtection / 100d));
                 if (Service.Bio >= 100.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
@@ -90,9 +88,8 @@ public class Anomaly {
                 }
                 return;
             case "Psy":
-                damage -= (damage / 100) * Service.PsyProtection;
-                Service.Psy += damage;
-                Service.setHealth(Service.Health - damage);
+                Service.Psy += damage * (1 - Service.PsyProtection / 100d);
+                Service.setHealth(Service.Health - damage * (1 - Service.PsyProtection / 100d));
                 if (Service.Psy >= 100.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
@@ -138,17 +135,17 @@ public class Anomaly {
                 this.IsInside = Boolean.TRUE;
                 if (this.Type.equals("Rad")) {
                     this.Service.Rad = this.strenght;
-                    this.Service.Health -= this.Service.Rad;
+                    this.Service.Health = this.Service.Health - this.Service.Rad * (1 - this.Service.RadProtection / 100d);
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                 }
                 if (this.Type.equals("Bio")) {
                     this.Service.Bio = this.strenght;
-                    this.Service.Health -= this.Service.Bio;
+                    this.Service.Health -= this.Service.Bio * (100 - this.Service.BioProtection);
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                 }
                 if (this.Type.equals("Psy")) {
                     this.Service.Psy = this.strenght;
-                    this.Service.Health -= this.Service.Psy / 2.0d;
+                    this.Service.Health -= this.Service.Psy  * (100 - this.Service.PsyProtection);
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                 }
             } else {

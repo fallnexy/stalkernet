@@ -7,11 +7,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
@@ -24,6 +27,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Date;
 import java.util.Objects;
@@ -40,6 +44,7 @@ public class StatsService extends Service {
     private static final int NUMBER_OF_ANOMALIES = 48;
     private static final int NUMBER_OF_GESTALT_ANOMALIES = 1;
     private static final int NUMBER_OF_SAVE_ZONES = 7;
+    private int ANOMALIES_SET_CHANGER = 0;
     public Anomaly[] anomalies;
     public SafeZone[] SafeZones;
     public EffectManager EM;
@@ -66,6 +71,7 @@ public class StatsService extends Service {
     public int gesStatus;
     public int[] gesLockoutList = {0, 0};
     public boolean GestaltProtection = false;
+    DBHelper dbHelper;
 
 
 
@@ -495,7 +501,7 @@ public class StatsService extends Service {
             Intent var5;
             switch(var2) {
                 case 0:
-                    Toast.makeText(this.getApplicationContext(), "Вы умерли от Радио", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this.getApplicationContext(), "Вы умерли от Радиации", Toast.LENGTH_LONG).show();
                     var5 = new Intent("StatsService.Message");
                     var5.putExtra("Message", "H");
                     this.sendBroadcast(var5);
@@ -547,6 +553,7 @@ public class StatsService extends Service {
 
             startForeground(1, notification);
         }
+        dbHelper = new DBHelper(getApplicationContext());
     }
     //всё работает так как функцию никто не вызывает
     @RequiresApi(26)
@@ -606,10 +613,10 @@ public class StatsService extends Service {
     // 0 - не гештальт, 1 - закрыто, 2 - открыто
     private void GetAnomalies() {
         gesStatus = 1;
-        Anomaly[] anomalyArr = new Anomaly[51];                                                                                          // 64.536258, 40.585447 - стрелковая 13 //me
-        anomalyArr[0] = new Anomaly("Circle", "Ges", 1.0d, 50.0d, new LatLng(64.54921d, 40.51925d), this, gesStatus); // над домом                    //64.573714, 40.516067
-        anomalyArr[1] = new Anomaly("Circle", "Bio", 1.0d, 50.0d, new LatLng(64.54502d, 40.51701d), this, 0); //64.526824, 40.604426; 64.355037d, 40.722809d
-        anomalyArr[2] = new Anomaly("Circle", "Rad", 1.0d, 50.0d, new LatLng(64.54723d, 40.51820d), this, 0); //64.526613, 40.604308; 64.355765d, 40.726628d
+        Anomaly[] anomalyArr = new Anomaly[51];  //из 51 аномалии 3 для сталкерской рулетки и не учитываются в CheckAnomalies()                       // 64.536258, 40.585447 - стрелковая 13 //me
+        anomalyArr[0] = new Anomaly("Circle", "Ges", 1.0d, 50.0d, new LatLng(60.573673d, 40.51645d), this, gesStatus); // над домом                    //64.573714, 40.516067
+        anomalyArr[1] = new Anomaly("Circle", "Bio", 1.0d, 50.0d, new LatLng(64.573673d, 40.51645d), this, 0); //64.526824, 40.604426; 64.355037d, 40.722809d
+        anomalyArr[2] = new Anomaly("Circle", "Rad", 1.0d, 50.0d, new LatLng(60.573673d, 40.51645d), this, 0); //64.526613, 40.604308; 64.355765d, 40.726628d
         anomalyArr[3] = new Anomaly("Circle", "Psy", 1.0d, 40.0d, new LatLng(64.57949d, 40.51345d), this, 0);
         anomalyArr[3].minstrenght = 20;
         anomalyArr[4] = new Anomaly("Circle", "Rad", 6.0d, 43.0d, new LatLng(64.526400d, 45.604193d), this, 0); //64.526400, 40.604193; 64.353653d, 40.720639d
@@ -680,13 +687,23 @@ public class StatsService extends Service {
     }
 
     // применяет аномалии
-    public void CheckAnomalys() {
-        for (int i = 0; i < NUMBER_OF_ANOMALIES; i++) {
-            anomalies[i].Apply();
+    public void CheckAnomalies() {
+        switch (ANOMALIES_SET_CHANGER) {
+            case 0:
+                for (int i = 0; i < 2; i++) {
+                    anomalies[i].Apply();
+                }
+                break;
+            case 1:
+                for (int i = 2; i < NUMBER_OF_ANOMALIES; i++) {
+                    anomalies[i].Apply();
+                }
+                break;
         }
     }
 
     public void CheckIfInAnyAnomaly() {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
         int i = 0;
         this.IsInsideAnomaly = Boolean.FALSE;
         while (i < NUMBER_OF_ANOMALIES) {
@@ -696,13 +713,21 @@ public class StatsService extends Service {
                     if (i < NUMBER_OF_GESTALT_ANOMALIES && anomalies[i].gesStatus == 1){  //если конкретный гештальт закрыт
                         if (gesLockoutList[i] != 1) {                                     // проверяет можно ли конкретный гештальт открыть
                             anomalies[i].gesStatus = 2;                                   // открываем гештальт
+                            /*ЕСЛИ ГЕШТАЛЬТ ОТКРЫВАЕТСЯ, ТО СТАВИТ ЕГО КООРДИНАТУ НА КАРТУ*/
+                            ContentValues contentValues = new ContentValues();
+                            contentValues.put(DBHelper.KEY_NAME, "!!!GESTALT!!!");
+                            contentValues.put(DBHelper.KEY_ICON, "icon");
+                            contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(anomalies[i].Center.latitude));
+                            contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(anomalies[i].Center.longitude));
+                            contentValues.put(DBHelper.KEY_COMMENT, "ЗАКРОЙ ГЕШТАЛЬТ");
+                            database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
+                            dbHelper.close();
                         }
                     }
                 }
             }
             i++;
         }
-
         /*
         рад выводится само со временем
         пси выводится сразу
@@ -758,6 +783,7 @@ public class StatsService extends Service {
                 }
                 Toast.makeText(getApplicationContext(), "Выброс Окончен!!", Toast.LENGTH_SHORT).show();
                 IsDischarging = Boolean.FALSE;
+                ANOMALIES_SET_CHANGER++;
             }
         }, 60000);
     }
@@ -777,6 +803,7 @@ public class StatsService extends Service {
         this.ScienceQR = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("ScienceQR", "0")));
         this.DischargeImmunity = Boolean.parseBoolean(defaultSharedPreferences.getString("DischargeImmunity", "false"));
         this.IsUnlocked = Boolean.parseBoolean(defaultSharedPreferences.getString("Lock", "true"));
+        this.ANOMALIES_SET_CHANGER = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("Anomalies_set_changer", "0")));
     }
 
     public void SaveStats() {
@@ -794,6 +821,7 @@ public class StatsService extends Service {
         edit.putString("ScienceQR", Integer.toString(this.ScienceQR));
         edit.putString("DischargeImmunity", Boolean.toString(this.DischargeImmunity));
         edit.putString("Lock", Boolean.toString(this.IsUnlocked));
+        edit.putString("Anomalies_set_changer", Integer.toString(this.ANOMALIES_SET_CHANGER));
         edit.commit();
     }
 }

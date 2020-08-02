@@ -1,5 +1,6 @@
 package com.example.myapplication2;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,12 +23,12 @@ import androidx.fragment.app.Fragment;
 public class PointTab extends Fragment {
     private Globals globals;
 
-    TextView txtViewDB;
     DBHelper dbHelper;
     SQLiteDatabase database;
     Cursor cursor;
     SimpleCursorAdapter userAdapter;
     ListView listViewPoints;
+    ContentValues contentValues;
     public static final int IDM_DELETE = 1102;
     public PointTab(Globals globals) {
         this.globals = globals;
@@ -36,11 +37,8 @@ public class PointTab extends Fragment {
     @Nullable
     public View onCreateView(@NonNull LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
         View inflate = layoutInflater.inflate(R.layout.fragment_point, viewGroup, false);
-        ListView listView = (ListView) inflate.findViewById(R.id.listViewPoints);
-        MyArrayAdapter myArrayAdapter = new MyArrayAdapter(getActivity(), R.layout.listpointitem, R.id.firstline, globals.MarkerArray, globals);
-        globals.Adapter = myArrayAdapter;
-        listView.setAdapter(myArrayAdapter);
-        listViewPoints = (ListView) inflate.findViewById(R.id.listViewPoints);
+
+        listViewPoints = inflate.findViewById(R.id.listViewPoints);
 
         dbHelper = new DBHelper(getActivity());
         registerForContextMenu(listViewPoints);
@@ -56,11 +54,6 @@ public class PointTab extends Fragment {
             String[] headers = new String[]{DBHelper.KEY_ID, DBHelper.KEY_NAME, DBHelper.KEY_LATITUDE, DBHelper.KEY_LONGITUDE, DBHelper.KEY_COMMENT};
             userAdapter = new SimpleCursorAdapter(getActivity(), R.layout.item_frag_point,
                     cursor, headers, new int[]{R.id.txtV_key, R.id.txtV_name, R.id.txtV_lat, R.id.txtV_long, R.id.txtV_comment}, 0);
-
-            // если в текстовом поле есть текст, выполняем фильтрацию
-            // данная проверка нужна при переходе от одной ориентации экрана к другой
-            /*if(!enterSurname.getText().toString().isEmpty())
-                userAdapter.getFilter().filter(enterSurname.getText().toString());*/
 
             // установка слушателя изменения текста
            /* enterSurname.addTextChangedListener(new TextWatcher() {
@@ -111,12 +104,20 @@ public class PointTab extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == IDM_DELETE) {
             // удаляем
-            database.delete(DBHelper.TABLE_MARKERS, DBHelper.KEY_ID + "= ?", new String[] {String.valueOf(cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID)))});
-            // уведомляем, что данные изменились
+            database.delete(DBHelper.TABLE_MARKERS, DBHelper.KEY_ID + "= ?", new String[] {String.valueOf(cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID)))});;
+            // уведомляем, что данные изменились, но че т ничего не убновлется
             userAdapter.notifyDataSetChanged();
             return true;
         }
         return super.onContextItemSelected(item);
+    }
+
+    public void onPause() {
+        super.onPause();
+        database.close();
+        cursor.close();
+
+
     }
 
     @Override

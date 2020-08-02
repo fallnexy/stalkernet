@@ -29,7 +29,7 @@ public class MyArrayAdapter extends ArrayAdapter<MarkerOptions> {
 
     @NonNull
     public View getView(final int i, @Nullable View view, @NonNull ViewGroup viewGroup) {
-        if (view == null) {
+        /*if (view == null) {
             view = LayoutInflater.from(this.mContext).inflate(this.resourceLayout, null);
         }
         MarkerOptions markerOptions = (MarkerOptions) getItem(i);
@@ -53,7 +53,7 @@ public class MyArrayAdapter extends ArrayAdapter<MarkerOptions> {
             stringBuilder.append("-");
             stringBuilder.append(Double.toString(markerOptions.getPosition().longitude));
             textView3.setText(stringBuilder.toString());
-        }
+        }*/
         return view;
     }
 }

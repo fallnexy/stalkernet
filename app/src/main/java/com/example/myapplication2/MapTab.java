@@ -20,8 +20,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -33,6 +31,8 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
     public MapTab(Globals globals) {
         this.globals = globals;
     }
+    SQLiteDatabase database;
+    Cursor cursor;
 
 
     @Nullable
@@ -54,8 +54,8 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
         mMap.setOnMarkerClickListener(this);
         AddGroundOverlay(this.mMap);
 
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.query(DBHelper.TABLE_MARKERS, null, null, null, null, null, null);
+        database = dbHelper.getWritableDatabase();
+        cursor = database.query(DBHelper.TABLE_MARKERS, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
             int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME);
@@ -74,23 +74,25 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
             @Override
             public void onMapLongClick(LatLng latLng) {
                 mMap.addMarker(new MarkerOptions().position(latLng));
-                LastMarker = new MarkerOptions().position(latLng);
-                LastMarker.title("Point");
-                double lat = LastMarker.getPosition().latitude;
-                double lon = LastMarker.getPosition().longitude;
-                globals.MarkerArray.add(LastMarker);
-                globals.Adapter.notifyDataSetChanged();
 
-                SQLiteDatabase database = dbHelper.getWritableDatabase();
+                // новое запоминает точек, через базу данных
+                /*
+                * try/finally призвана для безопасности и быстроты
+                * */
+                database = dbHelper.getWritableDatabase();
                 ContentValues contentValues = new ContentValues();
-
-                contentValues.put(DBHelper.KEY_NAME, "name");
-                contentValues.put(DBHelper.KEY_ICON, "icon");
-                contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(lat));
-                contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(lon));
-                contentValues.put(DBHelper.KEY_COMMENT, "comment");
-                database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
-
+                database.beginTransaction();
+                try {
+                    contentValues.put(DBHelper.KEY_NAME, "name");
+                    contentValues.put(DBHelper.KEY_ICON, "icon");
+                    contentValues.put(DBHelper.KEY_LATITUDE, latLng.latitude); //если написать здесь format для округления о 6 знаков после запятой, то всё ломается
+                    contentValues.put(DBHelper.KEY_LONGITUDE, latLng.longitude);
+                    contentValues.put(DBHelper.KEY_COMMENT, "comment");
+                    database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
+                    database.setTransactionSuccessful();
+                } finally {
+                    database.endTransaction();
+                }
                 dbHelper.close();
             }
         });
@@ -104,6 +106,7 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
         googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
     }
 
+    // эта штука меняла иконки у маркера, но работала не фонтан
     int iconNumber = 0;
     @Override
     public boolean onMarkerClick(Marker marker) {
@@ -129,11 +132,18 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
         return false;
     }
 
+    public void onResume() {
+        super.onResume();
+        try {
+            onMapReady(mMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onPause() {
         super.onPause();
-        //.clear(); //слишком долго каждый раз новую карту грузить
-
-
+        mMap.clear();
     }
 }
