@@ -26,7 +26,7 @@ import static android.content.Context.LOCATION_SERVICE;
 public class Globals {
     Context mContext;
     public ArrayAdapter<MarkerOptions> Adapter;
-    public String Health, Rad, Bio, Psy;
+    public String Health, Rad, Bio, Psy, ProtectionRad, ProtectionBio, ProtectionPsy;
     public ProgressBar HealthBar, RadBar, BioBar, PsyBar;
     public String MaxHealth = "200", MaxRad = "100", MaxBio = "100", MaxPsi = "100";
     public TextView CO;
@@ -59,7 +59,7 @@ public class Globals {
         String healthPercent = 100 * parseDouble / Double.parseDouble(MaxHealth) +"%";
         HealthPercent.setText(healthPercent);
 
-        this.RadBar.setMax(Integer.parseInt(MaxRad));                                           //
+        RadBar.setMax(Integer.parseInt(MaxRad));                                           //
         try {
             parseDouble = (int) Double.parseDouble(Rad);
         } catch (Exception unused2) {
@@ -75,15 +75,15 @@ public class Globals {
         }
         BioBar.setProgress(parseDouble);
         BioBar.setSecondaryProgress((int) Double.parseDouble(CurrentBio));  //нужно задать Currentbio, чтоб оно работало - опоп, работает?
-
-        RadBar.setMax(Integer.parseInt(MaxPsi));
+//почему у пси по-другому?
+        PsyBar.setMax(Integer.parseInt(MaxPsi));
         try {
             i = (int) Double.parseDouble(Psy);
         } catch (Exception unused4) {
         }
         PsyBar.setProgress(i);
 
-       // GPS изначальное, которое не работает - уже работает
+       // GPS
         TextView textView = CO;
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(String.valueOf(location.getLatitude()));
@@ -96,7 +96,7 @@ public class Globals {
     public void AddGroundOverlay(GoogleMap googleMap) {
         googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
     }
-    // маркеры на карте
+    // маркеры на карте - наверно теперь не работает
     public void redrawMarkers() {
         for (int i = 0; i < MarkerArray.size(); i++) {
             map.addMarker((MarkerOptions) MarkerArray.get(i));

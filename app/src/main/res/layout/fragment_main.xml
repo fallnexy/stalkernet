@@ -2,25 +2,30 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:background="@color/colorPrimaryDark"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<LinearLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical">
+		android:layout_height="wrap_content">
 
 		<ImageView
 			android:id="@+id/ImageViewHealth"
 			android:layout_width="56dp"
 			android:layout_height="56dp"
-			android:src="@drawable/healthsymbol3" />
+			android:src="@drawable/healthsymbol3"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 
 		<FrameLayout
+			android:id="@+id/frameLayout"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/ImageViewHealth">
 
 			<ProgressBar
 				android:id="@+id/ProgressHealth"
@@ -41,12 +46,24 @@
 				android:visibility="visible" />
 		</FrameLayout>
 
-
 		<ImageView
 			android:id="@+id/ImageViewRad"
 			android:layout_width="56dp"
 			android:layout_height="56dp"
-			android:src="@drawable/radsymbol3" />
+			android:src="@drawable/radsymbol3"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+
+		<TextView
+			android:id="@+id/txtProtectionRad"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="10dp"
+			android:layout_weight="1"
+			android:text="Защита от радиации"
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			app:layout_constraintBottom_toTopOf="@+id/ProgressRad"
+			app:layout_constraintStart_toEndOf="@+id/ImageViewRad" />
 
 		<ProgressBar
 			android:id="@+id/ProgressRad"
@@ -54,14 +71,21 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
+			android:layout_marginStart="10dp"
+			android:layout_marginTop="10dp"
 			android:progressTint="@color/Yellow"
-			android:scaleY="8.0" />
+			android:scaleY="8.0"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/ImageViewRad" />
 
 		<ImageView
 			android:id="@+id/ImageViewBio"
 			android:layout_width="56dp"
 			android:layout_height="56dp"
-			android:src="@drawable/biosymbol3" />
+			android:layout_marginTop="10dp"
+			android:src="@drawable/biosymbol3"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/ProgressRad" />
 
 		<ProgressBar
 			android:id="@+id/ProgressBio"
@@ -71,13 +95,18 @@
 			android:layout_margin="10dp"
 			android:progressTint="@color/green"
 			android:scaleY="8.0"
-			android:secondaryProgressTint="@color/secondaryGreen" />
+			android:secondaryProgressTint="@color/secondaryGreen"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/ImageViewBio" />
 
 		<ImageView
 			android:id="@+id/ImageViewPsy"
 			android:layout_width="56dp"
 			android:layout_height="56dp"
-			android:src="@drawable/psysymbol3" />
+			android:layout_marginTop="10dp"
+			android:src="@drawable/psysymbol3"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/ProgressBio" />
 
 		<ProgressBar
 			android:id="@+id/ProgressPsy"
@@ -85,29 +114,60 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
+			android:layout_marginStart="8dp"
+			android:layout_marginTop="10dp"
 			android:progressTint="@color/blue"
-			android:scaleY="8.0" />
+			android:scaleY="8.0"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/ImageViewPsy" />
 
 		<TextView
 			android:id="@+id/txtCoordinates"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:layout_marginTop="10dp"
 			android:text="координаты"
-			/>
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/ProgressPsy" />
 
 		<TextView
 			android:id="@+id/txtMessages"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:text="V 0.38"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			android:text="V 0.34" />
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/txtCoordinates" />
 
 		<TextView
 			android:id="@+id/txtVersion"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:text="V 0.38"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			android:text="V 0.34" />
-	</LinearLayout>
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/txtMessages" />
+
+		<TextView
+			android:id="@+id/txtProtectionBio"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="10dp"
+			android:text="Защита от био"
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			app:layout_constraintBottom_toTopOf="@+id/ProgressBio"
+			app:layout_constraintStart_toEndOf="@+id/ImageViewBio" />
+
+		<TextView
+			android:id="@+id/txtProtectionPsy"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="10dp"
+			android:text="Защита от пси"
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			app:layout_constraintBottom_toTopOf="@+id/ProgressPsy"
+			app:layout_constraintStart_toEndOf="@+id/ImageViewPsy" />
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>

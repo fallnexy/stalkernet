@@ -62,6 +62,9 @@ public class EffectManager {
                 case 10:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
                     break;
+                case 11:
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_11);
+                    break;
                 default:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
                     break;

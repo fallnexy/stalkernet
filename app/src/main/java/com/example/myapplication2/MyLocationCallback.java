@@ -53,8 +53,14 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLatitude());
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLongitude());
-            stringBuilder.append(":");                               //qr ученого
-            stringBuilder.append(this.ServiceReference.ScienceQR);
+            stringBuilder.append(":");
+            stringBuilder.append(this.ServiceReference.ScienceQR);  //qr ученого
+            stringBuilder.append(":");
+            stringBuilder.append(this.ServiceReference.RadProtection);
+            stringBuilder.append(":");
+            stringBuilder.append(this.ServiceReference.BioProtection);
+            stringBuilder.append(":");
+            stringBuilder.append(this.ServiceReference.PsyProtection);
             String stringBuilder2 = stringBuilder.toString();
             Intent intent = new Intent("StatsService.Update");
             intent.putExtra("Stats", stringBuilder2);
@@ -67,7 +73,7 @@ public class MyLocationCallback extends LocationCallback {
         super.onLocationAvailability(locationAvailability);
     }
 //getTime
-    public void GetTime() {
+    private void GetTime() {
         this.cal = Calendar.getInstance();
         this.dayInt = this.cal.get(5);
         this.Hour = this.cal.get(11);
@@ -76,19 +82,19 @@ public class MyLocationCallback extends LocationCallback {
 //timeToDischarge
     private void TimeToDischarge() {
         if (!this.ServiceReference.IsDischarging) {
-            if (this.dayInt == 2 && this.Minutes == 30 && this.Hour == 21) {
+            if (this.dayInt == 22 && this.Minutes == 0 && this.Hour == 12) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
-            if (this.dayInt == 29 && this.Minutes == 10 && this.Hour == 1) {
+            if (this.dayInt == 22 && this.Minutes == 0 && this.Hour == 18) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
-            if (this.dayInt == 16 && this.Minutes == 30 && this.Hour == 5) {
+            if (this.dayInt == 24 && this.Minutes == 0 && this.Hour == 15) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
-            if (this.dayInt == 12 && this.Minutes == 0 && this.Hour == 18) {
+            if (this.dayInt == 24 && this.Minutes == 0 && this.Hour == 20) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }

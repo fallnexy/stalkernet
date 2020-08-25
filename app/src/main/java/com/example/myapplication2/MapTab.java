@@ -96,15 +96,19 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
                 dbHelper.close();
             }
         });
-        CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.35342867d, 40.7328d));
+        CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.35342867d, 40.7328d)); //64.35342867d, 40.7328d  64.539987, 40.515795
         CameraUpdate zoomTo = CameraUpdateFactory.zoomTo(13.65f);
         mMap.moveCamera(newLatLng);
         mMap.animateCamera(zoomTo);
     }
     //сюда ставится карта
     public void AddGroundOverlay(GoogleMap googleMap) {
-        googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
+        googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2020v1)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
+        //googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map4)).positionFromBounds(new LatLngBounds(new LatLng(64.537961d, 40.511900d), new LatLng(64.540847d, 40.520593d)))); //64.540847, 40.520593
+        //googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map5)).positionFromBounds(new LatLngBounds(new LatLng(64.548741d, 39.774947d), new LatLng(64.552450d, 39.787814d)))); //64.552450, 39.787814
     }
+
+
 
     // эта штука меняла иконки у маркера, но работала не фонтан
     int iconNumber = 0;

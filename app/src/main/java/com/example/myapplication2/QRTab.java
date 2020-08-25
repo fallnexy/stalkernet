@@ -41,8 +41,8 @@ public class QRTab extends Fragment implements View.OnClickListener{
     private boolean scienceQR = false;
     private Button btnScienceQR;
 
-    long firstTime;
-    long secondTime;
+    private long firstTime;
+    private long secondTime;
 
     public QRTab(Globals globals) {
         this.globals = globals;
@@ -72,7 +72,9 @@ public class QRTab extends Fragment implements View.OnClickListener{
         LoadBarcodeText();
         return inflate;
     }
-
+/*
+* QR ученого
+* */
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.read_barcode) {
@@ -132,6 +134,16 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "geshtalt closed 2");
                             QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
                             return;
+                        case "12543659521":
+                            barcodeValue.setText("Защита от радиации на 2 часа поставлена");
+                            intent.putExtra("Command", "TwoHoursRadProtection");
+                            QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "5483586845312":
+                            barcodeValue.setText("15 минут, чтоб до базы дойти");
+                            intent.putExtra("Command", "15minutesGod");
+                            QRTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                            return;
                         case "a":
                             Spanned str = Html.fromHtml("<font color=\"red\">Привет.</font> <font color=\"yellow\">как </font> <font color=\"blue\">дела?</font>");
                             barcodeValue.setText(str);
@@ -178,7 +190,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
-                    String str = "SetGesProtectionOFF"; //"Соня не убивала" -1022716346
+                    String str = "15minutesGod"; //"Соня не убивала" -1022716346
                                               //"ScienceQR" -1555514523
                                               //"ScienceQRoff" -1930888214
                                               //"G" 71
@@ -188,6 +200,8 @@ public class QRTab extends Fragment implements View.OnClickListener{
                                               //  "SetGesProtection" 317294316
                                               //  "теперьоткрыт" 1974805046
                                               //  "SetGesProtectionOFF" -707972381
+                                              // "TwoHoursRadProtection" 1543390539
+                                              // "15minutesGod" -1151237055
                     statusMessage.setText(R.string.barcode_failure);
                     Log.d(TAG, "No barcode captured, intent data is null " + str.hashCode());
                 }

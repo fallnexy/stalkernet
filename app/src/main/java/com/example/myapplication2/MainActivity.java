@@ -50,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
             globals.location.setLatitude(Double.parseDouble(split[5]));
             globals.location.setLongitude(Double.parseDouble(split[6]));
             globals.ScienceQR = Integer.parseInt(split[7]);
+            globals.ProtectionRad = split[8];
+            globals.ProtectionBio = split[9];
+            globals.ProtectionPsy = split[10];
             globals.UpdateStats();
         }
     };
