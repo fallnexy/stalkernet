@@ -3,7 +3,6 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:background="@color/colorPrimaryDark"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -14,45 +13,40 @@
 
 		<ImageView
 			android:id="@+id/ImageViewHealth"
-			android:layout_width="56dp"
-			android:layout_height="56dp"
-			android:src="@drawable/healthsymbol3"
+			android:layout_width="28dp"
+			android:layout_height="28dp"
+			android:layout_marginStart="24dp"
+			android:layout_marginTop="24dp"
+			android:src="@drawable/health_symbol"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
-		<FrameLayout
-			android:id="@+id/frameLayout"
+
+		<ProgressBar
+			android:id="@+id/ProgressHealth"
+			style="?android:attr/progressBarStyleHorizontal"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="10dp"
+			android:layout_marginEnd="16dp"
+			android:progressDrawable="@drawable/prog"
+			android:scaleY="1.5"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ImageViewHealth">
+			app:layout_constraintTop_toBottomOf="@+id/ImageViewHealth" />
 
-			<ProgressBar
-				android:id="@+id/ProgressHealth"
-				style="?android:attr/progressBarStyleHorizontal"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_margin="10dp"
-				android:progressTint="@color/common_google_signin_btn_text_dark_pressed"
-				android:scaleY="8.0" />
-
-			<TextView
-				android:id="@+id/txtHealthPercent"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:text="загрузка..."
-				android:textColor="@color/colorAccent"
-				android:visibility="visible" />
-		</FrameLayout>
 
 		<ImageView
 			android:id="@+id/ImageViewRad"
-			android:layout_width="56dp"
-			android:layout_height="56dp"
-			android:src="@drawable/radsymbol3"
+			android:layout_width="28dp"
+			android:layout_height="28dp"
+			android:layout_marginStart="24dp"
+			android:layout_marginTop="24dp"
+			android:src="@drawable/rad_symbol"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+			app:layout_constraintTop_toBottomOf="@+id/ProgressHealth" />
 
 		<TextView
 			android:id="@+id/txtProtectionRad"
@@ -71,19 +65,19 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
-			android:layout_marginStart="10dp"
 			android:layout_marginTop="10dp"
-			android:progressTint="@color/Yellow"
-			android:scaleY="8.0"
+			android:progressDrawable="@drawable/prog"
+			android:scaleY="1.5"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ImageViewRad" />
 
 		<ImageView
 			android:id="@+id/ImageViewBio"
-			android:layout_width="56dp"
-			android:layout_height="56dp"
-			android:layout_marginTop="10dp"
-			android:src="@drawable/biosymbol3"
+			android:layout_width="28dp"
+			android:layout_height="28dp"
+			android:layout_marginStart="24dp"
+			android:layout_marginTop="24dp"
+			android:src="@drawable/bio_symbol"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ProgressRad" />
 
@@ -93,18 +87,19 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
-			android:progressTint="@color/green"
-			android:scaleY="8.0"
+			android:progressDrawable="@drawable/prog"
+			android:scaleY="1.5"
 			android:secondaryProgressTint="@color/secondaryGreen"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ImageViewBio" />
 
 		<ImageView
 			android:id="@+id/ImageViewPsy"
-			android:layout_width="56dp"
-			android:layout_height="56dp"
-			android:layout_marginTop="10dp"
-			android:src="@drawable/psysymbol3"
+			android:layout_width="28dp"
+			android:layout_height="28dp"
+			android:layout_marginStart="24dp"
+			android:layout_marginTop="24dp"
+			android:src="@drawable/psy_symbol"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ProgressBio" />
 
@@ -114,10 +109,10 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dp"
-			android:layout_marginStart="8dp"
+			android:layout_marginStart="16dp"
 			android:layout_marginTop="10dp"
-			android:progressTint="@color/blue"
-			android:scaleY="8.0"
+			android:progressDrawable="@drawable/prog"
+			android:scaleY="1.5"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ImageViewPsy" />
 
@@ -125,9 +120,12 @@
 			android:id="@+id/txtCoordinates"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="10dp"
+			android:layout_marginStart="24dp"
+			android:layout_marginTop="24dp"
+			android:layout_marginEnd="24dp"
 			android:text="координаты"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ProgressPsy" />
 
@@ -135,8 +133,11 @@
 			android:id="@+id/txtMessages"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="V 0.38"
+			android:layout_marginStart="24dp"
+			android:layout_marginEnd="24dp"
+			android:text="V 0.43"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/txtCoordinates" />
 
@@ -144,8 +145,11 @@
 			android:id="@+id/txtVersion"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="V 0.38"
+			android:layout_marginStart="24dp"
+			android:layout_marginEnd="24dp"
+			android:text="V freedom"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/txtMessages" />
 
@@ -168,6 +172,59 @@
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 			app:layout_constraintBottom_toTopOf="@+id/ProgressPsy"
 			app:layout_constraintStart_toEndOf="@+id/ImageViewPsy" />
+
+		<TextView
+			android:id="@+id/txtHealthPercent"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:layout_marginEnd="16dp"
+			android:layout_marginBottom="8dp"
+			android:text="загрузка..."
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:visibility="visible"
+			app:layout_constraintBottom_toTopOf="@+id/ProgressHealth"
+			app:layout_constraintEnd_toEndOf="parent" />
+
+		<TextView
+			android:id="@+id/txtRadPercent"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:layout_marginEnd="16dp"
+			android:layout_marginBottom="8dp"
+			android:text="загрузка..."
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:visibility="visible"
+			app:layout_constraintBottom_toTopOf="@+id/ProgressRad"
+			app:layout_constraintEnd_toEndOf="parent" />
+
+		<TextView
+			android:id="@+id/txtBioPercent"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:layout_marginEnd="16dp"
+			android:layout_marginBottom="8dp"
+			android:text="загрузка..."
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:visibility="visible"
+			app:layout_constraintBottom_toTopOf="@+id/ProgressBio"
+			app:layout_constraintEnd_toEndOf="parent" />
+
+		<TextView
+			android:id="@+id/txtPsyPercent"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:layout_marginEnd="16dp"
+			android:layout_marginBottom="8dp"
+			android:text="загрузка..."
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:visibility="visible"
+			app:layout_constraintBottom_toTopOf="@+id/ProgressPsy"
+			app:layout_constraintEnd_toEndOf="parent" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </LinearLayout>

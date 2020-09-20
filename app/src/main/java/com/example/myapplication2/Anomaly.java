@@ -22,7 +22,7 @@ public class Anomaly {
    /* private int hours;
     private long mills;
     private int mins;*/
-    public int minstrenght = 1;
+    public double minstrenght = 0.001;
     public Polygon poly;
     public Double radius;
     public Double strenght;
@@ -56,19 +56,29 @@ public class Anomaly {
 
 // метод внутри apply()
     public void AnomalyResult(double distanceToAnomaly){
-        int damage;
+        double damage;
         Service.LastTimeHitBy = Type;
         IsInside = Boolean.TRUE;
         Service.TypeAnomalyIn = Type;
-        damage = (int) Math.round(strenght * (1 - (distanceToAnomaly / radius)));
+        damage = /*(int) Math.round(*/strenght * (1 - Math.pow(distanceToAnomaly / radius, 2/*)*/));
         if (damage <= minstrenght) {
             damage = minstrenght;
         }
         switch (Type){
+            case "RadF": // уникальная аномалия свободы
+                Service.Rad += damage * (0.3 - Service.RadProtection / 100d);
+                if (Service.Rad >= 1000.0d) {
+                    Service.setDead(Boolean.TRUE);
+                    Service.setHealth(0.0d);
+                    Intent intent2 = new Intent("StatsService.Message");
+                    intent2.putExtra("Message", "H");
+                    Service.sendBroadcast(intent2);
+                }
+                return;
             case "Rad":
                 Service.Rad += damage * (1 - Service.RadProtection / 100d);
                 Service.setHealth(Service.Health - damage * (1 - Service.RadProtection / 100d));
-                if (Service.Rad >= 100.0d) {
+                if (Service.Rad >= 1000.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
                     Intent intent2 = new Intent("StatsService.Message");
@@ -79,7 +89,7 @@ public class Anomaly {
             case "Bio": ;
                 Service.Bio += damage * (1 - Service.BioProtection / 100d);
                 Service.setHealth(Service.Health - damage * (1 - Service.BioProtection / 100d));
-                if (Service.Bio >= 100.0d) {
+                if (Service.Bio >= 1000.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
                     Intent intent2 = new Intent("StatsService.Message");
@@ -90,7 +100,7 @@ public class Anomaly {
             case "Psy":
                 Service.Psy += damage * (1 - Service.PsyProtection / 100d);
                 Service.setHealth(Service.Health - damage * (1 - Service.PsyProtection / 100d));
-                if (Service.Psy >= 100.0d) {
+                if (Service.Psy >= 1000.0d) {
                     Service.setDead(Boolean.TRUE);
                     Service.setHealth(0.0d);
                     Intent intent2 = new Intent("StatsService.Message");
@@ -107,25 +117,29 @@ public class Anomaly {
     //гештальт, надо добавить защиту и сообщение исправить
 // Service.GestaltOpen - если гештальт открыт, то его надо закрыть.  1 - закрыто, 2 - открыто
     public void Gestalt(double distanceToAnomaly){
-        if (distanceToAnomaly > radius && gesStatus == 2){
-            int damage;
-            Service.LastTimeHitBy = Type;
-            Service.TypeAnomalyIn = Type;
-            damage = (int) Math.round(strenght) /* (distanceToAnomaly / radius))*/; //урон не зависит от расстояния, потому что сталкер может из далека зацепить гештальт
-            if (damage <= minstrenght) {
-                damage = minstrenght;
+            if (distanceToAnomaly > radius && gesStatus == 2){
+                double damage;
+                Service.LastTimeHitBy = Type;
+                Service.TypeAnomalyIn = Type;
+
+                damage = strenght; /* (distanceToAnomaly / radius))*/ //урон не зависит от расстояния, потому что сталкер может из далека зацепить гештальт
+                if (damage <= minstrenght) {
+                    damage = minstrenght;
+                }
+                if (Service.Health > 20) {
+                    Service.setHealth(Service.Health - damage);
+                }
+                if (Service.Health <= 0.0d) {
+                    Service.setDead(Boolean.TRUE);
+                    Service.setHealth(0.0d);
+                    Intent intent2 = new Intent("StatsService.Message");
+                    intent2.putExtra("Message", "H");
+                    Service.sendBroadcast(intent2);
+                }
+                this.Service.LastTimeChanged = Calendar.getInstance().getTime();
+                this.Service.EM.StopActions();
             }
-            Service.setHealth(Service.Health - damage);
-            if (Service.Health <= 0.0d) {
-                Service.setDead(Boolean.TRUE);
-                Service.setHealth(0.0d);
-                Intent intent2 = new Intent("StatsService.Message");
-                intent2.putExtra("Message", "H");
-                Service.sendBroadcast(intent2);
-            }
-            this.Service.LastTimeChanged = Calendar.getInstance().getTime();
-            this.Service.EM.StopActions();
-        }
+
     }
 
 // этот метод вызыается в StatService
@@ -140,12 +154,12 @@ public class Anomaly {
                 }
                 if (this.Type.equals("Bio")) {
                     this.Service.Bio = this.strenght;
-                    this.Service.Health -= this.Service.Bio * (100 - this.Service.BioProtection);
+                    this.Service.Health -= this.Service.Bio * (1 - this.Service.BioProtection / 100d);
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                 }
                 if (this.Type.equals("Psy")) {
                     this.Service.Psy = this.strenght;
-                    this.Service.Health -= this.Service.Psy  * (100 - this.Service.PsyProtection);
+                    this.Service.Health -= this.Service.Psy  * (1 - this.Service.PsyProtection / 100d);
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                 }
             } else {

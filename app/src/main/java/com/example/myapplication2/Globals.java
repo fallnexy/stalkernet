@@ -1,12 +1,8 @@
 package com.example.myapplication2;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
-import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -19,19 +15,16 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.Date;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 public class Globals {
     Context mContext;
     public ArrayAdapter<MarkerOptions> Adapter;
     public String Health, Rad, Bio, Psy, ProtectionRad, ProtectionBio, ProtectionPsy;
     public ProgressBar HealthBar, RadBar, BioBar, PsyBar;
-    public String MaxHealth = "200", MaxRad = "100", MaxBio = "100", MaxPsi = "100";
+    public String MaxHealth = "2000", MaxRad = "1000", MaxBio = "1000", MaxPsy = "1000";
     public TextView CO;
     public TextView Messages;
-    public TextView HealthPercent;
+    public TextView HealthPercent, RadPercent, BioPercent, PsyPercent;
     public String CurrentBio;
     public ArrayList<MarkerOptions> MarkerArray = new ArrayList();
     public ArrayList<String> StringMarkerArray = new ArrayList();
@@ -66,22 +59,31 @@ public class Globals {
             parseDouble = 0;
         }
         RadBar.setProgress(parseDouble);
+        String radPercent = 100 * parseDouble / Double.parseDouble(MaxRad) +"%";
+        RadPercent.setText(radPercent);
 
-        RadBar.setMax(Integer.parseInt(MaxBio));
+        BioBar.setMax(Integer.parseInt(MaxBio));
         try {
             parseDouble = (int) Double.parseDouble(Bio);
         } catch (Exception unused3) {
             parseDouble = 0;
         }
         BioBar.setProgress(parseDouble);
+        String bioPercent = 100 * parseDouble / Double.parseDouble(MaxRad) +"%";
+        BioPercent.setText(bioPercent);
         BioBar.setSecondaryProgress((int) Double.parseDouble(CurrentBio));  //нужно задать Currentbio, чтоб оно работало - опоп, работает?
 //почему у пси по-другому?
-        PsyBar.setMax(Integer.parseInt(MaxPsi));
+        PsyBar.setMax(Integer.parseInt(MaxPsy));
         try {
-            i = (int) Double.parseDouble(Psy);
+            parseDouble = (int) Double.parseDouble(Psy);
         } catch (Exception unused4) {
+            parseDouble = 0;
         }
-        PsyBar.setProgress(i);
+        PsyBar.setProgress(parseDouble);
+        String psyPercent = 100 * parseDouble / Double.parseDouble(MaxPsy) +"%";
+        PsyPercent.setText(psyPercent);
+
+
 
        // GPS
         TextView textView = CO;

@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark"
+    android:background="@drawable/fon"
     tools:context=".MainActivity">
 
     <com.google.android.material.tabs.TabLayout
@@ -19,21 +19,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/status_active3"/>
-            android:text="Главная" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/map_active3"/>
-            android:text="Карта" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/location_active3"/>
-            android:text="Точки" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem4"
@@ -46,7 +43,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/admin_active3" />
-        android:text="Коды" />
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager.widget.ViewPager

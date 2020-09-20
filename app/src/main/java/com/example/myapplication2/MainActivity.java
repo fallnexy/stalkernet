@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             globals.Rad = split[1];
             globals.Bio = split[2];
             globals.CurrentBio = split[4];
-            if (Double.parseDouble(split[3]) >= 100.0d) {
+            if (Double.parseDouble(split[3]) >= 1000.0d) {
                 globals.Health = "Вы умерли.";
             } else {
                 globals.Psy = split[3];
@@ -90,13 +90,13 @@ public class MainActivity extends AppCompatActivity {
                     globals.Messages.setText("Вы умерли, направляйтесь к мертвяку..");
                     break;
                 case 1:
-                    globals.Messages.setText("Вы умерли, подождите контролёра 5 минут, если его нет, то следуйте к мертвяку в режиме зомби.");
+                    globals.Messages.setText("Вы умерли, следуйте к мертвяку в режиме зомби.");
                     break;
                 case 2:
                     globals.Messages.setText("");
                     break;
                 case 3:
-                    globals.Messages.setText("Не выходи из виброзоны, пока не закроешь гештальт.");
+                    globals.Messages.setText("Обнаружен Гештальт. Зафиксирована инверсия пси-поля, не покидайте границы безопасной зоны");
                     break;
             }
 
@@ -109,11 +109,11 @@ public class MainActivity extends AppCompatActivity {
                 String var4 = intent.getStringExtra("Health");
                 int var3 = var4.hashCode();
                 if (var3 != 49586) {
-                    if (var3 == 50547 && var4.equals("300")) {
+                    if (var3 == 50547 && var4.equals("3000")) {
                         var5 = 1;
                         break label26;
                     }
-                } else if (var4.equals("200")) {
+                } else if (var4.equals("2000")) {
                     var5 = 0;
                     break label26;
                 }
@@ -123,11 +123,11 @@ public class MainActivity extends AppCompatActivity {
 
             switch(var5) {
                 case 0:
-                    globals.MaxHealth = "200";
+                    globals.MaxHealth = "2000";
                     globals.UpdateStats();
                     break;
                 case 1:
-                    globals.MaxHealth = "300";
+                    globals.MaxHealth = "3000";
                     globals.UpdateStats();
             }
 

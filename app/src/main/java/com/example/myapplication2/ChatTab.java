@@ -28,92 +28,92 @@ public class ChatTab extends Fragment {
                     intent = new Intent("Command");
                     switch(code.hashCode()) {
                             // старые коды
-                        case -2059769973:
-                            if (code.equals("гагарин")) {
+                        case -2074677495:
+                            if (code.equals("хв2020")) {
                                 var3 = 0;
                                 break label94;
                             }
                             break;
-                        case 54148120:
-                            if (code.equals("91000")) {
+                        case 1456976519:
+                            if (code.equals("191000")) {
                                 var3 = 1;
                                 break label94;
                             }
                             break;
-                        case 54148275:
-                            if (code.equals("91050")) {
+                        case 1456976674:
+                            if (code.equals("191050")) {
                                 var3 = 2;
                                 break label94;
                             }
                             break;
-                        case 54149081:
-                            if (code.equals("91100")) {
+                        case 1456977480:
+                            if (code.equals("191100")) {
                                 var3 = 3;
                                 break label94;
                             }
                             break;
-                        case 52301078:
-                            if (code.equals("71000")) {
+                        case 1455129477:
+                            if (code.equals("171000")) {
                                 var3 = 4;
                                 break label94;
                             }
                             break;
-                        case 52301233:
-                            if (code.equals("71050")) {
+                        case 1455129632:
+                            if (code.equals("171050")) {
                                 var3 = 5;
                                 break label94;
                             }
                             break;
-                        case 52302039:
-                            if (code.equals("71100")) {
+                        case 1455130438:
+                            if (code.equals("171100")) {
                                 var3 = 6;
                                 break label94;
                             }
                             break;
-                        case 53224599:
-                            if (code.equals("81000")) {
+                        case 1456052998:
+                            if (code.equals("181000")) {
                                 var3 = 7;
                                 break label94;
                             }
                             break;
-                        case 53224754:
-                            if (code.equals("81050")) {
+                        case 1456053153:
+                            if (code.equals("181050")) {
                                 var3 = 8;
                                 break label94;
                             }
                             break;
-                        case 53225560:
-                            if (code.equals("81100")) {
+                        case 1456053959:
+                            if (code.equals("181100")) {
                                 var3 = 9;
                                 break label94;
                             }
                             break;
-                        case -1631526413:
-                            if (code.equals("странник")) {
+                        case 1953035904:
+                            if (code.equals("курьер")) {
                                 var3 = 10;
                                 break label94;
                             }
                             break;
-                        case 928548519:
-                            if (code.equals("бродяга")) {
+                        case 1698598526:
+                            if (code.equals("доставщик")) {
                                 var3 = 11;
                                 break label94;
                             }
                             break;
-                        case 1025116985:
-                            if (code.equals("виски")) {
+                        case -1945318196:
+                            if (code.equals("шпагат")) {
                                 var3 = 12;
                                 break label94;
                             }
                             break;
-                        case -2126025274:
-                            if (code.equals("текила")) {
+                        case 1572782670:
+                            if (code.equals("поперечный")) {
                                 var3 = 13;
                                 break label94;
                             }
                             break;
-                        case 54331765:
-                            if (code.equals("97531")) {
+                        case 53377460:
+                            if (code.equals("86420")) {
                                 var3 = 14;
                                 break label94;
                             }
@@ -124,19 +124,19 @@ public class ChatTab extends Fragment {
                                 break label94;
                             }
                             break;
-                        case 1534645504:
-                            if (code.equals("404404")) {
+                        case 2063766181:
+                            if (code.equals("далматинец")) {
                                 var3 = 16;
                                 break label94;
                             }
                             break;
-                        case 1662424529:
-                            if (code.equals("яестьгрут")) {
+                        case 1711354489:
+                            if (code.equals("азесмьцарь")) {
                                 var3 = 17;
                                 break label94;
                             }
-                        case 1508416:
-                            if (code.equals("1111")) {
+                        case -2059769973:
+                            if (code.equals("гагарин")) {
                                 var3 = 18;
                                 break label94;
                             }
@@ -160,87 +160,87 @@ public class ChatTab extends Fragment {
                 switch(var3) {
                     case 0:
                         intent.putExtra("Command", "ResetStats");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 1:
                         intent.putExtra("Command", "SetPsyProtection0");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 2:
                         intent.putExtra("Command", "SetPsyProtection50");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 3:
                         intent.putExtra("Command", "SetPsyProtection100");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 4:
                         intent.putExtra("Command", "SetRadProtection0");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 5:
                         intent.putExtra("Command", "SetRadProtection50");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 6:
                         intent.putExtra("Command", "SetRadProtection100");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 7:
                         intent.putExtra("Command", "SetBioProtection0");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 8:
                         intent.putExtra("Command", "SetBioProtection50");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 9:
                         intent.putExtra("Command", "SetBioProtection100");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 10:
                         intent.putExtra("Command", "SetDischargeImmunityTrue");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 11:
                         intent.putExtra("Command", "SetDischargeImmunityFalse");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 12:
                         intent.putExtra("Command", "SetMaxHealth100");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 13:
                         intent.putExtra("Command", "SetMaxHealth200");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 14:
                         intent.putExtra("Command", "MakeAlive");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 15:
                         intent.putExtra("Command", "ComboResetProtections");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 16:
                         intent.putExtra("Command", "Monolith");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 17:
                         intent.putExtra("Command", "God");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 18:
                         intent.putExtra("Command", "Discharge");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 19:
                         intent.putExtra("Command", "SetGesProtection");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                     case 20:
                         intent.putExtra("Command", "SetGesProtectionOFF");
-                        ChatTab.this.getActivity().getApplicationContext().sendBroadcast(intent);
+                        Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                         break;
                 }
 

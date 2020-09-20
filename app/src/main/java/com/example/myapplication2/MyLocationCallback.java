@@ -82,39 +82,11 @@ public class MyLocationCallback extends LocationCallback {
 //timeToDischarge
     private void TimeToDischarge() {
         if (!this.ServiceReference.IsDischarging) {
-            if (this.dayInt == 22 && this.Minutes == 0 && this.Hour == 12) {
+            if (this.dayInt == 17 && this.Minutes == 0 && this.Hour == 16) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }
-            if (this.dayInt == 22 && this.Minutes == 0 && this.Hour == 18) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 24 && this.Minutes == 0 && this.Hour == 15) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 24 && this.Minutes == 0 && this.Hour == 20) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 12 && this.Minutes == 20 && this.Hour == 18) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 13 && this.Minutes == 0 && this.Hour == 10) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 13 && this.Minutes == 20 && this.Hour == 10) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 13 && this.Minutes == 0 && this.Hour == 12) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 13 && this.Minutes == 20 && this.Hour == 12) {
+            if (this.dayInt == 18 && this.Minutes == 0 && this.Hour == 9) {
                 this.ServiceReference.Discharge();
                 this.ServiceReference.IsDischarging = Boolean.TRUE;
             }

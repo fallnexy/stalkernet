@@ -1,35 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:background="@color/colorPrimaryDark"
+<androidx.constraintlayout.widget.ConstraintLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+    android:layout_height="fill_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnBroadcastCommand"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ввести" />
+    <EditText
+        android:id="@+id/CommandLine"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/enter_field"
+        android:gravity="center"
+        android:inputType="textPassword"
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
-                android:id="@+id/CommandLine"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
-                android:inputType="textPassword"
-                android:textColor="@color/common_google_signin_btn_text_dark_default" />
-        </LinearLayout>
+    <Button
+        android:id="@+id/btnBroadcastCommand"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/button_action"
+        android:text="Ввести"
+        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/CommandLine"
+        app:layout_constraintTop_toBottomOf="@+id/CommandLine" />
 
-        <Button android:id="@+id/btnStopVib" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Отключить вибрацию" />
-        <Button android:id="@+id/btnOnVib" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Включить вибрацию" />
-    </LinearLayout>
-</LinearLayout>
+
+    <Button
+        android:id="@+id/btnStopVib"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/button_action"
+        android:text="Отключить вибрацию"
+        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btnBroadcastCommand"
+        app:layout_constraintTop_toBottomOf="@+id/btnBroadcastCommand" />
+
+    <Button
+        android:id="@+id/btnOnVib"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/button_action"
+        android:text="Включить вибрацию"
+        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btnStopVib"
+        app:layout_constraintTop_toBottomOf="@+id/btnStopVib" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

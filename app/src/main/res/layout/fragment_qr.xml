@@ -17,6 +17,7 @@
             android:layout_gravity="bottom"
             android:checked="false"
             android:text="@string/auto_focus"
+            android:layout_marginStart="16dp"
             android:textColor="@color/cardview_light_background" />
 
         <CheckBox
@@ -32,18 +33,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/read_barcode"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_action"
+            android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:text="@string/read_barcode" />
 
         <Button
             android:id="@+id/btnScienceQR"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_action"
+            android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:text="@string/toResearch"
             android:visibility="invisible" />
     </LinearLayout>
@@ -56,6 +65,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/cardview_light_background"
         android:textSize="18sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         app:autoSizeTextType="none" />
 
     <ScrollView
@@ -71,6 +82,8 @@
                 android:id="@+id/barcode_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:textColor="@color/cardview_light_background"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>

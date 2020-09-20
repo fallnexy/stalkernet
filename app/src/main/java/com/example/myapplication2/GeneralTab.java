@@ -32,6 +32,9 @@ public class GeneralTab extends Fragment {
         TextView textView = inflate.findViewById(R.id.txtCoordinates);
         TextView textView2 = inflate.findViewById(R.id.txtMessages);
         TextView txtHealthPercent = inflate.findViewById(R.id.txtHealthPercent);
+        TextView txtRadPercent = inflate.findViewById(R.id.txtRadPercent);
+        TextView txtBioPercent = inflate.findViewById(R.id.txtBioPercent);
+        TextView txtPsyPercent = inflate.findViewById(R.id.txtPsyPercent);
         TextView txtProtectionRad = inflate.findViewById(R.id.txtProtectionRad);
         TextView txtProtectionBio = inflate.findViewById(R.id.txtProtectionBio);
         TextView txtProtectionPsy = inflate.findViewById(R.id.txtProtectionPsy);
@@ -43,6 +46,9 @@ public class GeneralTab extends Fragment {
         globals.CO = textView;
         globals.Messages = textView2;
         globals.HealthPercent = txtHealthPercent;
+        globals.RadPercent = txtRadPercent;
+        globals.BioPercent = txtBioPercent;
+        globals.PsyPercent = txtPsyPercent;
 
         txtProtectionRad.setText("защита: " + globals.ProtectionRad + "%");
         txtProtectionBio.setText("защита: " + globals.ProtectionBio + "%");

@@ -45,7 +45,7 @@ public class EffectManager {
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_4);
                     break;
                 case 5:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_5);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.come_to_me);
                     break;
                 case 6:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_6);
@@ -63,6 +63,15 @@ public class EffectManager {
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
                     break;
                 case 11:
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.shark_come_to_me);
+                    break;
+                case 15:
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.stay_and_die);
+                    break;
+                case 20:
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.stay_and_die);
+                    break;
+                case 51://демиург
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_11);
                     break;
                 default:
@@ -103,7 +112,7 @@ public class EffectManager {
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.bio_10);
                     break;
                 default:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.bio_10);
                     break;
             }
         }
@@ -148,6 +157,14 @@ public class EffectManager {
             switch (i){
                 case 1:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.gestalt_on);
+                    break;
+            }
+        }
+        if (str.equals("Start")){
+            switch (i){
+                case 1:
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.stalker);
+                    break;
             }
         }
         this.mediaplayer.start();
