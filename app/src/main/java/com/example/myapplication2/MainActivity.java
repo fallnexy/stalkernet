@@ -19,7 +19,10 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,32 +33,40 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     public Boolean ServiceIsRunning;
+    private LinearLayout mainLayout;
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String[] split = intent.getStringExtra("Stats").split(":");
             if (Double.parseDouble(split[0]) <= 0.0d) {
                 globals.Health = "Вы умерли.";
+                mainLayout.setBackgroundResource(R.drawable.death_0521);
             } else {
                 globals.Health = split[0];
+                mainLayout.setBackgroundResource(R.drawable.fon_0521);
             }
             globals.Rad = split[1];
             globals.Bio = split[2];
-            globals.CurrentBio = split[4];
             if (Double.parseDouble(split[3]) >= 1000.0d) {
                 globals.Health = "Вы умерли.";
+                mainLayout.setBackgroundResource(R.drawable.death_0521);
             } else {
                 globals.Psy = split[3];
             }
-            globals.location.setLatitude(Double.parseDouble(split[5]));
-            globals.location.setLongitude(Double.parseDouble(split[6]));
-            globals.ScienceQR = Integer.parseInt(split[7]);
-            globals.ProtectionRad = split[8];
-            globals.ProtectionBio = split[9];
-            globals.ProtectionPsy = split[10];
+            globals.location.setLatitude(Double.parseDouble(split[4]));
+            globals.location.setLongitude(Double.parseDouble(split[5]));
+            globals.ScienceQR = Integer.parseInt(split[6]);
+            globals.ProtectionRad = split[7];
+            globals.ProtectionBio = split[8];
+            globals.ProtectionPsy = split[9];
+            globals.anomalyCenter = new LatLng(Double.parseDouble(split[10]), Double.parseDouble(split[11]));
+            globals.anomalyRadius = Double.parseDouble(split[12]);
+         //   globals.anomalyIndex = Integer.parseInt(split[13]);
             globals.UpdateStats();
         }
     };
+
+
     BroadcastReceiver broadcastReceiverMessages = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             byte var5;
@@ -139,13 +150,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mainLayout = findViewById(R.id.mainLayout);
+
         globals = new Globals(this); // отличие от оригинала
 
         //запускает GeneralTab
         this.mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        this.mViewPager = (ViewPager) findViewById(R.id.container);
+        this.mViewPager = findViewById(R.id.container);
         this.mViewPager.setAdapter(this.mSectionsPagerAdapter);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         this.mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(this.mViewPager));
         CheckPermissions(this);

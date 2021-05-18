@@ -2,6 +2,7 @@ package com.example.myapplication2;
 
 import android.content.Intent;
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
@@ -12,7 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Anomaly {
-    public LatLng Center;
+    public LatLng center;
     public String Figure;
  /*   private boolean FirstTimeInside = true;*/
     public Boolean IsInside = Boolean.FALSE;
@@ -27,6 +28,7 @@ public class Anomaly {
     public Double radius;
     public Double strenght;
     public Integer gesStatus;
+    public Boolean toShow;
 
     public Anomaly(String str, String str2, Double d, Polygon polygon, StatsService statsService) {
         this.Figure = str;
@@ -36,14 +38,15 @@ public class Anomaly {
         this.Service = statsService;
     }
 
-    public Anomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gestaltStatus) {
+    public Anomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gestaltStatus, Boolean boolShow) {
         Figure = str;
         Type = str2;
         strenght = d;
-        Center = latLng;
+        center = latLng;
         radius = d2;
         Service = statsService;
         gesStatus = gestaltStatus;
+        toShow = boolShow;
     }
 //для сталкерской рулетки
     public Anomaly(String str, String str2, Double d, Double d2, StatsService statsService){
@@ -60,7 +63,7 @@ public class Anomaly {
         Service.LastTimeHitBy = Type;
         IsInside = Boolean.TRUE;
         Service.TypeAnomalyIn = Type;
-        damage = /*(int) Math.round(*/strenght * (1 - Math.pow(distanceToAnomaly / radius, 2/*)*/));
+        damage = strenght * (1 - Math.pow(distanceToAnomaly / radius, 2));
         if (damage <= minstrenght) {
             damage = minstrenght;
         }
@@ -126,7 +129,7 @@ public class Anomaly {
                 if (damage <= minstrenght) {
                     damage = minstrenght;
                 }
-                if (Service.Health > 20) {
+                if (Service.Health > (Service.MaxHealth / 3)) {
                     Service.setHealth(Service.Health - damage);
                 }
                 if (Service.Health <= 0.0d) {
@@ -180,8 +183,8 @@ public class Anomaly {
         }
         if (Figure.equals("Circle")) {
             Location location = new Location("");
-            location.setLatitude(Center.latitude);
-            location.setLongitude(Center.longitude);
+            location.setLatitude(center.latitude);
+            location.setLongitude(center.longitude);
             double distanceToAnomaly = location.distanceTo(Service.MyCurrentLocation);
 
             if (Type.equals("Ges")){
@@ -238,7 +241,6 @@ public class Anomaly {
                         round -= (round / 100) * this.Service.BioProtection;
                         this.Service.Bio += round *//*(double) (round - ((int) ((((double) round) / 100.0d) * ((double) this.Service.BioProtection))))*/;
                       /*  this.Service.setHealth(this.Service.Health - round*//*this.Service.Bio*//*);*/
-                        //this.Service.CurrentBio += this.strenght;
                       /*  if (this.Service.*//*Current*//*Bio >= 100.0d) {
                             this.Service.setHealth(0.0d);
                             intent = new Intent("StatsService.Message");
@@ -267,16 +269,7 @@ public class Anomaly {
                         this.mills = Calendar.getInstance().getTime().getTime() - this.LastTimeInside.getTime();
                         this.hours = ((int) this.mills) / 3600000;
                         this.mins = ((int) (this.mills / 60000)) % 60;
-                        if (this.mins >= 1 || this.hours > 0) {
-                            this.Service.CurrentBio += this.strenght;
-                            if (this.Service.CurrentBio >= 100.0d) {
-                                this.Service.setDead(Boolean.TRUE);
-                                this.Service.setHealth(0.0d);
-                                intent = new Intent("StatsService.Message");
-                                intent.putExtra("Message", "H");
-                                this.Service.sendBroadcast(intent);
-                            }
-                        }
+
                         this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                         this.Service.EM.StopActions();
                         if (!this.Service.IsDead) {

@@ -3,10 +3,11 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#536F63</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">#FFE925</item>
-        <item name="background">@drawable/fon</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+        <item name="background">@drawable/fon_0521</item>
     </style>
 
 </resources>

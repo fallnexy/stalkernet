@@ -9,7 +9,7 @@ import com.google.maps.android.PolyUtil;
 import com.google.maps.android.data.kml.KmlPolygon;
 
 public class MonolithAnomaly extends Anomaly {
-    public LatLng Center;
+    public LatLng center;
     public Boolean IsInside = Boolean.FALSE;
     private StatsService Service;
     public Polygon poly;
@@ -22,11 +22,11 @@ public class MonolithAnomaly extends Anomaly {
         this.Service = statsService;
     }
 
-    public MonolithAnomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gesStatus) {
-        super(str, str2, d, d2, latLng, statsService, gesStatus);
+    public MonolithAnomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gesStatus, Boolean boolShow) {
+        super(str, str2, d, d2, latLng, statsService, gesStatus, boolShow);
         this.Figure = str;
-        this.Center = latLng;
-        this.radius = d;
+        this.center = latLng;
+        this.radius = d2;
         this.Service = statsService;
     }
 
@@ -43,8 +43,8 @@ public class MonolithAnomaly extends Anomaly {
         }
         if (this.Figure.equals("Circle")) {
             Location location = new Location("");
-            location.setLatitude(this.Center.latitude);
-        location.setLongitude(this.Center.longitude);
+            location.setLatitude(this.center.latitude);
+        location.setLongitude(this.center.longitude);
         if (((double) location.distanceTo(this.Service.MyCurrentLocation)) <= this.radius) {
             this.IsInside = Boolean.TRUE;
             intent = new Intent("Command");

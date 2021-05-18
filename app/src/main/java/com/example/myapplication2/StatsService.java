@@ -15,11 +15,16 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -29,6 +34,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -41,9 +47,9 @@ import static android.app.NotificationManager.IMPORTANCE_HIGH;
 
 public class StatsService extends Service {
     private static final int ID_SERVICE = 101;
-    private static final int NUMBER_OF_ANOMALIES = 348;
-    private static final int NUMBER_OF_GESTALT_ANOMALIES = 8;
-    private static final int NUMBER_OF_SAVE_ZONES = 4;
+    private static final int NUMBER_OF_ANOMALIES = 20;
+    private static final int NUMBER_OF_GESTALT_ANOMALIES = 1;
+    private static final int NUMBER_OF_SAVE_ZONES = 10;
     private boolean IS_ANOMALIES_AVAILABLE = true;
     public Anomaly[] anomalies;
     public SafeZone[] SafeZones;
@@ -52,7 +58,6 @@ public class StatsService extends Service {
     public double Bio = 0.0d, Psy = 0.0d, Rad = 0.0d;
     public int MaxRad = 1000, MaxBio = 1000;
     public int BioProtection = 0, PsyProtection = 0, RadProtection = 0;
-    public double CurrentBio = 0.0d;
     public boolean DischargeImmunity = false;
     public Boolean IsDead = Boolean.FALSE;
     public Boolean IsDischarging = Boolean.FALSE;
@@ -89,12 +94,16 @@ public class StatsService extends Service {
     public boolean DolgDischargeImmunity = false;
     public boolean NaemnikiDischargeImmunity = false;
 
-    public boolean anomalyFreedom = false;
-    public boolean apocalypseFreedom = true;
     public boolean fastRadPurification = false;
 
+    public LatLng latLngAnomaly;
+    public Double radiusAnomaly;
 
+    long checkTime_in = 1620988200;  // 14 мая 13:30 // 1620988200
+    long checkTime_out = 1621167600;  // 16 мая 15:20  // 1621167600
 
+    private FusedLocationProviderClient mFusedLocationProvider;
+    private PowerManager.WakeLock wl;
 
     BroadcastReceiver broadcastReceiverQR = new BroadcastReceiver() {
         @Override
@@ -743,7 +752,6 @@ public class StatsService extends Service {
                    Rad = 0.0D;
                    Bio = 0.0D;
                    Psy = 0.0D;
-                   CurrentBio = 0.0D;
                    RadProtection = 0;
                    BioProtection = 0;
                    PsyProtection = 0;
@@ -781,7 +789,7 @@ public class StatsService extends Service {
                    break;
                case 6: // используется не только цифровым кодом, но и qr
                    if (RadProtectionChangeability) {
-                       RadProtection = 100;
+                       RadProtection = 90;
                    }
                    break;
                case 7:
@@ -792,7 +800,7 @@ public class StatsService extends Service {
                    break;
                case 9: // используется не только цифровым кодом, но и qr
                    if (BioProtectionChangeability) {
-                       BioProtection = 100;
+                       BioProtection = 90;
                    }
                    break;
                case 10:
@@ -817,7 +825,6 @@ public class StatsService extends Service {
                    Health = MaxHealth;
                    Rad = 0.0D;
                    Bio = 0.0D;
-                   CurrentBio = 0.0D;
                    Psy = 0.0D;
                    IsDead = false;
                    break;
@@ -867,7 +874,7 @@ public class StatsService extends Service {
                    ScienceQR = 0;
                    break;
                case 25:
-                   int g = 3;
+                   int g = 0;
                    anomalies[g].gesStatus = 1;
                    gesLockoutList[g] = 1;
                    GestaltLockout(g);
@@ -898,7 +905,7 @@ public class StatsService extends Service {
                    }
                    break;
                case 30:
-                   // 40минутный режим бога, чтобы до базы дойти
+                   // 10минутный режим бога, чтобы до базы дойти
                    IS_ANOMALIES_AVAILABLE = false;
                    DischargeImmunity = true;
                    Handler handler2 = new Handler();
@@ -908,7 +915,7 @@ public class StatsService extends Service {
                            DischargeImmunity = false;
                            EM.PlaySound("Start", 1);
                        }
-                   }, 2400000);
+                   }, 600000);
                    break;
                case 31:
                    // этот и следующие 3 - шприцы от рад и био
@@ -1123,11 +1130,10 @@ public class StatsService extends Service {
                    }
                    break;
                case 85:
-                   anomalyFreedom = true;
+                   // свободный кейс
                    break;
                case 86:
-                   anomalyFreedom = false;
-                   apocalypseFreedom = false;
+                   // свободный кейс
                    break;
                case 87:
                    int g2 = 2;
@@ -1144,18 +1150,17 @@ public class StatsService extends Service {
                case 89:
                    fastRadPurification = true;
                    break;
-               case 90:
+               case 90: //полная защита от аномалий на 12 часов для монолита
                    if (random.nextInt(2) == 1){
-                       RadProtection = 100;
-                       BioProtection = 100;
-                       PsyProtection = 100;
+                       SetTemporaryAnomalyProtection ("Rad", 99, 1, 43200000);
+                       SetTemporaryAnomalyProtection ("Bio", 99, 1, 43200000);
                    }
                    break;
-               case 91:
-                   RadProtection = 0;
-                   BioProtection = 0;
+               case 91: // снятие защиты у монолита на 12 часов - наверно уже не актуально
+                   SetTemporaryAnomalyProtection ("Rad", -1, 1, 43200000);
+                   SetTemporaryAnomalyProtection ("Bio", -1, 1, 43200000);
                    break;
-               case 92:
+               case 92: // благословение пастыря монолита на 15 минут защиты от пси
                    SetTemporaryAnomalyProtection("Psy", 99, 1, 90000);
                    break;
                case 93:
@@ -1168,8 +1173,6 @@ public class StatsService extends Service {
 
        }
     };
-    private FusedLocationProviderClient mFusedLocationProvider;
-    private PowerManager.WakeLock wl;
 
     @Nullable
     public IBinder onBind(Intent intent) {
@@ -1309,14 +1312,43 @@ public class StatsService extends Service {
     }
 
 
+    private WifiManager wifiManager;
+    private List<ScanResult> wifiList;
+
+    public void detectWifi(){
+        this.wifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        this.wifiManager.startScan();
+        this.wifiList = this.wifiManager.getScanResults();
+
+        //Log.d("TAGg", wifiList.toString());
+        try {
+            for (int i = 0; i<wifiList.size(); i++){
+                String item = wifiList.get(i).toString();
+                String[] vector_item = item.split(",");
+                String item_essid = vector_item[0];
+                String ssid = item_essid.split(": ")[1];
+               // Log.d("TAGgg", ssid);
+                if (ssid.equals("control")){
+                    IsInsideAnomaly = Boolean.TRUE;
+                    anomalies[NUMBER_OF_ANOMALIES + 2].Apply();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public void onCreate() {
         super.onCreate();
+        latLngAnomaly = new LatLng(0, 0);
         this.wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(1, "STALKERNET:My_Partial_Wake_Lock");
         this.wl.acquire(10*60*1000L /*10 minutes*/);   //timeout заставила студия поставить, не знаю как это работает
         this.EM = new EffectManager(this);
         GetAnomalies();
         CreateSafeZones();
         LoadStats();
+        Create_super_save_zones();
         this.mFusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
         //startForeground(101, new Builder(this, Build.VERSION.SDK_INT >= 26 ? createNotificationChannel((NotificationManager) getSystemService("notification")) : "").setOngoing(true).setSmallIcon(R.drawable.ic_launcher_background).setPriority(1).setCategory("service").setContentTitle("StatsService").setContentText("Stats are being updated.").build());
         if (Build.VERSION.SDK_INT >= 26) {
@@ -1334,6 +1366,7 @@ public class StatsService extends Service {
             startForeground(1, notification);
         }
         dbHelper = new DBHelper(getApplicationContext());
+
     }
     //всё работает так как функцию никто не вызывает
     @RequiresApi(26)
@@ -1383,7 +1416,7 @@ public class StatsService extends Service {
             public void run() {
                 gesLockoutList[gesIndex] = 0;
             }
-        }, 180000);
+        }, 1200000);
     }
 
     // список аномалий
@@ -1391,631 +1424,141 @@ public class StatsService extends Service {
     // d2 - радиус
     // гештальт должен идти первым
     // 0 - не гештальт, 1 - закрыто, 2 - открыто
+    // вызывается в onCreate()
     private void GetAnomalies() {
         gesStatus = 1;
-        Anomaly[] anomalyArr = new Anomaly[351];  //из 101 аномалии 3 для сталкерской рулетки и не учитываются в CheckAnomalies()
-        // две уникальные аномалии свободы
-        anomalyArr[0] = new Anomaly("Circle", "RadF", 0.075d, 30.0d, new LatLng(64.351083d, 40.736226d), this, 0);
-        anomalyArr[1] = new Anomaly("Circle", "Rad", 20.0d, 30.0d, new LatLng(64.351083d, 40.736226d), this, 0);
-        // шесть постоянных гештальтов
-        anomalyArr[2] = new Anomaly("Circle", "Ges", 0.1d, 30.0d, new LatLng(64.352548d, 40.735175d), this, gesStatus); //66-37-1
-        anomalyArr[3] = new Anomaly("Circle", "Ges", 0.1d, 50.0d, new LatLng(64.354221d, 40.722431d), this, gesStatus); // перед блокпостом
-        anomalyArr[4] = new Anomaly("Circle", "Ges", 0.1d, 50.0d, new LatLng(64.355471d, 40.729002d), this, gesStatus); // карьер
-        anomalyArr[5] = new Anomaly("Circle", "Ges", 0.1d, 25.0d, new LatLng(64.354140, 40.743951d), this, gesStatus); // монолит
-        anomalyArr[6] = new Anomaly("Circle", "Ges", 50.0d, 5.0d, new LatLng(60.351608d, 40.732768d), this, gesStatus);  //
-        anomalyArr[7] = new Anomaly("Circle", "Ges", 1.0d, 50.0d, new LatLng(60.550774d, 39.787427d), this, gesStatus);//
-        // постоянные аномалии
-        anomalyArr[8] = new Anomaly("Circle", "Psy", 51.0d, 13.0d, new LatLng(64.356126d, 40.740157d), this, 0);  //аномалия демиурга
-        anomalyArr[9] = new Anomaly("Circle", "Rad", 20.0d, 75.0d, new LatLng(64.352729d, 40.720197d), this, 0);  // 66-33-3
-        anomalyArr[10] = new Anomaly("Circle", "Bio", 20.0d, 50.0d, new LatLng(64.351890d, 40.719835d), this, 0); //66-33-4
-        anomalyArr[11] = new Anomaly("Circle", "Psy", 20.0d, 30.0d, new LatLng(64.351239d, 40.720307d), this, 0); // 66-33-5
-        anomalyArr[11].minstrenght = 5;
-        anomalyArr[12] = new Anomaly("Circle", "Psy", 45.0d, 25.0d, new LatLng(64.350756d, 40.720683d), this, 0); // 67-34-1
-        anomalyArr[13] = new Anomaly("Circle", "Rad", 30.0d, 30.0d, new LatLng(64.349734d, 40.738518d), this, 0); //67-37-4
+        Anomaly[] anomalyArr = new Anomaly[23];  //из 101 аномалии 3 для сталкерской рулетки и не учитываются в CheckAnomalies()
+        // гештальт май21
+        anomalyArr[0] = new Anomaly("Circle", "Ges", 0.01d, 35.0d, new LatLng(64.534434d, 40.152383d), this, gesStatus, false); // 65-42-4
+        // постояные май21
+        anomalyArr[1] = new Anomaly("Circle", "Psy", 20.0d, 25.0d, new LatLng(64.533965d, 40.155087d), this, 0, true); // 66-43-4
+        anomalyArr[2] = new Anomaly("Circle", "Psy", 20.0d, 20.0d, new LatLng(64.535440d, 40.154287d), this, 0, true); // 64-43-9
+        anomalyArr[3] = new Anomaly("Circle", "Bio", 0.3d, 30.0d, new LatLng(64.534937d, 40.152989d), this, 0, false); // 65-42-3
+        anomalyArr[4] = new Anomaly("Circle", "Bio", 0.3d, 30.0d, new LatLng(64.533953d, 40.153558d), this, 0, false); // 66-43-8
+        anomalyArr[5] = new Anomaly("Circle", "Bio", 0.3d, 15.0d, new LatLng(64.534854d, 40.150913d), this, 0, false); // 65-41-3
+        anomalyArr[6] = new Anomaly("Circle", "Bio", 0.3d, 15.0d, new LatLng(64.531503d, 40.155351d), this, 0, false); // 69-44-1
+        anomalyArr[7] = new Anomaly("Circle", "Bio", 0.3d, 200.0d, new LatLng(64.533927d, 40.145173d), this, 0, false);// 66-39
+        anomalyArr[8] = new Anomaly("Circle", "Psy", 0.3d, 90.0d, new LatLng(64.532701d, 40.152694d), this, 0, false);  // 67-42
+        anomalyArr[9] = new Anomaly("Circle", "Rad", 10.0d, 30.0d, new LatLng(64.531316d, 40.145014d), this, 0, true);  // 69-38-4
+        anomalyArr[10] = new Anomaly("Circle", "Psy", 10.0d, 20.0d, new LatLng(64.529505d, 40.146785d), this, 0, true); //71-38-5
+        anomalyArr[11] = new Anomaly("Circle", "Rad", 5.0d, 13.0d, new LatLng(64.531466d, 40.147349d), this, 0, true); // 68-41-5 бродячая
+        anomalyArr[12] = new Anomaly("Circle", "Bio", 5.0d, 13.0d, new LatLng(64.531020d, 40.152906d), this, 0, true); // 69-43 бродячая
+        // вход долгий
+        anomalyArr[13] = new Anomaly("Circle", "Psy", 20.0d, 170.0d, new LatLng(64.532822d, 40.155424d), this, 0, true); //67-44 вход
         anomalyArr[13].minstrenght = 5;
-        anomalyArr[14] = new Anomaly("Circle", "Psy", 10.0d, 15.0d, new LatLng(64.352559d, 40.743075d), this, 0); //66-38-3
-        anomalyArr[15] = new Anomaly("Circle", "Psy", 10.0d, 30.0d, new LatLng(64.352917d, 40.742903d), this, 0);  //65-38-5
-        anomalyArr[15].minstrenght = 2;
-        anomalyArr[16] = new Anomaly("Circle", "Psy", 10.0d, 25.0d, new LatLng(64.353147d, 40.742058d), this, 0); // 65-38-6
-        anomalyArr[16].minstrenght = 2;
-        anomalyArr[17] = new Anomaly("Circle", "Psy", 50.0d, 24.0d, new LatLng(64.353385d, 40.742798d), this, 0);  // 65-38-5
-        anomalyArr[17].minstrenght = 5;
-        anomalyArr[18] = new Anomaly("Circle", "Psy", 5.0d, 15.0d, new LatLng(64.353618d, 40.743541d), this, 0);  //камень
-        anomalyArr[19] = new Anomaly("Circle", "Psy", 3.0d, 15.0d, new LatLng(64.353740d, 40.742535d), this, 0); //65-38-4
-        anomalyArr[20] = new Anomaly("Circle", "Rad", 10.0d, 30.0d, new LatLng(64.352859d, 40.746178d), this, 0); // 66-39-2
-        anomalyArr[21] = new Anomaly("Circle", "Rad", 10.0d, 30.0d, new LatLng(64.351104d, 40.743024d), this, 0);  // 66-38-5
-        anomalyArr[22] = new Anomaly("Circle", "Rad", 5.0d, 10.0d, new LatLng(64.351609d, 40.725945d), this, 0);  // болотный доктор
-        anomalyArr[23] = new Anomaly("Circle", "Bio", 5.0d, 10.0d, new LatLng(64.351479d, 40.725596d), this, 0);  // 64.351479, 40.725596
-        anomalyArr[24] = new Anomaly("Circle", "Psy", 5.0d, 10.0d, new LatLng(64.351636d, 40.725038d), this, 0);  // 64.351636, 40.725038
-        anomalyArr[25] = new Anomaly("Circle", "Rad", 5.0d, 10.0d, new LatLng(64.351950d, 40.725073d), this, 0);  // 64.351950, 40.725073
-        anomalyArr[26] = new MonolithAnomaly("Circle", "", 30.0d, (double) 0, new LatLng(64.353373d, 40.742782d), this, 0); // monolith2 64.353373, 40.742782
-        anomalyArr[27] = new Anomaly("Circle", "Rad", 10.0d, 7.0d, new LatLng(64.352731d, 40.735183d), this, 0); // 66-37-1 с гештальтом с сквозняка
-        anomalyArr[28] = new Anomaly("Circle", "Rad", 10.0d, 10.0d, new LatLng(64.355593d, 40.729067d), this, 0);  // карьер
-        anomalyArr[29] = new Anomaly("Circle", "Bio", 20.0d, 30.0d, new LatLng(64.355441d, 40.742621d), this, 0);  // затычка у монолита
-        anomalyArr[30] = new Anomaly("Circle", "Rad", 20.0d, 30.0d, new LatLng(64.355719d, 40.744187d), this, 0);  // затычка у монолита
-        anomalyArr[31] = new Anomaly("Circle", "Psy", 50.0d, 75.0d, new LatLng(64.356110d, 40.746301d), this, 0);  // затычка у монолита
-        anomalyArr[32] = new Anomaly("Circle", "Rad", 30.0d, 30.0d, new LatLng(64.355779d, 40.741848d), this, 0);  // затычка у монолита
-        /*
-        день первый
-        * 17:00 14.09 - 18:00 15.09
-        *
-        */
-        /*стена между свободой и баром*/
-        anomalyArr[33] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351039d, 40.734708d ), this, 0); //64.526125, 40.603979
-        anomalyArr[33].minstrenght = 10;
-        anomalyArr[34] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350672d, 40.734730d), this, 0); //64.350672, 40.734730
-        anomalyArr[34].minstrenght = 10;
-        anomalyArr[35] = new Anomaly("Circle", "Psy", 5.0d, 22.0d, new LatLng(64.350327d, 40.734955d), this, 0); //64.350327, 40.734955
-        anomalyArr[35].minstrenght = 1;
-        anomalyArr[36] = new Anomaly("Circle", "Bio", 10.0d, 22.0d, new LatLng(64.350121d, 40.735728d), this, 0); // 64.350121, 40.735728
-        anomalyArr[36].minstrenght = 2;
-        anomalyArr[37] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350107d, 40.736597d), this, 0);  //64.350107, 40.736597
-        anomalyArr[37].minstrenght = 10;
-        anomalyArr[38] = new Anomaly("Circle", "Rad", 5.0d, 22.0d, new LatLng(64.350274d, 40.734816d), this, 0); //64.350274, 40.734816
-        anomalyArr[39] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351181d, 40.734429d), this, 0);  //64.351181, 40.734429
-        anomalyArr[39].minstrenght = 10;
-        anomalyArr[40] = new Anomaly("Circle", "Psy", 60.0d, 30.0d, new LatLng(64.351688, 40.733947d), this, 0);  //прямо на дороге, поэтому сильнее
-        anomalyArr[40].minstrenght = 10;
-        anomalyArr[41] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352018d, 40.733625d), this, 0); // 64.352018, 40.733625
-        anomalyArr[41].minstrenght = 10;
-        anomalyArr[42] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352322d, 40.733255d), this, 0); // 64.352322, 40.733255
-        anomalyArr[42].minstrenght = 10;
-        anomalyArr[43] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.352662d, 40.732895d), this, 0); // 64.352662, 40.732895
-        anomalyArr[43].minstrenght = 10;
-        /*между стеной свободы и долга*/
-        anomalyArr[44] = new Anomaly("Circle", "Psy", 5.0d, 22.0d, new LatLng(64.350212d, 40.732777d), this, 0); //64.350212, 40.732777
-        anomalyArr[44].minstrenght = 5;
-        anomalyArr[45] = new Anomaly("Circle", "Rad", 20.0d, 22.0d, new LatLng(64.350203d, 40.731876d), this, 0);  // 64.350203, 40.731876
-        anomalyArr[45].minstrenght = 5;
-        anomalyArr[46] = new Anomaly("Circle", "Rad", 20.0d, 22.0d, new LatLng(64.350208d, 40.731125d), this, 0); //  64.350208, 40.731125
-        anomalyArr[46].minstrenght = 5;
-        anomalyArr[47] = new Anomaly("Circle", "Rad", 30.0d, 22.0d, new LatLng(64.350305d, 40.730299d), this, 0); // 64.350305, 40.730299
-        anomalyArr[47].minstrenght = 5;
-        anomalyArr[48] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.351152d, 40.731522d), this, 0); // 64.351152, 40.731522
-        anomalyArr[48].minstrenght = 5;
-        anomalyArr[49] = new Anomaly("Circle", "Psy", 40.0d, 22.0d, new LatLng(64.351489d, 40.731806d), this, 0); // 64.351489, 40.731806
-        anomalyArr[49].minstrenght = 5;
-        anomalyArr[50] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.351484d, 40.732552d), this, 0); // 64.351484, 40.732552
-        anomalyArr[50].minstrenght = 5;
-        anomalyArr[51] = new Anomaly("Circle", "Psy", 20.0d, 22.0d, new LatLng(64.350271d, 40.728765d), this, 0); // 64.350271, 40.728765
-        /*стена между долгом и баром*/
-        anomalyArr[52] = new Anomaly("Circle", "Bio", 50.0d, 25.0d, new LatLng(64.351546d, 40.729297d), this, 0); //64.351546, 40.729297
-        anomalyArr[53] = new Anomaly("Circle", "Psy", 50.0d, 25.0d, new LatLng(64.351451d, 40.729255d), this, 0); // 64.351451, 40.729255
-        anomalyArr[54] = new Anomaly("Circle", "Rad", 50.0d, 25.0d, new LatLng(64.351367d, 40.729195d), this, 0);  // 64.351367, 40.729195
-        anomalyArr[55] = new Anomaly("Circle", "Rad", 50.0d, 25.0d, new LatLng(64.351288d, 40.729142d), this, 0);  //
-        anomalyArr[56] = new Anomaly("Circle", "Rad", 50.0d, 20.0d, new LatLng(64.351204d, 40.729056d), this, 0);  // 64.351263, 40.728184
-        anomalyArr[57] = new Anomaly("Circle", "Bio", 50.0d, 20.0d, new LatLng(64.351125d, 40.728922d), this, 0);  // 64.351182, 40.728098
-        anomalyArr[58] = new Anomaly("Circle", "Rad", 50.0d, 20.0d, new LatLng(64.351023d, 40.728761d), this, 0);  // 64.351014, 40.727938
-        anomalyArr[59] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351640d, 40.729220d), this, 0);  // 64.351430,
-        anomalyArr[60] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351727d, 40.729190d), this, 0);  // 64.351430,
-        anomalyArr[61] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351825d, 40.729171d), this, 0);  // 64.351430,
-        anomalyArr[62] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351903d, 40.729185d), this, 0);  // 64.351430,
-        anomalyArr[63] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351903d, 40.729185d), this, 0);  // 64.351430,
-        anomalyArr[64] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352085d, 40.729222d), this, 0);  // 64.351430,
-        anomalyArr[65] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352175d, 40.729244d), this, 0);  // 64.351430,
-        anomalyArr[66] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352269d, 40.729260d), this, 0);  // 64.351430,
-        anomalyArr[67] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352355d, 40.729287d), this, 0);  // 64.351430,
-        anomalyArr[68] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352446d, 40.729314d), this, 0);  // 64.351430,
-        anomalyArr[69] = new Anomaly("Circle", "Psy", 50.0d, 13.0d, new LatLng(64.352533d, 40.729340d), this, 0);  // 64.351430,
-        anomalyArr[70] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352619d, 40.729370d), this, 0);  // 64.351430,
-        anomalyArr[71] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352710d, 40.729405d), this, 0);  // 64.351430,
-        anomalyArr[72] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352794d, 40.729445d), this, 0);  // 64.351430,
-        anomalyArr[73] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.352971d, 40.729469d), this, 0);  // 64.351430,
-        anomalyArr[74] = new Anomaly("Circle", "Bio", 20.0d, 20.0d, new LatLng(64.353278d, 40.729614d), this, 0);  // 64.351430,
-        /*между блокпостом и колючкой*/
-        anomalyArr[75] = new Anomaly("Circle", "Rad", 20.0d, 50.0d, new LatLng(64.354430d, 40.720039d), this, 0);  // 64.351430,
-        anomalyArr[76] = new Anomaly("Circle", "Bio", 15.0d, 22.0d, new LatLng(64.354268d, 40.724770d), this, 0);  // 64.351430,
-        anomalyArr[77] = new Anomaly("Circle", "Psy", 11.0d, 15.0d, new LatLng(64.355437d, 40.723955d), this, 0);  // Добавить голос для коменданта
-        anomalyArr[78] = new Anomaly("Circle", "Psy", 10.0d, 15.0d, new LatLng(64.353465d, 40.733485d), this, 0); // 65-36-4
-        anomalyArr[79] = new Anomaly("Circle", "Rad", 10.0d, 35.0d, new LatLng(64.355518d, 40.726717d), this, 0);  //
-        anomalyArr[80] = new Anomaly("Circle", "Rad", 10.0d, 20.0d, new LatLng(64.356279d, 40.737570d), this, 0);  //
-        /*вокруг болотного доктора*/
-        anomalyArr[81] = new Anomaly("Circle", "Rad", 10.0d, 25.0d, new LatLng(64.350820d, 40.726519d), this, 0);  //
-        anomalyArr[82] = new Anomaly("Circle", "Psy", 10.0d, 5.0d, new LatLng(64.351910d, 40.725875d), this, 0);  //
-        anomalyArr[83] = new Anomaly("Circle", "Rad", 15.0d, 15.0d, new LatLng(64.352475d, 40.726082d), this, 0);  //
-        anomalyArr[84] = new Anomaly("Circle", "Bio", 15.0d, 15.0d, new LatLng(64.352575d, 40.726881d), this, 0);  //
-        anomalyArr[85] = new Anomaly("Circle", "Rad", 10.0d, 20.0d, new LatLng(64.353257d, 40.726854d), this, 0);  //
-        anomalyArr[86] = new Anomaly("Circle", "Bio", 10.0d, 20.0d, new LatLng(64.353084d, 40.725417d), this, 0);  //
-        anomalyArr[87] = new Anomaly("Circle", "Rad", 20.0d, 42.0d, new LatLng(64.352117d, 40.722778d), this, 0);  //
-        anomalyArr[88] = new Anomaly("Circle", "Psy", 10.0d, 30.0d, new LatLng(64.353852d, 40.727788d), this, 0);  // в болоте слева
-        /*справа от болотной тропы и до колючки*/
-        anomalyArr[89] = new Anomaly("Circle", "Rad", 30.0d, 20.0d, new LatLng(64.354435d, 40.729183d), this, 0);  // заглушка на тропу
-        anomalyArr[90] = new Anomaly("Circle", "Bio", 30.0d, 20.0d, new LatLng(64.354005d, 40.729671d), this, 0);  // по середине тропы
-        anomalyArr[91] = new Anomaly("Circle", "Rad", 15.0d, 20.0d, new LatLng(64.354963d, 40.732616d), this, 0);  //
-        anomalyArr[92] = new Anomaly("Circle", "Bio", 15.0d, 20.0d, new LatLng(64.355021d, 40.733919d), this, 0);  //
-        anomalyArr[93] = new Anomaly("Circle", "Rad", 15.0d, 20.0d, new LatLng(64.355235d, 40.735169d), this, 0);  //
-        /*в районе монолита и свободы*/
-        anomalyArr[94] = new Anomaly("Circle", "Rad", 10.0d, 30.0d, new LatLng(64.354892d, 40.740475d), this, 0);  //
-        anomalyArr[95] = new Anomaly("Circle", "Bio", 10.0d, 20.0d, new LatLng(64.354250d, 40.739552d), this, 0);  //
-        anomalyArr[96] = new Anomaly("Circle", "Rad", 10.0d, 15.0d, new LatLng(64.353409d, 40.738597d), this, 0);  //
-        anomalyArr[97] = new Anomaly("Circle", "Rad", 30.0d, 15.0d, new LatLng(64.351935d, 40.737374d), this, 0);  //
-        anomalyArr[98] = new Anomaly("Circle", "Rad", 10.0d, 7.0d, new LatLng(64.352879d, 40.739852d), this, 0);  //
-        anomalyArr[99] = new Anomaly("Circle", "Bio", 10.0d, 50.0d, new LatLng(64.351233d, 40.739498d), this, 0);  //
-        anomalyArr[100] = new Anomaly("Circle", "Bio", 15.0d, 32.0d, new LatLng(64.352535d, 40.740657d), this, 0);  //
-        anomalyArr[101] = new Anomaly("Circle", "Rad", 15.0d, 40.0d, new LatLng(64.350656d, 40.741279d), this, 0);  //
-        /*мина на дороге в бар*/
-        anomalyArr[102] = new Anomaly("Circle", "Rad", 20.0d, 2.0d, new LatLng(64.351991d, 40.732283d), this, 0);  //
-        /*
-        * 2 день
-        * 15 - 16 сентября
-        * 18:00 - 11:00
-        */
-        /*стена между свободой и баром*/
-        anomalyArr[103] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.351039d, 40.734708d), this, 0); //от базы вниз 64.526125, 40.603979
-        anomalyArr[103].minstrenght = 10;
-        anomalyArr[104] = new Anomaly("Circle", "Rad", 10.0d, 22.0d, new LatLng(64.350672d, 40.734730d), this, 0); //64.350672, 40.734730
-        anomalyArr[104].minstrenght = 10;
-        anomalyArr[105] = new Anomaly("Circle", "Psy", 5.0d, 22.0d, new LatLng(64.350327d, 40.734955d), this, 0); //64.350327, 40.734955
-        anomalyArr[105].minstrenght = 10;
-        anomalyArr[106] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.350121d, 40.735728d), this, 0); // 64.350121, 40.735728
-        anomalyArr[106].minstrenght = 10;
-        anomalyArr[107] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.350107d, 40.736597d), this, 0);  //самый низ
-        anomalyArr[107].minstrenght = 10;
-        anomalyArr[108] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.350274d, 40.734816d), this, 0); //аппендикс
-        anomalyArr[109] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.351181d, 40.734429d), this, 0);  //чуть выше базы и вверх
-        anomalyArr[109].minstrenght = 10;
-        anomalyArr[110] = new Anomaly("Circle", "Psy", 60.0d, 30.0d, new LatLng(64.351688, 40.733947d), this, 0);  //прямо на дороге, поэтому сильнее
-        anomalyArr[110].minstrenght = 10;
-        anomalyArr[111] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.352018d, 40.733625d), this, 0); // 64.352018, 40.733625
-        anomalyArr[111].minstrenght = 10;
-        anomalyArr[112] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.352322d, 40.733255d), this, 0); // 64.352322, 40.733255
-        anomalyArr[112].minstrenght = 10;
-        anomalyArr[113] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.352662d, 40.732895d), this, 0); // 64.352662, 40.732895
-        anomalyArr[113].minstrenght = 10;
-        /*стена между баром и колючкой*/
-        anomalyArr[114] = new Anomaly("Circle", "Rad", 5.0d, 22.0d, new LatLng(64.352797d, 40.732354d), this, 0); // начинается от стены свободы
-        anomalyArr[114].minstrenght = 10;
-        anomalyArr[115] = new Anomaly("Circle", "Bio", 20.0d, 12.0d, new LatLng(64.352776d, 40.731780d), this, 0); //
-        anomalyArr[115].minstrenght = 10;
-        anomalyArr[116] = new Anomaly("Circle", "Rad", 20.0d, 12.0d, new LatLng(64.352764d, 40.731367d), this, 0); //
-        anomalyArr[116].minstrenght = 10;
-        anomalyArr[117] = new Anomaly("Circle", "Bio", 50.0d, 12.0d, new LatLng(64.352767d, 40.730938d), this, 0); //
-        anomalyArr[117].minstrenght = 10;
-        anomalyArr[118] = new Anomaly("Circle", "Rad", 50.0d, 12.0d, new LatLng(64.352725d, 40.730541d), this, 0); //
-        anomalyArr[118].minstrenght = 10;
-        anomalyArr[119] = new Anomaly("Circle", "Psy", 50.0d, 12.0d, new LatLng(64.352706d, 40.730117d), this, 0); //
-        anomalyArr[119].minstrenght = 10;
-        anomalyArr[120] = new Anomaly("Circle", "Psy", 50.0d, 12.0d, new LatLng(64.352720d, 40.729715d), this, 0); //
-        anomalyArr[120].minstrenght = 10;
-        /*стена между долгом и баром*/
-        anomalyArr[121] = new Anomaly("Circle", "Bio", 50.0d, 25.0d, new LatLng(64.351546d, 40.729297d), this, 0); //64.351546, 40.729297
-        anomalyArr[122] = new Anomaly("Circle", "Psy", 50.0d, 25.0d, new LatLng(64.351451d, 40.729255d), this, 0); // 64.351451, 40.729255
-        anomalyArr[123] = new Anomaly("Circle", "Rad", 50.0d, 25.0d, new LatLng(64.351367d, 40.729195d), this, 0);  // 64.351367, 40.729195
-        anomalyArr[124] = new Anomaly("Circle", "Rad", 50.0d, 25.0d, new LatLng(64.351288d, 40.729142d), this, 0);  //
-        anomalyArr[125] = new Anomaly("Circle", "Rad", 50.0d, 20.0d, new LatLng(64.351204d, 40.729056d), this, 0);  // 64.351263, 40.728184
-        anomalyArr[126] = new Anomaly("Circle", "Bio", 50.0d, 20.0d, new LatLng(64.351125d, 40.728922d), this, 0);  // 64.351182, 40.728098
-        anomalyArr[127] = new Anomaly("Circle", "Rad", 50.0d, 20.0d, new LatLng(64.351023d, 40.728761d), this, 0);  // 64.351014, 40.727938
-        anomalyArr[128] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351640d, 40.729220d), this, 0);  // 64.351430,
-        anomalyArr[129] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351727d, 40.729190d), this, 0);  // 64.351430,
-        anomalyArr[130] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351825d, 40.729171d), this, 0);  // 64.351430,
-        anomalyArr[131] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351903d, 40.729185d), this, 0);  // 64.351430,
-        anomalyArr[132] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351903d, 40.729185d), this, 0);  // 64.351430,
-        anomalyArr[133] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352085d, 40.729222d), this, 0);  // 64.351430,
-        anomalyArr[134] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352175d, 40.729244d), this, 0);  // 64.351430,
-        anomalyArr[135] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352269d, 40.729260d), this, 0);  // 64.351430,
-        anomalyArr[136] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352355d, 40.729287d), this, 0);  // 64.351430,
-        anomalyArr[137] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352446d, 40.729314d), this, 0);  // 64.351430,
-        anomalyArr[138] = new Anomaly("Circle", "Psy", 50.0d, 13.0d, new LatLng(64.352533d, 40.729340d), this, 0);  // 64.351430,
-        anomalyArr[139] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352619d, 40.729370d), this, 0);  // 64.351430,
-        anomalyArr[140] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352710d, 40.729405d), this, 0);  // 64.351430,
-        anomalyArr[140] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352794d, 40.729445d), this, 0);  // 64.351430,
-        /*между стеной свободы и долга*/
-        anomalyArr[141] = new Anomaly("Circle", "Bio", 5.0d, 22.0d, new LatLng(64.350212d, 40.732777d), this, 0); //64.350212, 40.732777
-        anomalyArr[141].minstrenght = 5;
-        anomalyArr[142] = new Anomaly("Circle", "Bio", 20.0d, 22.0d, new LatLng(64.350203d, 40.731876d), this, 0);  // 64.350203, 40.731876
-        anomalyArr[142].minstrenght = 5;
-        anomalyArr[143] = new Anomaly("Circle", "Bio", 20.0d, 22.0d, new LatLng(64.350208d, 40.731125d), this, 0); //  64.350208, 40.731125
-        anomalyArr[143].minstrenght = 5;
-        anomalyArr[144] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.350305d, 40.730299d), this, 0); // 64.350305, 40.730299
-        anomalyArr[144].minstrenght = 5;
-        anomalyArr[145] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.351152d, 40.731522d), this, 0); // 64.351152, 40.731522
-        anomalyArr[145].minstrenght = 5;
-        anomalyArr[146] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.351489d, 40.731806d), this, 0); // 64.351489, 40.731806
-        anomalyArr[146].minstrenght = 5;
-        anomalyArr[147] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.351484d, 40.732552d), this, 0); // 64.351484, 40.732552
-        anomalyArr[147].minstrenght = 5;
-        anomalyArr[148] = new Anomaly("Circle", "Bio", 20.0d, 22.0d, new LatLng(64.350271d, 40.728765d), this, 0); // 64.350271, 40.728765
-        /*между блокпостом и колючкой*/
-        anomalyArr[149] = new Anomaly("Circle", "Rad", 50.0d, 20.0d, new LatLng(64.353790d, 40.725051d), this, 0);  // затычка на вход
-        anomalyArr[149].minstrenght = 10;
-        anomalyArr[150] = new Anomaly("Circle", "Bio", 15.0d, 27.0d, new LatLng(64.354287d, 40.723661d), this, 0);  //
-        anomalyArr[151] = new Anomaly("Circle", "Rad", 11.0d, 40.0d, new LatLng(64.353920d, 40.719498d), this, 0);  //
-        anomalyArr[152] = new Anomaly("Circle", "Rad", 10.0d, 25.0d, new LatLng(64.354780d, 40.729981d), this, 0); //
-        anomalyArr[153] = new Anomaly("Circle", "Bio", 10.0d, 15.0d, new LatLng(64.356210d, 40.736777d), this, 0);  //
-        anomalyArr[154] = new Anomaly("Circle", "Rad", 10.0d, 40.0d, new LatLng(64.355340d, 40.734331d), this, 0);  //
-        anomalyArr[155] = new Anomaly("Circle", "Psy", 11.0d, 15.0d, new LatLng(64.355437d, 40.723955d), this, 0);  // Добавить голос для коменданта
-        /*вокруг болотного доктора*/
-        anomalyArr[156] = new Anomaly("Circle", "Rad", 10.0d, 20.0d, new LatLng(64.352753d, 40.726456d), this, 0);  // дырка в заборе
-        anomalyArr[157] = new Anomaly("Circle", "Psy", 10.0d, 30.0d, new LatLng(64.353852d, 40.727788d), this, 0);  // в болоте слева
-        anomalyArr[158] = new Anomaly("Circle", "Bio", 10.0d, 48.0d, new LatLng(64.352216d, 40.723248d), this, 0);  //
-        anomalyArr[159] = new Anomaly("Circle", "Rad", 15.0d, 15.0d, new LatLng(64.353332d, 40.729321d), this, 0);  // у выхода с болотной тропы
-        anomalyArr[160] = new Anomaly("Circle", "Rad", 15.0d, 30.0d, new LatLng(64.350728d, 40.726928d), this, 0);  //
-        /*справа от болотной тропы и до колючки*/
-        anomalyArr[161] = new Anomaly("Circle", "Bio", 15.0d, 20.0d, new LatLng(64.353462d, 40.733473d), this, 0);  //
-        anomalyArr[162] = new Anomaly("Circle", "Rad", 15.0d, 32.0d, new LatLng(64.353462d, 40.733473d), this, 0);  //
-        anomalyArr[163] = new Anomaly("Circle", "Rad", 15.0d, 30.0d, new LatLng(64.355210d, 40.739449d), this, 0);  //
-        anomalyArr[164] = new Anomaly("Circle", "Bio", 12.0d, 22.0d, new LatLng(64.353750d, 40.730780d), this, 0);  //
-        anomalyArr[165] = new Anomaly("Circle", "Bio", 20.0d, 15.0d, new LatLng(64.354331d, 40.730994d), this, 0);  //
-        /*в районе монолита и свободы*/
-        anomalyArr[166] = new Anomaly("Circle", "Bio", 30.0d, 15.0d, new LatLng(64.351928d, 40.737378d), this, 0);  // перекресток
-        anomalyArr[167] = new Anomaly("Circle", "Bio", 10.0d, 20.0d, new LatLng(64.353495d, 40.740093d), this, 0);  //
-        anomalyArr[168] = new Anomaly("Circle", "Psy", 10.0d, 25.0d, new LatLng(64.351156d, 40.738548d), this, 0);  //
-        anomalyArr[169] = new Anomaly("Circle", "Rad", 15.0d, 30.0d, new LatLng(64.351704d, 40.741992d), this, 0);  //
-        anomalyArr[170] = new Anomaly("Circle", "Bio", 10.0d, 28.0d, new LatLng(64.352397d, 40.739899d), this, 0);  //
-        anomalyArr[171] = new Anomaly("Circle", "Bio", 10.0d, 21.0d, new LatLng(64.353057d, 40.737121d), this, 0);  //
-        /*
-        * постоянная аномалия малого монолита и несколько временных
-        * */
-        // 15.09 18:?? - 18:40
-        anomalyArr[172] = new Anomaly("Circle", "Psy", 10.0d, 10.0d, new LatLng(64.358104d, 40.722633d), this, 0);  // монолит
-        anomalyArr[173] = new Anomaly("Circle", "Psy", 5.0d, 10.0d, new LatLng(64.355986d, 40.722880d), this, 0);  // БП
-        anomalyArr[174] = new Anomaly("Circle", "Psy", 5.0d, 10.0d, new LatLng(64.357067d, 40.720553d), this, 0);  // палатки
-        anomalyArr[175] = new Anomaly("Circle", "Psy", 5.0d, 10.0d, new LatLng(64.356830d, 40.721672d), this, 0);  // ученые
-        /*
-        *3 день
-        * 16 - 17 сентября
-        * 11:00 - 16:00
-        *
-        * */
-        /*стена между свободой и баром*/
-        anomalyArr[176] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351039d, 40.734708d), this, 0); //от базы вниз  64.526125, 40.603979
-        anomalyArr[176].minstrenght = 10;
-        anomalyArr[177] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.350672d, 40.734730d), this, 0); //
-        anomalyArr[177].minstrenght = 10;
-        anomalyArr[178] = new Anomaly("Circle", "Psy", 5.0d, 22.0d, new LatLng(64.350327d, 40.734955d), this, 0); //
-        anomalyArr[178].minstrenght = 1;
-        anomalyArr[179] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.350121d, 40.735728d), this, 0); //
-        anomalyArr[179].minstrenght = 10;
-
-        anomalyArr[180] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.349798d, 40.736982d), this, 0); //
-        anomalyArr[181] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.349468d, 40.737057d), this, 0); // самый низ
-        anomalyArr[182] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351530d, 40.733879d), this, 0);  //чуть выше базы и вверх
-        anomalyArr[182].minstrenght = 10;//
-        anomalyArr[183] = new Anomaly("Circle", "Psy", 60.0d, 30.0d, new LatLng(64.351688d, 40.733947d), this, 0);  //прямо на дороге, поэтому сильнее
-        anomalyArr[183].minstrenght = 10;
-        anomalyArr[184] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351931d, 40.734238d), this, 0); //
-        anomalyArr[184].minstrenght = 10;
-        anomalyArr[185] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.352082d, 40.734968d), this, 0); //
-        anomalyArr[185].minstrenght = 10;
-        anomalyArr[186] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352121d, 40.735754d), this, 0); //
-        anomalyArr[186].minstrenght = 10;
-        anomalyArr[187] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.352120d, 40.736600d), this, 0); //
-        anomalyArr[187].minstrenght = 10;
-        anomalyArr[188] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352202d, 40.737389d), this, 0); //
-        anomalyArr[188].minstrenght = 10;
-        anomalyArr[189] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.352435d, 40.738011d), this, 0); //
-        anomalyArr[189].minstrenght = 10;
-        /*стена между долгом и баром*/
-        anomalyArr[190] = new Anomaly("Circle", "Bio", 50.0d, 25.0d, new LatLng(64.351546d, 40.729297d), this, 0); //64.351546, 40.729297
-        anomalyArr[191] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351640d, 40.729220d), this, 0);  // 64.351430,
-        anomalyArr[192] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351727d, 40.729190d), this, 0);  // 64.351430,
-        anomalyArr[193] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351825d, 40.729171d), this, 0);  // 64.351430,
-        anomalyArr[194] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351903d, 40.729185d), this, 0);  // 64.351430,
-        anomalyArr[195] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351903d, 40.729185d), this, 0);  // 64.351430,
-        anomalyArr[196] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352085d, 40.729222d), this, 0);  // 64.351430,
-        anomalyArr[197] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352175d, 40.729244d), this, 0);  // 64.351430,
-        anomalyArr[198] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352269d, 40.729260d), this, 0);  // 64.351430,
-        anomalyArr[199] = new Anomaly("Circle", "Bio", 1.0d, 1.0d, new LatLng(64.352269d, 40.729260d), this, 0);  // 64.351430,
-        anomalyArr[200] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352355d, 40.729287d), this, 0);  // 64.351430,
-        anomalyArr[201] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352446d, 40.729314d), this, 0);  // 64.351430,
-        anomalyArr[202] = new Anomaly("Circle", "Psy", 50.0d, 13.0d, new LatLng(64.352533d, 40.729340d), this, 0);  // 64.351430,
-        anomalyArr[203] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352619d, 40.729370d), this, 0);  // 64.351430,
-        anomalyArr[204] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352710d, 40.729405d), this, 0);  // 64.351430,
-        anomalyArr[205] = new Anomaly("Circle", "Bio", 50.0d, 16.0d, new LatLng(64.352794d, 40.729445d), this, 0);  // 64.351430,
-        anomalyArr[206] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.352834d, 40.730045d), this, 0);  // 64.351430,
-        anomalyArr[207] = new Anomaly("Circle", "Bio", 50.0d, 15.0d, new LatLng(64.352935d, 40.730638d), this, 0);  // 64.351430,
-        anomalyArr[208] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.352948d, 40.730780d), this, 0);  // 64.351430,
-        anomalyArr[209] = new Anomaly("Circle", "Psy", 50.0d, 15.0d, new LatLng(64.353025d, 40.731270d), this, 0);  // 64.351430,
-        anomalyArr[210] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.353135d, 40.731812d), this, 0);  // 64.351430,
-        anomalyArr[211] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.353237d, 40.732345d), this, 0);  // 64.351430,
-        /*между стеной свободы и долга*/
-        anomalyArr[212] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.351346d, 40.729807d), this, 0); //64.350212, 40.732777
-        anomalyArr[212].minstrenght = 5;
-        anomalyArr[213] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.351367d, 40.730644d), this, 0);  // 64.350203, 40.731876
-        anomalyArr[213].minstrenght = 5;
-        anomalyArr[214] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.351374d, 40.731417d), this, 0); //  64.350208, 40.731125
-        anomalyArr[214].minstrenght = 5;
-        anomalyArr[215] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.351392d, 40.732213d), this, 0); // 64.350305, 40.730299
-        anomalyArr[215].minstrenght = 5;
-        anomalyArr[216] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.351392d, 40.732213d), this, 0); // 64.351152, 40.731522
-        anomalyArr[216].minstrenght = 5;
-        anomalyArr[217] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.351392d, 40.732213d), this, 0); // 64.351489, 40.731806
-        anomalyArr[217].minstrenght = 5;
-        anomalyArr[218] = new Anomaly("Circle", "Rad", 40.0d, 22.0d, new LatLng(64.351438d, 40.734552d), this, 0); // 64.351484, 40.732552
-        anomalyArr[218].minstrenght = 5;
-        /*между блокпостом и колючкой*/
-        anomalyArr[219] = new Anomaly("Circle", "Rad", 30.0d, 40.0d, new LatLng(64.354463d, 40.729075d), this, 0);  // затычка на вход
-        anomalyArr[219].minstrenght = 10;
-        anomalyArr[220] = new Anomaly("Circle", "Bio", 50.0d, 15.0d, new LatLng(64.354463d, 40.729075d), this, 0);  // вторая затычка на тот же ход
-        anomalyArr[221] = new Anomaly("Circle", "Rad", 11.0d, 20.0d, new LatLng(64.355840d, 40.725846d), this, 0);  //
-        anomalyArr[222] = new Anomaly("Circle", "Rad", 10.0d, 45.0d, new LatLng(64.353971d, 40.723604d), this, 0); //
-        anomalyArr[223] = new Anomaly("Circle", "Bio", 10.0d, 10.0d, new LatLng(64.355648d, 40.731989d), this, 0);  //
-        anomalyArr[224] = new Anomaly("Circle", "Rad", 10.0d, 30.0d, new LatLng(64.355460d, 40.735368d), this, 0);  //
-        anomalyArr[225] = new Anomaly("Circle", "Psy", 11.0d, 15.0d, new LatLng(64.355437d, 40.723955d), this, 0);  // Добавить голос для коменданта
-        anomalyArr[226] = new Anomaly("Circle", "Rad", 12.0d, 15.0d, new LatLng(64.356759d, 40.739445d), this, 0);  //
-        /*вокруг болотного доктора*/
-        anomalyArr[227] = new Anomaly("Circle", "Psy", 15.0d, 20.0d, new LatLng(64.353430d, 40.724822d), this, 0);  //
-        anomalyArr[228] = new Anomaly("Circle", "Rad", 10.0d, 20.0d, new LatLng(64.353181d, 40.726056d), this, 0);  //
-        anomalyArr[229] = new Anomaly("Circle", "Bio", 10.0d, 18.0d, new LatLng(64.353842d, 40.728110d), this, 0);  //
-        anomalyArr[230] = new Anomaly("Circle", "Rad", 10.0d, 7.0d, new LatLng(64.351938d, 40.725863d), this, 0);  //
-        anomalyArr[231] = new Anomaly("Circle", "Rad", 15.0d, 20.0d, new LatLng(64.350666d, 40.726839d), this, 0);  //
-        /*справа от болотной тропы и до колючки*/
-        anomalyArr[232] = new Anomaly("Circle", "Bio", 15.0d, 20.0d, new LatLng(64.354225d, 40.733780d), this, 0);  //
-        anomalyArr[233] = new Anomaly("Circle", "Rad", 10.0d, 32.0d, new LatLng(64.354867d, 40.737332d), this, 0);  //
-        anomalyArr[234] = new Anomaly("Circle", "Bio", 15.0d, 20.0d, new LatLng(64.355076d, 40.735948d), this, 0);  //
-        anomalyArr[235] = new Anomaly("Circle", "Rad", 12.0d, 22.0d, new LatLng(64.355020d, 40.739520d), this, 0);  //
-        /*в районе монолита и свободы*/
-        anomalyArr[236] = new Anomaly("Circle", "Rad", 30.0d, 15.0d, new LatLng(64.352709d, 40.739703d), this, 0);  // перекресток другой
-        anomalyArr[237] = new Anomaly("Circle", "Bio", 10.0d, 15.0d, new LatLng(64.354188d, 40.741945d), this, 0);  //
-        anomalyArr[238] = new Anomaly("Circle", "Bio", 10.0d, 20.0d, new LatLng(64.353351d, 40.737557d), this, 0);  //
-        anomalyArr[239] = new Anomaly("Circle", "Psy", 15.0d, 10.0d, new LatLng(64.351868d, 40.737890d), this, 0);  //
-        anomalyArr[240] = new Anomaly("Circle", "Rad", 10.0d, 20.0d, new LatLng(64.352310d, 40.741806d), this, 0);  //
-        /*
-         *4 день
-         * 17 - 18 сентября
-         * 16:00 - 9:00
-         *
-         * */
-        /*стена между свободой и баром*/
-        anomalyArr[241] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351039d, 40.734708d), this, 0); //от базы вниз  64.526125, 40.603979
-        anomalyArr[241].minstrenght = 10;
-        anomalyArr[242] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350672d, 40.734730d), this, 0); //
-        anomalyArr[242].minstrenght = 10;
-        anomalyArr[243] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350327d, 40.734955d), this, 0); //
-        anomalyArr[243].minstrenght = 10;
-        anomalyArr[244] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350121d, 40.735728d), this, 0); //
-        anomalyArr[244].minstrenght = 10;
-        anomalyArr[245] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350107d, 40.736597d), this, 0);  //
-        anomalyArr[245].minstrenght = 10;
-        anomalyArr[246] = new Anomaly("Circle", "Bio", 2.0d, 22.0d, new LatLng(64.349798d, 40.736982d), this, 0); //
-        anomalyArr[247] = new Anomaly("Circle", "Bio", 40.0d, 22.0d, new LatLng(64.349468d, 40.737057d), this, 0); // самый низ
-        anomalyArr[248] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351530d, 40.733879d), this, 0);  //чуть выше базы и вверх
-        anomalyArr[248].minstrenght = 10;//
-        anomalyArr[249] = new Anomaly("Circle", "Bio", 60.0d, 30.0d, new LatLng(64.351688d, 40.733947d), this, 0);  //прямо на дороге, поэтому сильнее
-        anomalyArr[249].minstrenght = 10;
-        anomalyArr[250] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351897d, 40.733907d), this, 0); //
-        anomalyArr[250].minstrenght = 10;
-        anomalyArr[251] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351897d, 40.733907d), this, 0); //
-        anomalyArr[251].minstrenght = 10;
-        anomalyArr[252] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352572d, 40.733708d), this, 0); //
-        anomalyArr[252].minstrenght = 10;
-        anomalyArr[253] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352895d, 40.733617d), this, 0); //
-        anomalyArr[253].minstrenght = 10;
-        anomalyArr[254] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353227d, 40.733526d), this, 0); //
-        anomalyArr[254].minstrenght = 10;
-        anomalyArr[255] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353399d, 40.733907d), this, 0); //
-        anomalyArr[255].minstrenght = 10;
-        anomalyArr[256] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353516d, 40.734615d), this, 0); //
-        anomalyArr[257] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353581d, 40.735318d), this, 0); //
-        anomalyArr[258] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353697d, 40.736069d), this, 0); //
-        anomalyArr[259] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353750d, 40.736605d), this, 0); //
-        anomalyArr[260] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353836d, 40.737420d), this, 0); //
-        anomalyArr[260].minstrenght = 10;
-        anomalyArr[261] = new Anomaly("Circle", "Rad", 2.0d, 15.0d, new LatLng(64.353753d, 40.738107d), this, 0); // проход
-        anomalyArr[262] = new Anomaly("Circle", "Bio", 50.0d, 15.0d, new LatLng(64.353564d, 40.738719d), this, 0); //
-        anomalyArr[262].minstrenght = 10;
-        anomalyArr[263] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.353295d, 40.738670d), this, 0); //
-        anomalyArr[264] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352918d, 40.738826d), this, 0); //
-        anomalyArr[265] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352600d, 40.738992d), this, 0); //
-        anomalyArr[266] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352337d, 40.739276d), this, 0); //
-        anomalyArr[267] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.352016d, 40.739593d), this, 0); //
-        anomalyArr[268] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351960d, 40.740424d), this, 0); //
-        anomalyArr[269] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351879d, 40.741213d), this, 0); //
-        anomalyArr[270] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351640d, 40.741803d), this, 0); //
-        anomalyArr[271] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351368d, 40.742334d), this, 0); //
-        anomalyArr[272] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351069d, 40.742919d), this, 0); //
-        anomalyArr[273] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.351069d, 40.742919d), this, 0); //
-        anomalyArr[274] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350518d, 40.742340d), this, 0); //
-        anomalyArr[275] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.350274d, 40.741886d), this, 0); //
-        anomalyArr[276] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.349988d, 40.741463d), this, 0); //
-        anomalyArr[277] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.349660d, 40.740840d), this, 0); //
-        anomalyArr[278] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.349395d, 40.740293d), this, 0); //
-        anomalyArr[279] = new Anomaly("Circle", "Bio", 50.0d, 22.0d, new LatLng(64.349172, 40.739719d), this, 0); //
-        /*меджу долгом и свободой*/
-        anomalyArr[280] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351574d, 40.733819d), this, 0); //
-        anomalyArr[281] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351528d, 40.733020d), this, 0); //
-        anomalyArr[282] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351491d, 40.732124d), this, 0); //
-        anomalyArr[283] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351491d, 40.732124d), this, 0); //
-        anomalyArr[284] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351491d, 40.732124d), this, 0); //
-        anomalyArr[285] = new Anomaly("Circle", "Psy", 50.0d, 22.0d, new LatLng(64.351346d, 40.729748d), this, 0); //
-        /*стена между долгом и баром*/
-        anomalyArr[286] = new Anomaly("Circle", "Bio", 50.0d, 25.0d, new LatLng(64.351546d, 40.729297d), this, 0); //64.351546, 40.729297
-        anomalyArr[287] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351640d, 40.729220d), this, 0);  // 64.351430,
-        anomalyArr[288] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351727d, 40.729190d), this, 0);  // 64.351430,
-        anomalyArr[289] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.351825d, 40.729171d), this, 0);  // 64.351430,
-        anomalyArr[290] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.351903d, 40.729185d), this, 0);  // 64.351430,
-        anomalyArr[291] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352085d, 40.729222d), this, 0);  // 64.351430,
-        anomalyArr[292] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352175d, 40.729244d), this, 0);  // 64.351430,
-        anomalyArr[293] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352269d, 40.729260d), this, 0);  // 64.351430,
-        anomalyArr[294] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352355d, 40.729287d), this, 0);  // 64.351430,
-        anomalyArr[295] = new Anomaly("Circle", "Bio", 50.0d, 13.0d, new LatLng(64.352446d, 40.729314d), this, 0);  // 64.351430,
-        anomalyArr[296] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352533d, 40.729340d), this, 0);  // 64.351430,
-        anomalyArr[297] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352619d, 40.729370d), this, 0);  // 64.351430,
-        anomalyArr[298] = new Anomaly("Circle", "Rad", 50.0d, 13.0d, new LatLng(64.352710d, 40.729405d), this, 0);  // 64.351430,
-        anomalyArr[299] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.352730d, 40.728846d), this, 0);  // 64.351430,
-        anomalyArr[300] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.352734d, 40.728245d), this, 0);  // 64.351430,
-        anomalyArr[301] = new Anomaly("Circle", "Bio", 50.0d, 17.0d, new LatLng(64.352755d, 40.727623d), this, 0);  // 64.351430,
-        anomalyArr[302] = new Anomaly("Circle", "Rad", 50.0d, 17.0d, new LatLng(64.352755d, 40.727623d), this, 0);  // 64.351430,
-        anomalyArr[303] = new Anomaly("Circle", "Psy", 50.0d, 17.0d, new LatLng(64.352755d, 40.727623d), this, 0);  // 64.351430,
-        anomalyArr[304] = new Anomaly("Circle", "Rad", 50.0d, 17.0d, new LatLng(64.352797d, 40.725863d), this, 0);  // 64.351430,
-        anomalyArr[305] = new Anomaly("Circle", "Rad", 50.0d, 17.0d, new LatLng(64.352797d, 40.725863d), this, 0);  // 64.351430,
-        anomalyArr[306] = new Anomaly("Circle", "Bio", 2.0d, 10.0d, new LatLng(64.352997d, 40.724817d), this, 0);  // 64.351430,
-        anomalyArr[307] = new Anomaly("Circle", "Rad", 50.0d, 15.0d, new LatLng(64.352997d, 40.724817d), this, 0);  // 64.351430,
-        anomalyArr[308] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.353227d, 40.723707d), this, 0);  // 64.351430,
-        anomalyArr[309] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.353232d, 40.722870d), this, 0);  // 64.351430,
-        anomalyArr[310] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.353178d, 40.722055d), this, 0);  // 64.351430,
-        anomalyArr[311] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.353178d, 40.722055d), this, 0);  // 64.351430,
-        anomalyArr[312] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.352990d, 40.720494d), this, 0);  // 64.351430,
-        anomalyArr[313] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.352990d, 40.720494d), this, 0);  // 64.351430,
-        anomalyArr[314] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.350858d, 40.721218d), this, 0);  // 64.351430,
-        anomalyArr[315] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.350898d, 40.722087d), this, 0);  // 64.351430,
-        anomalyArr[316] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.350970d, 40.722908d), this, 0);  // 64.351430,
-        anomalyArr[317] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.351067d, 40.723697d), this, 0);  // 64.351430,
-        anomalyArr[318] = new Anomaly("Circle", "Bio", 2.0d, 10.0d, new LatLng(64.351147d, 40.724303d), this, 0);  // 64.351430,
-        anomalyArr[319] = new Anomaly("Circle", "Rad", 50.0d, 22.0d, new LatLng(64.351219d, 40.724898d), this, 0);  // 64.351430,
-        anomalyArr[320] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.351135d, 40.725440d), this, 0);  // 64.351430,
-        anomalyArr[321] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.351067d, 40.726041d), this, 0);  // 64.351430,
-        anomalyArr[322] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.351016d, 40.726663d), this, 0);  // 64.351430,
-        anomalyArr[323] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.351016d, 40.727291d), this, 0);  // 64.351430,
-        anomalyArr[324] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.350991d, 40.727918d), this, 0);  // 64.351430,
-        anomalyArr[325] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.350974d, 40.728557d), this, 0);  // 64.351430,
-        anomalyArr[326] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.351044d, 40.729179d), this, 0);  // 64.351430,
-        anomalyArr[327] = new Anomaly("Circle", "Rad", 50.0d, 16.0d, new LatLng(64.351251d, 40.729614d), this, 0);  // 64.351430,
-        /*везде*/
-        anomalyArr[328] = new Anomaly("Circle", "Rad", 50.0d, 30.0d, new LatLng(64.353808d, 40.725029d), this, 0);  // 64.351430,
-        anomalyArr[329] = new Anomaly("Circle", "Bio", 40.0d, 15.0d, new LatLng(64.353808d, 40.725029d), this, 0);  // 64.351430,
-        anomalyArr[330] = new Anomaly("Circle", "Bio", 50.0d, 30.0d, new LatLng(64.354477d, 40.729192d), this, 0);  //
-        anomalyArr[331] = new Anomaly("Circle", "Rad", 10.0d, 35.0d, new LatLng(64.354696d, 40.720226d), this, 0);  //
-        anomalyArr[332] = new Anomaly("Circle", "Bio", 5.0d, 15.0d, new LatLng(64.356095d, 40.728927d), this, 0);  //
-        anomalyArr[333] = new Anomaly("Circle", "Bio", 15.0d, 35.0d, new LatLng(64.356751d, 40.739270d), this, 0);  //
-        anomalyArr[334] = new Anomaly("Circle", "Rad", 10.0d, 17.0d, new LatLng(64.354240d, 40.733562d), this, 0);  //
-        anomalyArr[335] = new Anomaly("Circle", "Rad", 10.0d, 30.0d, new LatLng(64.353152d, 40.737155d), this, 0);  //
-        anomalyArr[336] = new Anomaly("Circle", "Bio", 10.0d, 10.0d, new LatLng(64.351948d, 40.725858d), this, 0);  //
-        anomalyArr[337] = new Anomaly("Circle", "Rad", 10.0d, 30.0d, new LatLng(64.354500d, 40.740009d), this, 0);  //
-        anomalyArr[338] = new Anomaly("Circle", "Bio", 10.0d, 15.0d, new LatLng(64.354886d, 40.737316d), this, 0);  //
-        /*
-         *5 день
-         * 18 сентября
-         * c 9:00
-         *
-         * */
-        anomalyArr[339] = new Anomaly("Circle", "Rad", 15.0d, 15.0d, new LatLng(64.352706d, 40.739698d), this, 0);  //
-        anomalyArr[340] = new Anomaly("Circle", "Psy", 15.0d, 15.0d, new LatLng(64.351929d, 40.737359d), this, 0);  //
-        anomalyArr[341] = new Anomaly("Circle", "Bio", 15.0d, 15.0d, new LatLng(64.351734d, 40.732832d), this, 0);  //
-        anomalyArr[342] = new Anomaly("Circle", "Rad", 15.0d, 15.0d, new LatLng(64.351608d, 40.731480d), this, 0);  //
-        anomalyArr[343] = new Anomaly("Circle", "Psy", 15.0d, 15.0d, new LatLng(64.351562d, 40.729248d), this, 0);  //
-        anomalyArr[344] = new Anomaly("Circle", "Bio", 15.0d, 15.0d, new LatLng(64.353812d, 40.725021d), this, 0);  //
-        anomalyArr[345] = new Anomaly("Circle", "Rad", 15.0d, 15.0d, new LatLng(64.353087d, 40.730579d), this, 0);  //
-        anomalyArr[346] = new Anomaly("Circle", "Rad", 15.0d, 30.0d, new LatLng(64.355291d, 40.734237d), this, 0);  //
+        anomalyArr[14] = new Anomaly("Circle", "Psy", 10.0d, 115.0d, new LatLng(64.530637d, 40.158825d), this, 0, true); // 77-45 вход
+        anomalyArr[15] = new Anomaly("Circle", "Rad", 10.0d, 35.0d, new LatLng(64.529540, 40.157033d), this, 0, true);  //65-38-5
+        anomalyArr[15].minstrenght = 5;
+        anomalyArr[16] = new Anomaly("Circle", "Bio", 15.0d, 45.0d, new LatLng(64.530752d, 40.154388d), this, 0, true); // 70-43-3
+        anomalyArr[16].minstrenght = 5;
+        // выход
+        anomalyArr[17] = new Anomaly("Circle", "Psy", 20.0d, 234.0d, new LatLng(64.532200d, 40.153651d), this, 0, true); // выход
+        anomalyArr[17].minstrenght = 15;
+        anomalyArr[18] = new Anomaly("Circle", "Rad", 20.0d, 75.0d, new LatLng(64.535696d, 40.152235d), this, 0, true);  // выход
         /*----------------*/
-        anomalyArr[347] = new MonolithAnomaly("Circle", "", 100.0d, (double) 0, new LatLng(64.573684d, 45.516567d), this, 0); //добавлено str2, d2   // 45 -> 40 и аномалия будет над моим домом
+        anomalyArr[19] = new MonolithAnomaly("Circle", "", 0.0d,  30.0d, new LatLng(64.528918d, 40.156468d), this, 0, false); // 72-44-4
         /**/
-        anomalyArr[348] = new Anomaly("QR", "Rad", 50d, 1d, this);  //QR рулетка - нигде не учитывается
-        anomalyArr[349] = new Anomaly("QR", "Bio", 50d, 1d, this);  //QR рулетка - нигде не учитывается
-        anomalyArr[350] = new Anomaly("QR", "Psy", 50d, 1d, this);  //QR рулетка - нигде не учитывается
+        anomalyArr[20] = new Anomaly("QR", "Rad", 1d, 1d, this);  //QR рулетка - нигде не учитывается
+        anomalyArr[21] = new Anomaly("QR", "Bio", 2d, 1d, this);  //QR рулетка - нигде не учитывается
+        anomalyArr[22] = new Anomaly("QR", "Psy", 1d, 1d, this);  //QR рулетка - нигде не учитывается
         anomalies = anomalyArr;
     }
 
-    private void GetTime() {
-        cal = Calendar.getInstance();
-        dayInt = cal.get(5);
-        Hour = cal.get(11);
-        Minutes = cal.get(12);
+    public void GetTime() {
+        this.cal = Calendar.getInstance();
+        this.dayInt = this.cal.get(5);
+        this.Hour = this.cal.get(11);
+        this.Minutes = this.cal.get(12);
     }
+
+    public LatLng moving_anomalies(LatLng start_LatLng, LatLng finish_latLng){
+        double dLat = (start_LatLng.latitude - finish_latLng.latitude) / 60;
+        double dLng = (start_LatLng.longitude - finish_latLng.longitude) / 60;
+        Log.d("minutes", String.valueOf(new LatLng(start_LatLng.latitude + (dLat * (double) Minutes), start_LatLng.longitude + (dLng * (double) Minutes))));
+        //return start_LatLng;
+        return new LatLng(start_LatLng.latitude - (dLat * (double) Minutes), start_LatLng.longitude - (dLng * (double) Minutes));
+    }
+
     // применяет аномалии
+    // вызывается в MyLocationCallback()
     public void CheckAnomalies() {
         if (IS_ANOMALIES_AVAILABLE) {
-            GetTime();
-            // аномалия свободы
-            if (anomalyFreedom){
-                anomalies[0].Apply();
-            }
-            // взбешенная аномалия свободы
-            if (apocalypseFreedom & ((Calendar.getInstance().getTimeInMillis() / 1000) > 1600417800)){
-                anomalies[1].Apply();
-            }
+            long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
             // постоянные аномалии
-            if ((Calendar.getInstance().getTimeInMillis() / 1000) > 1600092000) {
-                for (int i = 2; i < 33; i++) {
+            if (timeInSeconds > checkTime_in) { // 14 мая 13:30
+                for (int i = 0; i < 13; i++) {
                     anomalies[i].Apply();
                 }
 
-
-
             }
-            // аномалия малого монолита после первого выброса
-            if ((Calendar.getInstance().getTimeInMillis() / 1000) > 1600182000){
-                anomalies[172].Apply();
-            }
-            // временные аномалии в лагере из-за малого монолита 15.09 18:?? - 18:40
-            // аномалии первого дня 14.09 17:00 - 15.09 18:00
-            /*CheckAnomaliesRegular(1600092000, 1600182000, 33, 103);*/
-            // аномалии второго дня 15.09 18:00 - 16.09 11:00
-            /*CheckAnomaliesRegular(1600182000, 1600243200, 103, 172);*/
-            // аномалии третьего дня 16.09 11:00 - 17.09 16:00
-            CheckAnomaliesRegular(1600243200, 1600347600, 176, 241);
-            // аномалии четвертого дня 17.09 16:00 - 18.09 9:00
-            CheckAnomaliesRegular(1600347600, 1600408800, 241, 339);
-            // аномалии пятого дня 18.09 9:00 - до мая
-            if ((Calendar.getInstance().getTimeInMillis() / 1000) > 1600408800){
-                for (int i = 339; i < 347; i++) {
-                    anomalies[i].Apply();
-                }
-            }
+            //14 мая 13:30 - 14:30
+            CheckAnomaliesRegular(checkTime_in, (checkTime_in + 3600), 13, 17);
+            // 16 мая с 15:20
+            CheckAnomaliesRegular(checkTime_out, (checkTime_out + 4000), 17, 19);
+            //
+            CheckAnomaliesRegular(checkTime_in, (checkTime_out + 4000), 19, 20);
         }
     }
+
     public void CheckAnomaliesRegular(long timeStart, long timeFinish, int anomalyStart, int anomalyFinish){
-        if((Calendar.getInstance().getTimeInMillis() / 1000) > timeStart  && (Calendar.getInstance().getTimeInMillis() / 1000) < timeFinish){
+        long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
+        if(timeInSeconds > timeStart  && timeInSeconds < timeFinish){
             for (int i = anomalyStart; i < anomalyFinish; i++) {
                 anomalies[i].Apply();
             }
         }
     }
+
+   // public int anomalyIndex;
     public void CheckIfInAnyAnomalyRegular(long timeStart, long timeFinish, int anomalyStart, int anomalyFinish){
-        if ((Calendar.getInstance().getTimeInMillis() / 1000) > timeStart  && (Calendar.getInstance().getTimeInMillis() / 1000) < timeFinish){
+        long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
+        if (timeInSeconds > timeStart  && timeInSeconds < timeFinish){
+            radiusAnomaly = 0d;  // нужно для того, чтобы аномалии на карте рисовались
+
             for (int i = anomalyStart; i < anomalyFinish; i++) {
                 if (anomalies[i].IsInside) {
+                    if (anomalies[i].toShow) {
+                        latLngAnomaly = anomalies[i].center;  // нужно для того, чтобы аномалии на карте рисовались
+                        radiusAnomaly = anomalies[i].radius;  //
+                    }
+                    //   anomalyIndex = i;
                     IsInsideAnomaly = Boolean.TRUE;
                     break;
                 }
             }
         }
     }
+
+    // вызывается в MyLocationCallback()
     public void CheckIfInAnyAnomaly() {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
         this.IsInsideAnomaly = Boolean.FALSE;
-        if (anomalyFreedom){
-            if (anomalies[0].IsInside){
-                IsInsideAnomaly = Boolean.TRUE;
-            }
-        }
-        if (apocalypseFreedom & ((Calendar.getInstance().getTimeInMillis() / 1000) > 1600417800)){
-            if (anomalies[1].IsInside){
-                IsInsideAnomaly = Boolean.TRUE;
-            }
-        }
-        // аномалия малого монолита после первого выброса
-        if ((Calendar.getInstance().getTimeInMillis() / 1000) > 1600182000) {
-            if (anomalies[172].IsInside){
-                IsInsideAnomaly = Boolean.TRUE;
-            }
-        }
-        // временные аномалии в лагере из-за малого монолита 15.09 18:?? - 18:40
-        /*постоянные аномалии, они тоже должны иметь ограничение по времени снизу, но я уже забил*/
-        /*for (int i = 2 ; i < 33; i++) { // +2 из-за аномалии свободы
+        detectWifi();
+
+        radiusAnomaly = 0d; // нужно для того, чтобы аномалии на карте рисовались
+        anomalies[11].center = moving_anomalies(new LatLng(64.531466d, 40.147349d), new LatLng(64.531956d, 40.151458d));
+        anomalies[12].center = moving_anomalies(new LatLng(64.531020d, 40.152906d), new LatLng(64.530452d, 40.148013d));
+        for (int i = 0 ; i < 13; i++) {
             if (anomalies[i].IsInside) {
-                IsInsideAnomaly = Boolean.TRUE;
-                if (!GestaltProtection) {                                                 //проверка на защиту от открытия гештальта
-                    if (i+2*//*из-зи свободы*//* < NUMBER_OF_GESTALT_ANOMALIES && anomalies[i].gesStatus == 1){  //если конкретный гештальт закрыт
-                        if (gesLockoutList[i] != 1) {                                     // проверяет можно ли конкретный гештальт открыть
-                            anomalies[i].gesStatus = 2;                                   // открываем гештальт
-                            *//*ЕСЛИ ГЕШТАЛЬТ ОТКРЫВАЕТСЯ, ТО СТАВИТ ЕГО КООРДИНАТУ НА КАРТУ*//*
-                            ContentValues contentValues = new ContentValues();
-                            contentValues.put(DBHelper.KEY_NAME, "!!!GESTALT!!!");
-                            contentValues.put(DBHelper.KEY_ICON, "icon");
-                            contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(anomalies[i].Center.latitude));
-                            contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(anomalies[i].Center.longitude));
-                            contentValues.put(DBHelper.KEY_COMMENT, "Обнаружен Гештальт");
-                            database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
-                            dbHelper.close();
-                        }
-                    }
+
+                if (anomalies[i].toShow) {
+                    latLngAnomaly = anomalies[i].center; // нужно для того, чтобы аномалии на карте рисовались
+                    radiusAnomaly = anomalies[i].radius; //
+                } else {
+                    radiusAnomaly = 0d;
                 }
-            }
-        }*/
-        for (int i = 2 ; i < 33; i++) { // +2 из-за аномалии свободы
-            if (anomalies[i].IsInside) {
                 IsInsideAnomaly = Boolean.TRUE;
                 if (!GestaltProtection) {                                                 //проверка на защиту от открытия гештальта
-                    if (i+2/*из-зи свободы*/ < NUMBER_OF_GESTALT_ANOMALIES && anomalies[i].gesStatus == 1){  //если конкретный гештальт закрыт
+                    if (i < NUMBER_OF_GESTALT_ANOMALIES && anomalies[i].gesStatus == 1){  //если конкретный гештальт закрыт
                         if (gesLockoutList[i] != 1) {                                     // проверяет можно ли конкретный гештальт открыть
+                            SQLiteDatabase database = dbHelper.getWritableDatabase();
                             anomalies[i].gesStatus = 2;                                   // открываем гештальт
                             /*ЕСЛИ ГЕШТАЛЬТ ОТКРЫВАЕТСЯ, ТО СТАВИТ ЕГО КООРДИНАТУ НА КАРТУ*/
                             ContentValues contentValues = new ContentValues();
                             contentValues.put(DBHelper.KEY_NAME, "!!!GESTALT!!!");
                             contentValues.put(DBHelper.KEY_ICON, "icon");
-                            contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(anomalies[i].Center.latitude));
-                            contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(anomalies[i].Center.longitude));
+                            contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(anomalies[i].center.latitude));
+                            contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(anomalies[i].center.longitude));
                             contentValues.put(DBHelper.KEY_COMMENT, "Обнаружен Гештальт");
                             database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
                             dbHelper.close();
@@ -2024,23 +1567,12 @@ public class StatsService extends Service {
                 }
             }
         }
-        // аномалии первого дня 14.09 17:00 - 15.09 18:00
-        /*CheckIfInAnyAnomalyRegular(1600092000, 1600182000, 33, 103);*/
-        // аномалии второго дня 15.09 18:00 - 16.09 11:00
-        /*CheckIfInAnyAnomalyRegular(1600182000, 1600243200, 103, 172);*/
-        // аномалии третьего дня 16.09 11:00 - 17.09 16:00
-        //CheckIfInAnyAnomalyRegular(1600243200, 1600347600, 176, 241);
-        // аномалии четвертого дня 17.09 16:00 - 18.09 9:00
-        CheckIfInAnyAnomalyRegular(1600347600, 1600408800, 241, 339);
-        // аномалии пятого дня 18.09 9:00 - до мая
-        if ((Calendar.getInstance().getTimeInMillis() / 1000) > 1600092000) {
-            for (int i = 339; i < 347; i++) {
-                if (anomalies[i].IsInside){
-                    IsInsideAnomaly = Boolean.TRUE;
-                    break;
-                }
-            }
-        }
+        //14 мая 13:30 - 14:30
+        CheckIfInAnyAnomalyRegular(checkTime_in, (checkTime_in + 3600), 13, 17);
+        // 16 мая с 15:20
+        CheckIfInAnyAnomalyRegular(checkTime_out, (checkTime_out + 4000), 17, 19);
+        // monolith
+        CheckIfInAnyAnomalyRegular(checkTime_in, (checkTime_out + 4000), 19, 20);
         /*
         рад выводится само со временем
         пси выводится сразу
@@ -2053,7 +1585,7 @@ public class StatsService extends Service {
                 }
             } else {
                 if (Rad > 0) {
-                    Rad -= 0.2; // должно выводиться за два 40
+                    Rad -= 0.2; // должно выводиться за ...
                 }
             }
             Psy = 0.0d;
@@ -2061,16 +1593,77 @@ public class StatsService extends Service {
         }
     }
 
+
+
+    SuperSaveZone[] superSaveZones = new SuperSaveZone[8];
+    public void Create_super_save_zones(){
+        superSaveZones[0] = new SuperSaveZone(checkTime_in + 900, 0, 180, 20d, "stalkers_in");
+        superSaveZones[1] = new SuperSaveZone(checkTime_in + 990, 1, 180, 20d, "stalkers_in");
+        superSaveZones[2] = new SuperSaveZone(checkTime_in, 0, 180, 20d, "military_in");
+        superSaveZones[3] = new SuperSaveZone(checkTime_in + 90, 1, 180, 20d, "military_in");
+        superSaveZones[4] = new SuperSaveZone(checkTime_out, 0, 180, 30d, "stalkers_out");
+        superSaveZones[5] = new SuperSaveZone(checkTime_out + 90, 1, 180, 30d, "stalkers_out");
+        superSaveZones[6] = new SuperSaveZone(checkTime_out, 0, 180, 20d, "green_out");
+        superSaveZones[7] = new SuperSaveZone(checkTime_out + 90, 1, 180, 20d, "green_out");
+    }
+    public void Super_save_zone_check(){
+        if (((Calendar.getInstance().getTimeInMillis() / 1000) >= checkTime_in) && ((Calendar.getInstance().getTimeInMillis() / 1000) <= (checkTime_in + 3600))){
+            for (SuperSaveZone superSaveZone : superSaveZones){
+                LatLng check_save = superSaveZone.Check_super_save_zone();
+                Location location = new Location("");
+                location.setLatitude(check_save.latitude);
+                location.setLongitude(check_save.longitude);
+                if (location.distanceTo(MyCurrentLocation) <= superSaveZone.circle_radius){
+                    if (Rad > 0) {
+                        Rad -= 25; // должно выводиться за ...
+                    }
+                    if (Bio > 0) {
+                        Bio -= 20; // должно выводиться за ...
+                    }
+                    Psy = 0.0d;
+                    Health +=50;
+                    if (Health > MaxHealth){
+                        Health = MaxHealth;
+                    }
+                }
+            }
+        }
+        if (((Calendar.getInstance().getTimeInMillis() / 1000) >= checkTime_out) && ((Calendar.getInstance().getTimeInMillis() / 1000) <= (checkTime_out + 3600))){
+            for (SuperSaveZone superSaveZone : superSaveZones){
+                LatLng check_save = superSaveZone.Check_super_save_zone();
+                Location location = new Location("");
+                location.setLatitude(check_save.latitude);
+                location.setLongitude(check_save.longitude);
+                if (location.distanceTo(MyCurrentLocation) <= superSaveZone.circle_radius){
+                    if (Rad > 0) {
+                        Rad -= 25; // должно выводиться за ...
+                    }
+                    if (Bio > 0) {
+                        Bio -= 20; // должно выводиться за ...
+                    }
+                    Psy = 0.0d;
+                    Health +=20;
+                    if (Health > MaxHealth){
+                        Health = MaxHealth;
+                    }
+                }
+            }
+        }
+    }
+
+
     public void CreateSafeZones() {
-        SafeZone[] safeZoneArr = new SafeZone[7];
-        // денисовичи
-        safeZoneArr[0] = new SafeZone("Circle", 145.0d, new LatLng(64.356858d, 40.722128d), this);
-        // свобода
-        safeZoneArr[1] = new SafeZone("Circle", 20.0d, new LatLng(64.351080d, 40.736227d), this);
-        // долг
-        safeZoneArr[2] = new SafeZone("Circle", 15.0d, new LatLng(64.351620d, 40.727617d), this);
-        // наемники
-        safeZoneArr[3] = new SafeZone("Circle", 23.0d, new LatLng(64.349791d, 40.726553d), this);
+        SafeZone[] safeZoneArr = new SafeZone[NUMBER_OF_SAVE_ZONES];
+        safeZoneArr[0] = new SafeZone("Circle", 35.0d, new LatLng(64.356858d, 40.722128d), this);
+        safeZoneArr[1] = new SafeZone("Circle", 35.0d, new LatLng(64.351080d, 40.736227d), this);
+        safeZoneArr[2] = new SafeZone("Circle", 35.0d, new LatLng(64.351620d, 40.727617d), this);
+        safeZoneArr[3] = new SafeZone("Circle", 35.0d, new LatLng(64.349791d, 40.726553d), this);
+        safeZoneArr[4] = new SafeZone("Circle", 35.0d, new LatLng(64.356858d, 40.722128d), this);
+        safeZoneArr[5] = new SafeZone("Circle", 35.0d, new LatLng(64.351080d, 40.736227d), this);
+        safeZoneArr[6] = new SafeZone("Circle", 35.0d, new LatLng(64.351620d, 40.727617d), this);
+        safeZoneArr[7] = new SafeZone("Circle", 35.0d, new LatLng(64.349791d, 40.726553d), this);
+        safeZoneArr[8] = new SafeZone("Circle", 35.0d, new LatLng(64.351620d, 40.727617d), this);
+        safeZoneArr[9] = new SafeZone("Circle", 35.0d, new LatLng(64.349791d, 40.726553d), this);
         this.SafeZones = safeZoneArr;
     }
 
@@ -2085,7 +1678,6 @@ public class StatsService extends Service {
             }
             i++;
         }
-
     }
 
     public void Discharge() {
@@ -2133,8 +1725,6 @@ public class StatsService extends Service {
         this.PsyProtectionTemp = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("PsyProtectionTemporary", "0")));
         this.DolgDischargeImmunity = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("DolgDischargeImmunity", "false")));
         this.NaemnikiDischargeImmunity = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("NaemnikiDischargeImmunity", "false")));
-        this.anomalyFreedom = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("anomalyFreedom", "false")));
-        this.apocalypseFreedom = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("anomalyFreedom", "true")));
         this.fastRadPurification = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("fastRadPurification", "false")));
     }
 
@@ -2162,8 +1752,6 @@ public class StatsService extends Service {
         edit.putString("PsyProtectionTemporary", Integer.toString(this.PsyProtectionTemp));
         edit.putString("DolgDischargeImmunity", Boolean.toString(this.DolgDischargeImmunity));
         edit.putString("NaemnikiDischargeImmunity", Boolean.toString(this.NaemnikiDischargeImmunity));
-        edit.putString("anomalyFreedom", Boolean.toString(this.anomalyFreedom));
-        edit.putString("apocalypseFreedom", Boolean.toString(this.apocalypseFreedom));
         edit.putString("fastRadPurification", Boolean.toString(this.fastRadPurification));
         edit.commit();
     }

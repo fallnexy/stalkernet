@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:orientation="vertical"
+<androidx.constraintlayout.widget.ConstraintLayout
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 		<ImageView
 			android:id="@+id/ImageViewHealth"
@@ -17,7 +11,7 @@
 			android:layout_height="28dp"
 			android:layout_marginStart="24dp"
 			android:layout_marginTop="24dp"
-			android:src="@drawable/health_symbol"
+			android:src="@drawable/health_symbol_0521"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
@@ -44,7 +38,7 @@
 			android:layout_height="28dp"
 			android:layout_marginStart="24dp"
 			android:layout_marginTop="24dp"
-			android:src="@drawable/rad_symbol"
+			android:src="@drawable/rad_symbol_0521"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ProgressHealth" />
 
@@ -77,7 +71,7 @@
 			android:layout_height="28dp"
 			android:layout_marginStart="24dp"
 			android:layout_marginTop="24dp"
-			android:src="@drawable/bio_symbol"
+			android:src="@drawable/bio_symbol_0521"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ProgressRad" />
 
@@ -99,7 +93,7 @@
 			android:layout_height="28dp"
 			android:layout_marginStart="24dp"
 			android:layout_marginTop="24dp"
-			android:src="@drawable/psy_symbol"
+			android:src="@drawable/psy_symbol_0521"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/ProgressBio" />
 
@@ -135,7 +129,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginStart="24dp"
 			android:layout_marginEnd="24dp"
-			android:text="V 0.43"
+			android:text="V 0.44"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -147,7 +141,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginStart="24dp"
 			android:layout_marginEnd="24dp"
-			android:text="V freedom"
+			android:text="V 0.44"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -227,4 +221,3 @@
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</LinearLayout>

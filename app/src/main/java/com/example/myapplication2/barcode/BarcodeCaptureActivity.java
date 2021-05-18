@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.myapplication2;
+package com.example.myapplication2.barcode;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -29,24 +29,21 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 //import android.support.design.widget.Snackbar;
 //import androidx.appcompat.app.ActivityCompat;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
 
 //import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.myapplication2.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;

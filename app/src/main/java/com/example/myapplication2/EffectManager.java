@@ -63,19 +63,19 @@ public class EffectManager {
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
                     break;
                 case 11:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.shark_come_to_me);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
                     break;
                 case 15:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.stay_and_die);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
                     break;
                 case 20:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.stay_and_die);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
                     break;
                 case 51://демиург
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_11);
                     break;
                 default:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_10);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_1);
                     break;
             }
         }
@@ -112,7 +112,7 @@ public class EffectManager {
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.bio_10);
                     break;
                 default:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.bio_10);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.bio_1);
                     break;
             }
         }
@@ -149,7 +149,7 @@ public class EffectManager {
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.rad_10);
                     break;
                 default:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.rad_10);
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.rad_1);
                     break;
             }
         }

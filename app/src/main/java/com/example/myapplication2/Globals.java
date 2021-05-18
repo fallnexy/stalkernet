@@ -1,6 +1,7 @@
 package com.example.myapplication2;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.widget.ArrayAdapter;
@@ -9,12 +10,15 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
 
 public class Globals {
     Context mContext;
@@ -25,11 +29,13 @@ public class Globals {
     public TextView CO;
     public TextView Messages;
     public TextView HealthPercent, RadPercent, BioPercent, PsyPercent;
-    public String CurrentBio;
-    public ArrayList<MarkerOptions> MarkerArray = new ArrayList();
-    public ArrayList<String> StringMarkerArray = new ArrayList();
     public Location location = new Location("GPS");
     public GoogleMap map;
+    public LatLng anomalyCenter = new LatLng(0, 0);
+    public Double anomalyRadius =0d;
+  //  public int anomalyIndex;
+    public CircleOptions circleOptions;
+
     public int ScienceQR;          // не работает
 
     private LocationManager locationManager;
@@ -37,55 +43,34 @@ public class Globals {
     public Globals(Context mContext) {
         this.mContext = mContext;
     }
-    //именно эта штука обновяет статы, которые есть в GeneralTab
-    public void UpdateStats() {
 
+    private void updateBar(@NonNull ProgressBar barName, String stringMax, String stringName, TextView perCent){
         int parseDouble;
-        HealthBar.setMax(Integer.parseInt(MaxHealth));
-        int i = 0;
+        barName.setMax(Integer.parseInt(stringMax));
         try {
-            parseDouble = (int) Double.parseDouble(Health);
+            parseDouble = (int) Double.parseDouble(stringName);
         } catch (Exception unused) {
             parseDouble = 0;
         }
-        HealthBar.setProgress(parseDouble);
-        String healthPercent = 100 * parseDouble / Double.parseDouble(MaxHealth) +"%";
-        HealthPercent.setText(healthPercent);
+        barName.setProgress(parseDouble);
+        String percent = 100 * parseDouble / Double.parseDouble(stringMax) +"%";
+        perCent.setText(percent);
+    }
+    //эта штука вызывается в MainActivity и обновяет статы, которые есть в GeneralTab
+    public void UpdateStats() {
 
-        RadBar.setMax(Integer.parseInt(MaxRad));                                           //
+        updateBar(HealthBar, MaxHealth, Health, HealthPercent);
+        updateBar(RadBar, MaxRad, Rad, RadPercent);
+        updateBar(BioBar, MaxBio, Bio, BioPercent);
+        updateBar(PsyBar, MaxPsy, Psy, PsyPercent);
+
         try {
-            parseDouble = (int) Double.parseDouble(Rad);
-        } catch (Exception unused2) {
-            parseDouble = 0;
+            circleOptions = new CircleOptions().center(anomalyCenter).radius(anomalyRadius).strokeColor(Color.BLUE).strokeWidth(3).zIndex(Float.MAX_VALUE);
+        } catch (Exception e) {
+            circleOptions = new CircleOptions().center(new LatLng(0, 0)).radius(0).strokeColor(Color.GREEN).strokeWidth(3).zIndex(Float.MAX_VALUE);
         }
-        RadBar.setProgress(parseDouble);
-        String radPercent = 100 * parseDouble / Double.parseDouble(MaxRad) +"%";
-        RadPercent.setText(radPercent);
 
-        BioBar.setMax(Integer.parseInt(MaxBio));
-        try {
-            parseDouble = (int) Double.parseDouble(Bio);
-        } catch (Exception unused3) {
-            parseDouble = 0;
-        }
-        BioBar.setProgress(parseDouble);
-        String bioPercent = 100 * parseDouble / Double.parseDouble(MaxRad) +"%";
-        BioPercent.setText(bioPercent);
-        BioBar.setSecondaryProgress((int) Double.parseDouble(CurrentBio));  //нужно задать Currentbio, чтоб оно работало - опоп, работает?
-//почему у пси по-другому?
-        PsyBar.setMax(Integer.parseInt(MaxPsy));
-        try {
-            parseDouble = (int) Double.parseDouble(Psy);
-        } catch (Exception unused4) {
-            parseDouble = 0;
-        }
-        PsyBar.setProgress(parseDouble);
-        String psyPercent = 100 * parseDouble / Double.parseDouble(MaxPsy) +"%";
-        PsyPercent.setText(psyPercent);
-
-
-
-       // GPS
+        // GPS
         TextView textView = CO;
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(String.valueOf(location.getLatitude()));
@@ -93,16 +78,4 @@ public class Globals {
         stringBuilder.append(String.valueOf(location.getLongitude()));
         textView.setText(stringBuilder.toString());
     }
-
-    //карта
-    public void AddGroundOverlay(GoogleMap googleMap) {
-        googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
-    }
-    // маркеры на карте - наверно теперь не работает
-    public void redrawMarkers() {
-        for (int i = 0; i < MarkerArray.size(); i++) {
-            map.addMarker((MarkerOptions) MarkerArray.get(i));
-        }
-    }
-
 }

@@ -6,7 +6,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fon"
+    android:id="@+id/mainLayout"
+    android:background="@drawable/fon_0521"
     tools:context=".MainActivity">
 
     <com.google.android.material.tabs.TabLayout
@@ -18,31 +19,31 @@
             android:id="@+id/tabItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:icon="@drawable/status_active3"/>
+            android:icon="@drawable/status_active_0521"/>
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:icon="@drawable/map_active3"/>
+            android:icon="@drawable/map_active_0521"/>
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:icon="@drawable/location_active3"/>
+            android:icon="@drawable/location_active_0521"/>
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:icon="@drawable/scanner_active3"/>
+            android:icon="@drawable/scanner_active_0521"/>
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tabItem5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:icon="@drawable/admin_active3" />
+            android:icon="@drawable/admin_active_0521" />
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager.widget.ViewPager

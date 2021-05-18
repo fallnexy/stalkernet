@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.myapplication2;
+package com.example.myapplication2.barcode;
 
 import android.content.Context;
 import androidx.annotation.UiThread;

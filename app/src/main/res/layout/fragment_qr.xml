@@ -36,10 +36,21 @@
         android:orientation="vertical">
 
         <Button
+            android:id="@+id/pre_read_barcode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_action_0521"
+            android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/pre_read_barcode"
+            android:visibility="invisible"/>
+
+        <Button
             android:id="@+id/read_barcode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_action"
+            android:background="@drawable/button_action_0521"
             android:textColor="@color/common_google_signin_btn_text_dark_pressed"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
@@ -49,7 +60,7 @@
             android:id="@+id/btnScienceQR"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_action"
+            android:background="@drawable/button_action_0521"
             android:textColor="@color/common_google_signin_btn_text_dark_pressed"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"

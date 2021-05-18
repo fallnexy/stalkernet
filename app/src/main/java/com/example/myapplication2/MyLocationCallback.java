@@ -2,13 +2,16 @@ package com.example.myapplication2;
 
 import android.content.Intent;
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Calendar;
 
+//вызывается, когда координаты изменяются
 public class MyLocationCallback extends LocationCallback {
     private Calendar cal = Calendar.getInstance();
     private int Hour = this.cal.get(10);
@@ -33,8 +36,11 @@ public class MyLocationCallback extends LocationCallback {
             if (!this.ServiceReference.IsDead && this.ServiceReference.IsUnlocked) {
                 GetTime();
                 TimeToDischarge();
-                this.ServiceReference.CheckAnomalies();
-                this.ServiceReference.CheckIfInAnyAnomaly();
+                ServiceReference.Super_save_zone_check();
+                ServiceReference.CheckAnomalies();
+                ServiceReference.CheckIfInAnyAnomaly();
+                ServiceReference.GetTime();
+
             }
             if (this.ServiceReference.Health <= 0.0d) {
                 this.ServiceReference.IsDead = Boolean.TRUE;
@@ -48,8 +54,6 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.Psy);
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.CurrentBio);
-            stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLatitude());
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLongitude());
@@ -61,10 +65,22 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(this.ServiceReference.BioProtection);
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.PsyProtection);
+            stringBuilder.append(":");
+            stringBuilder.append(ServiceReference.latLngAnomaly.latitude);
+            stringBuilder.append(":");
+            stringBuilder.append(ServiceReference.latLngAnomaly.longitude);
+            stringBuilder.append(":");
+            stringBuilder.append(ServiceReference.radiusAnomaly);
+           // stringBuilder.append(":");
+            //stringBuilder.append(ServiceReference.anomalyIndex);
+            //Log.d("qwerty1", String.valueOf(ServiceReference.anomalyIndex));
             String stringBuilder2 = stringBuilder.toString();
             Intent intent = new Intent("StatsService.Update");
             intent.putExtra("Stats", stringBuilder2);
             this.ServiceReference.sendBroadcast(intent);
+            Intent intent1 = new Intent("MapTab.Circle");
+            intent1.putExtra("DrawAnomaly", "Draw");
+            ServiceReference.sendBroadcast(intent1);
         }
         this.ServiceReference.SaveStats();
     }
@@ -79,17 +95,18 @@ public class MyLocationCallback extends LocationCallback {
         this.Hour = this.cal.get(11);
         this.Minutes = this.cal.get(12);
     }
+    // функция, которая задает время выброса
+    private void dischargeTime(int day, int hours, int minutes){
+        if (this.dayInt == day && this.Minutes == minutes && this.Hour == hours) {
+            this.ServiceReference.Discharge();
+            this.ServiceReference.IsDischarging = Boolean.TRUE;
+        }
+    }
 //timeToDischarge
     private void TimeToDischarge() {
         if (!this.ServiceReference.IsDischarging) {
-            if (this.dayInt == 17 && this.Minutes == 0 && this.Hour == 16) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
-            if (this.dayInt == 18 && this.Minutes == 0 && this.Hour == 9) {
-                this.ServiceReference.Discharge();
-                this.ServiceReference.IsDischarging = Boolean.TRUE;
-            }
+            dischargeTime(17, 16, 0);
+            dischargeTime(18, 9, 0);
         }
     }
 
