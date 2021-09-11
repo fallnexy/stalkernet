@@ -1,4 +1,4 @@
-package com.example.myapplication2;
+package com.example.myapplication2.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.example.myapplication2.Globals;
+import com.example.myapplication2.R;
 import com.example.myapplication2.barcode.BarcodeCaptureActivity;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,6 +26,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,8 +55,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
     private long[] cooldown_time;
     private boolean[] compositionOfArts = new boolean[21];
     private Spanned[] composites;
-    private boolean[] monolithMech = new boolean[4];
-
+    boolean isScienceQR;
 
     public QRTab(Globals globals) {
         this.globals = globals;
@@ -73,31 +75,31 @@ public class QRTab extends Fragment implements View.OnClickListener{
         inflate.findViewById(R.id.pre_read_barcode).setOnClickListener(this);
         btnScienceQR = inflate.findViewById(R.id.btnScienceQR);
         btnScienceQR.setOnClickListener(this);
-        if (globals.ScienceQR == 1) {
+        if (globals.ScienceQR == 1 /*|| isScienceQR*/) {
             btnScienceQR.setVisibility(View.VISIBLE);
         }
-        if (globals.ScienceQR == 0){
+        if (globals.ScienceQR == 0 /*|| !isScienceQR*/){
             btnScienceQR.setVisibility(View.INVISIBLE);
         }
         firstTime = Calendar.getInstance().getTimeInMillis();
         secondTime = 0;
-        cooldown_time = new long[15];
+        cooldown_time = new long[25];
         composites = new Spanned[20];
         composites[0] = Html.fromHtml(getString(R.string.composite_detected));
         composites[1] = Html.fromHtml(getString(R.string.composite_continue));
         composites[2] = Html.fromHtml(getString(R.string.composite_canceled));
         composites[3] = Html.fromHtml(getString(R.string.composite_canceled_2));
-        composites[4] = Html.fromHtml(getString(R.string.art_Sc_a5t322faqf));
-        composites[5] = Html.fromHtml(getString(R.string.art_Sc_a5t322faqf_2));
-        composites[6] = Html.fromHtml(getString(R.string.art_8nk3owbpzt));
-        composites[7] = Html.fromHtml(getString(R.string.art_86peq6qktl));
-        composites[8] = Html.fromHtml(getString(R.string.art_86peq6qktl_2));
-        composites[9] = Html.fromHtml(getString(R.string.art_zp1ivlcs7e));
+        composites[4] = Html.fromHtml("getString(R.string.art_Sc_a5t322faqf)");
+        composites[5] = Html.fromHtml("getString(R.string.art_Sc_a5t322faqf_2)");
+        composites[6] = Html.fromHtml("getString(R.string.art_8nk3owbpzt)");
+        composites[7] = Html.fromHtml("getString(R.string.art_86peq6qktl)");
+        composites[8] = Html.fromHtml("getString(R.string.art_86peq6qktl_2)");
+        composites[9] = Html.fromHtml("getString(R.string.art_zp1ivlcs7e)");
         composites[10] = Html.fromHtml(getString(R.string.art_status_nm7s576l0i));
         composites[11] = Html.fromHtml(getString(R.string.art_status_vz6rafxyei));
         composites[12] = Html.fromHtml(getString(R.string.art_status_jt0dfct2w0));
-        composites[13] = Html.fromHtml(getString(R.string.art_status_monolithMech_fail));
-        composites[14] = Html.fromHtml(getString(R.string.art_status_monolithMech_fail_2));
+        composites[13] = Html.fromHtml("getString(R.string.art_status_monolithMech_fail)");
+        composites[14] = Html.fromHtml("getString(R.string.art_status_monolithMech_fail_2)");
 
         LoadBarcodeText();
         return inflate;
@@ -108,6 +110,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.pre_read_barcode) {
+            //isScienceQR = false;
             scienceQR = false;
             pre_scan = true;
             // launch barcode activity.
@@ -118,6 +121,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
             startActivityForResult(intent, RC_BARCODE_CAPTURE);
         }
         if (v.getId() == R.id.read_barcode) {
+            //isScienceQR = false;
             scienceQR = false;
             pre_scan = false;
             // launch barcode activity.
@@ -128,6 +132,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
             startActivityForResult(intent, RC_BARCODE_CAPTURE);
         }
         if (v.getId() == R.id.btnScienceQR){
+            //isScienceQR = true;
             scienceQR = true;
             //pre_scan = false;
             Intent intent = new Intent(v.getContext(), BarcodeCaptureActivity.class);
@@ -143,7 +148,27 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
    вВООООООООООООООООТ ЗДЕСЬ
 
-   */@Override
+   */
+
+    public String bcode;
+    public String[] barcodeSplitted = new String[4];
+    public void MakeSplit(String input){
+        try {
+            Pattern pattern = Pattern.compile("[@]");
+            String[] words = pattern.split(input);
+            int i = 0;
+            for(String word:words){
+                barcodeSplitted[i] = word;
+                i++;
+            }
+            bcode = barcodeSplitted[3];
+        } catch (Exception e) {
+            bcode = input;
+        }
+    }
+
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_BARCODE_CAPTURE) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
@@ -152,21 +177,27 @@ public class QRTab extends Fragment implements View.OnClickListener{
                     statusMessage.setText(R.string.barcode_success);
                     Intent intent;
                     intent = new Intent("Command");
+                    //MakeSplit(barcode.displayValue);
+                    Log.d(TAG, "splitted: " + bcode);
+                    bcode = barcode.displayValue;
                     //считывает qr код и в соответствии с case выдает нужный текст
-                    switch (barcode.displayValue){
-                        case "aww5lg7az1dfadh":  //включает QR ученого
+                    switch (bcode){
+                        case "наукада":  //включает QR ученого
+                            //isScienceQR = true;
                             btnScienceQR.setVisibility(View.VISIBLE);
                             barcodeValue.setText(R.string.scienceQR_on);
                             intent.putExtra("Command", "ScienceQR");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "xvwtoskeulkykxc":  //отключает QR ученого
+                        case "наука-":  //отключает QR ученого
+                           // isScienceQR = false;
                             btnScienceQR.setVisibility(View.INVISIBLE);
                             barcodeValue.setText(R.string.scienceQR_off);
                             intent.putExtra("Command", "ScienceQRoff");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "cv7mtd4tm4knk8w":
+                            // скрыты гештальты
+                       /* case "cv7mtd4tm4knk8w":
                             textOnArt (R.string.gestalt_closed, R.string.gestalt_closed_Sc);
                             intent.putExtra("Command", "gestalt_closed");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
@@ -185,142 +216,67 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             textOnArt (R.string.gestalt_closed, R.string.gestalt_closed_Sc_2);
                             intent.putExtra("Command", "gestalt_closed_4");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;*/
+                        case "safezonef": // сентябрь21 - чистое небо
+                            textOnArt(R.string.dischargeImmunity, R.string.dischargeImmunitySc);
+                            intent.putExtra("Command", "naemnikiDischargeImmunity");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
+
                         case "12543659521":
                             barcodeValue.setText("Защита от радиации на 2 часа поставлена");
                             intent.putExtra("Command", "TwoHoursRadProtection");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                            ///////////////////////////////////////////////////////////////////////////////
-                            ///////////////////////////////////////////////////////////////////////////////
-                            ////////////////////////////////////////////////////////////////////////////// сентябрь 2020
-                        case "8sx5aziy0i6hi1e":
-                            barcodeValue.setText("15 (или 10?) минут, чтоб до базы дойти");
+                        case "приветбумеранг":
+                            barcodeValue.setText("Старт игры");
+                            intent.putExtra("Command", "MakeAlive");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "выходигрока":
+                            barcodeValue.setText("Установлен иммунитет для выхода в зону респауна");
                             intent.putExtra("Command", "15minutesGod");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "ixeno3mfgnoayhh":  // этот и 3 следующих -  4 шприца на минус рад и био (бранованный и нет)
-                            firstTime = Calendar.getInstance().getTimeInMillis();
-                            if (firstTime - cooldown_time[0] > 600000) {
-                                barcodeValue.setText("Препарат применён. Выведение радиацоноого воздействия из организма.");
-                                intent.putExtra("Command", "minus50Rad");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                cooldown_time[0] = firstTime;
-                            } else {
-                                barcodeValue.setText("Высокий уровень токсинов в организме. Пожалуйста, подождите.");
-                            }
+                        case "снятьнеуяз":
+                            barcodeValue.setText("Точка респауна достигнута, иммунитет снят. Старт игры");
+                            intent.putExtra("Command", "noMoreGod");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "wbshfnwxb834xxm":
-                            firstTime = Calendar.getInstance().getTimeInMillis();
-                            if (firstTime - cooldown_time[1] > 600000) {
-                                barcodeValue.setText("Препарат применён. Выведение биологического воздействия из организма.");
-                                intent.putExtra("Command", "minus50Bio");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                cooldown_time[1] = firstTime;
-                            } else {
-                                barcodeValue.setText("Высокий уровень токсинов в организме. Пожалуйста, подождите.");
-                            }
+                        case "явсемогущий+":
+                            barcodeValue.setText("Неуязвимость включена");
+                            intent.putExtra("Command", "God");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "tnqdxijx1ukib70":
-                            firstTime = Calendar.getInstance().getTimeInMillis();
-                            if (firstTime - cooldown_time[0] > 600000) {
-                                barcodeValue.setText("Препарат применён. Выведение радиацоноого воздействия из организма.");
-                                intent.putExtra("Command", "minus50Rad");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                cooldown_time[0] = firstTime;
-                            } else {
-                                barcodeValue.setText("Высокий уровень токсинов в организме. Пожалуйста, подождите.");
-                            }
+                        case "явсемогущий-":
+                            barcodeValue.setText("Неуязвимость выключена");
+                            intent.putExtra("Command", "noMoreGod");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "8mjrvqou1xjnbrm":
-                            firstTime = Calendar.getInstance().getTimeInMillis();
-                            if (firstTime - cooldown_time[1] > 600000) {
-                                barcodeValue.setText("Препарат применён. Выведение биологического воздействия из организма.");
-                                intent.putExtra("Command", "minus50Bio");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                cooldown_time[1] = firstTime;
-                            } else {
-                                barcodeValue.setText("Высокий уровень токсинов в организме. Пожалуйста, подождите.");
-                            }
+                        case "чекинвыброс":
+                            barcodeValue.setText("Пользователь защищён от выброса на 10 минут.");
+                            intent.putExtra("Command", "discharge10BD");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "gjxplb1wfxm3hx9": //этот и следующий - кода на плюс жизнь
-                            firstTime = Calendar.getInstance().getTimeInMillis();
-                            if (firstTime - cooldown_time[2] > 600000) {
-                                barcodeValue.setText("Препарат применён. Жизненные показатели пользователя стабилизированы.");
-                                intent.putExtra("Command", "plus40Health");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                cooldown_time[2] = firstTime;
-                            } else {
-                                barcodeValue.setText("Высокий уровень токсинов в организме. Пожалуйста, подождите.");
-                            }
+                        case "зона5звезд":
+                            barcodeValue.setText("Иммунитет к выбросу");
+                            intent.putExtra("Command", "SetDischargeImmunityTrue");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "ry37f6wmrj71x8h": //этот и следующий - кода на плюс жизнь
-                            firstTime = Calendar.getInstance().getTimeInMillis();
-                            if (firstTime - cooldown_time[2] > 600000) {
-                                barcodeValue.setText("Препарат применён. Жизненные показатели пользователя стабилизированы.");
-                                intent.putExtra("Command", "plus40Health");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                cooldown_time[2] = firstTime;
-                            } else {
-                                barcodeValue.setText("Высокий уровень токсинов в организме. Пожалуйста, подождите.");
-                            }
+                        case "чнзнает":
+                            barcodeValue.setText("Чистое Небо знает путь");
+                            intent.putExtra("Command", "dolgDischargeImmunity");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "s2rc4zdwjbvf02c": // здесь и далее qr просто со словами
-                            if (scienceQR) {
-                                barcodeValue.setText("Автономный Источник Питания высокой плотности для различного вида устройств. Обладает достаточным зарядом чтобы обеспечивать энергией одну еденицу техники на протяжении нескольких месяцев. Данная модель АИП нуждается в обязательном аксессуаре - Адаптивном Регуляторе Напряжения, который следует подключать в цепь между источником питания и непосредственно техникой.");
-                            } else {
-                                barcodeValue.setText("Автономный Источник Питания.");
-                            }
+                        case "aperfjbasj":
+                            barcodeValue.setText("Боец Чистого Неба показывает вам безопасный путь к базе");
+                            intent.putExtra("Command", "clear4");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "7wlayhe8lu3y1ve":
-                            if (scienceQR) {
-                                barcodeValue.setText("Адаптивный Регулятор Напряжения для различного вида устройств. Способен автоматически подстраивать напряжение источников питания под нужны устройств. Для максимального эффекта необходимо встроить его в цепь между необходимым устройством и источником питания.");
-                            } else {
-                                barcodeValue.setText("Адаптивный Регулятор Напряжения.");
-                            }
-                            return;
-                        case "clfoqrf1ol09as8":
-                            if (scienceQR) {
-                                barcodeValue.setText("Миниатюрный Рассеиватель Вредоносных Частиц - это младший брат устройств, изобретённых и установленных в лаборатории Рассвет и на различных КПП ЧЗО. Это устройство призвано защищать людей от вредоносного влияния так называемых Выбросов, часто происходящих в ЧЗО. М-РВЧ сможет обеспечить безопасность небольшой группе лиц и защитить одно небольшое строение. Для полноценной работы устройства необходим Калибровочный Блок М-РВЧ и Направленный Излучатель М-РВЧ.");
-                            } else {
-                                barcodeValue.setText("Миниатюрный Рассеиватель Вредоносных Частиц. Для полноценной работы устройства необходим Калибровочный Блок М-РВЧ и Направленный Излучатель М-РВЧ. Координаты М-РВЧ введены. Цифровая подпись Рассвет-3. Внесение изменений невозможно.");
-                            }
-                            return;
-                        case "b3s7u6hgi6nhuws":
-                            if (scienceQR) {
-                                barcodeValue.setText("Калибровочный Блок М-РВЧ представляет из себя мини-компьютер, осуществляющий расчёты для основного блока Миниатюрного Рассеивателя Вредоносных Частиц при выполнении различного рода операций.");
-                            } else {
-                                barcodeValue.setText("Калибровочный Блок М-РВЧ. Координаты М-РВЧ введены. Цифровая подпись Рассвет-3. Калибровочный функционал купирован, терминал заблокирован. Внесение изменений невозможно.");
-                            }
-                            return;
-                        case "1cr5kon8ev24203":
-                            if (scienceQR) {
-                                barcodeValue.setText("Направленный Излучатель М-РВЧ сферического типа устанавливается на Миниатюрный Рассеиватель Вредоносных Частиц и обеспечивает направленную защиту от вредоносного воздействия так называемых Выбросов. В зависимости от типа местности, такой излучатель обладает мощностью, достаточной для создания зоны безопасности с радиусом до 25 метров.");
-                            } else {
-                                barcodeValue.setText("Направленный Излучатель М-РВЧ.");
-                            }
-                            return;
-                        case "ync702dagvdmr2n":
-                            if (scienceQR) {
-                                barcodeValue.setText("Портативный Генератор Приводного Поля. Для полноценной работы данной модификации необходим Миниатюрный Генератор Экранирующего Поля и Фокусирующий Излучатель Штайнера."+ "\n\n" + "Портативный Генератор Приводного Поля был собран учёными Рассвет-3 на основе Генератора Приводного Поля, найденного ими в одной из экспедиций 2019 года. Учёные, принявшие участие в этой экспедиции уверяют, что вступили в контакт с так называемым Фантомом, который передал им не только устройство и его составные части, но и инструкцию по сборке. Кроме того Фантом просил членов экспедиции, цитата \"найти членов пропавшей экспедиции и спасти их из трёх заблокированных лабораторий\". Считается, что Генераторы Приводных Полей всегда должны образовывать пару, однако для данной модификации пара не предусмотрена.");
-                            } else {
-                                barcodeValue.setText("Портативный Генератор Приводного Поля. Для полноценной работы данной модификации необходим Миниатюрный Генератор Экранирующего Поля и Фокусирующий Излучатель Штайнера." + "\n\n" + "Портативный Генератор Приводного Поля был собран учёными Рассвет-3 на основе Генератора Приводного Поля, найденного ими в одной из экспедиций 2019 года. Учёные, принявшие участие в этой экспедиции уверяют, что вступили в контакт с так называемым Фантомом, который передал им не только устройство и его составные части, но и инструкцию по сборке. Кроме того Фантом просил членов экспедиции, цитата \"найти членов пропавшей экспедиции и спасти их из трёх заблокированных лабораторий\". Считается, что Генераторы Приводных Полей всегда должны образовывать пару, однако для данной модификации пара не предусмотрена.");
-                            }
-                            return;
-                        case "07kw70txx0hdwg1":
-                            if (scienceQR) {
-                                barcodeValue.setText("Миниатюрный Генератор Экранирующего Поля." + "\n\n" + "МГЭП, или так называемый Генератор Пузырей - есть не что иное как тонко настроенное под определённые нужды устройство, ответственное за нейтрализацию вредоносных эффектов окружающей среды на малой территории. Технология генерации пузырей экспериментальна и основана на теории Гештальтов. Руководство ВНИИ ЧЗО внимательно следит за развитием этой технологии после серии неудачных экспериментов, отправивших подопытные объекты на несколько минут в прошлое.");
-                            } else {
-                                barcodeValue.setText("Миниатюрный Генератор Экранирующего Поля." + "\n\n" + "МГЭП, или так называемый Генератор Пузырей - есть не что иное как тонко настроенное под определённые нужды устройство, ответственное за нейтрализацию вредоносных эффектов окружающей среды на малой территории. Технология генерации пузырей экспериментальна и основана на теории Гештальтов. Руководство ВНИИ ЧЗО внимательно следит за развитием этой технологии после серии не вполне удачных экспериментов, отправивших подопытные объекты на несколько минут в прошлое.");
-                            }
-                            return;
-                        case "hvbs5u4b2uxqdi3":
-                            if (scienceQR) {
-                                barcodeValue.setText("Фокусирующий Излучатель Штайнера." + "\n\n" + "Лукас Штайнер - знаменитый деятель науки, ответственный за недавнее развитие исследований в области теории относительности и Ноосферы применимо пространственно-временных аномалий Чернобыльской Зоны Отчуждения. Законы физики, локально и аномально изменённые в ЧЗО, открывают широкий простор для экспериментов в области теории и практики локальной структуры пространства-времени. Так, недавние прорывы позволили учёным Всемирного НИИ ЧЗО отправлять неодушевлённые предметы в будущее на несколько минут, а так же, благодаря Новейшей Теории Ноосферы, наблюдать некоторые события ушедших времён. Каждый такой эксперимент имеет множество факторов, влияющих на конечный результат и зачастую результаты одних и тех же экспериментов разнятся. Например, не все эксперименты реализуемы за пределами Чернобыльской Зоны Отчуждения. Представители ВНИИ ЧЗО считают, что практическая ценность этих технологий бесспорна, однако к этой технологии следует подходить крайне осторожно во избежание непредвиденных последствий.");
-                            } else {
-                                barcodeValue.setText("Фокусирующий Излучатель Штайнера." + "\n\n" + "Лукас Штайнер - знаменитый деятель науки, ответственный за недавнее развитие исследований в области теории относительности и Ноосферы применимо пространственно-временных аномалий Чернобыльской Зоны Отчуждения. Законы физики, локально и аномально изменённые в ЧЗО, открывают широкий простор для экспериментов в области теории и практики локальной структуры пространства-времени. Так, недавние прорывы позволили учёным Всемирного НИИ ЧЗО отправлять неодушевлённые предметы в будущее на несколько минут, а так же, благодаря Новейшей Теории Ноосферы, наблюдать некоторые события ушедших времён. Каждый такой эксперимент имеет множество факторов, влияющих на конечный результат и зачастую результаты одних и тех же экспериментов разнятся. Например, не все эксперименты реализуемы за пределами Чернобыльской Зоны Отчуждения. Представители ВНИИ ЧЗО считают, что практическая ценность этих технологий бесспорна, однако к этой технологии следует подходить крайне осторожно во избежание непредвиденных последствий.");
-                            }
-                            return;
+                            ///////////////////////////////////////////////////////////////////////////////
+                            ///////////////////////////////////////////////////////////////////////////////
+                            ////////////////////////////////////////////////////////////////////////////// сентябрь 2020
+
                         case "z1z1ab6fu0kf3ie": // этот и ещё 4 кодов на жизни
                             barcodeValue.setText("Пользователь при смерти. Требуется срочная медицинская помощь.");
                             intent.putExtra("Command", "health5");
@@ -411,11 +367,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "discharge10BD");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "uunnn7zh6yuknjp":
-                            barcodeValue.setText("Зафиксировано кратковременное локальное искажение пространства. Пользователь защищён от Выброса на короткое время.");
-                            intent.putExtra("Command", "discharge10BD");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
+
                         case "i8qpfu02xjuvmzu":
                             barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Устройство зарегистрировано на 30 минут.");
                             intent.putExtra("Command", "discharge45");
@@ -515,16 +467,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "setBioOn80Percent");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "hbyiueigrj":
-                            barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Сохранение координат. Создание локальной точки безопасности от Выброса.");
-                            intent.putExtra("Command", "dolgDischargeImmunity");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "xjamcfsysr":
-                            barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Сохранение координат. Создание локальной точки безопасности от Выброса.");
-                            intent.putExtra("Command", "naemnikiDischargeImmunity");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
                         case "h29fthyiij":
                             firstTime = Calendar.getInstance().getTimeInMillis();
                             if (firstTime - cooldown_time[3] > 43200000) {
@@ -580,7 +522,8 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "setBio0");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "8xxv2bxw26":  // тут и далее композитные артосы
+                        // тут и далее композитные артосы
+                       /* case "8xxv2bxw26":
                             textOnArt (R.string.saveArt, R.string.art_8xxv2bxw26);
                             statusMessage.setText(composites[0]);
                             Arrays.fill(compositionOfArts, false);
@@ -682,414 +625,513 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             }else {
                                 compositeFails();
                             }
-                            return;
-                        case "en5575ignsjx051": // включить уникальную аномалию свободы
-                            barcodeValue.setText("Аномалия Зафиксирована");
-                            intent.putExtra("Command", "anomalyFreedomOn");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "3s2x9ehv8q": // выключить уникальную аномалию свободы
-                            barcodeValue.setText("Синхронизация осуществлена успешно.");
-                            intent.putExtra("Command", "anomalyFreedomOff");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "ig4yagonph7tkuj": // основной код квеста свободы
-                            String x = String.valueOf(1600417800 - Calendar.getInstance().getTimeInMillis() / 1000);
-                            if (scienceQR) {
-                                barcodeValue.setText("Лаборатория \"Выжигатель\".\n\nОборонное Устройство Направленного Пси-Воздействия, образец 3.\nЧастота воздействия: полуразумные подопытные субъекты.\n\nУстройство активно.\n\nДиагностика завершена.\n\nВнимание! Обнаружена дегерметизация топливных трубок. Потеря энергоэффективности. Усиление радиационного фона. Требуется перекалибровка излучателя 2,5,6. Требуется срочный техосмотр. Ожидаемое время работы в текущих условиях: " + x + "сек.\nВнимание! В случае продолжения работы устройства возможно возникновение каскадного отказа системы. Задействован механизм перехвата инициативы путём самоуничтожения.\nВнимание! Использован просроченный ключ активации. Задействована Гравитационная Якорная Система Клойзнера, устройство зафиксировано. Оставайтесь на месте до прибытия Службы Безопасности.\n\nУправление заблокировано.");
-                            } else {
-                                barcodeValue.setText("Внимание! Устройство активно.\n\nЗафиксирована внутренняя нестабильность устройства. Расчётное время точки невозврата: " + x + "сек.\nЗафиксирована гравитационная аномалия внутри устройства. Передвижение устройства не представляется возможным.\n\nУправление заблокировано.\nВ доступе отказано.");
-                            }
-                            return;
-                        case "0uokkh386pdgr2c": // здесь и далее беспонотовые артосы
-                            textOnArt(R.string.art_0uokkh386pdgr2c, R.string.art_sc_0uokkh386pdgr2c);
-                            return;
-                        case "2nesjlyax0go7uj":
-                            textOnArt(R.string.art_2nesjlyax0go7uj, R.string.art_sc_2nesjlyax0go7uj);
-                            return;
-                        case "y1bloh1oinkmmvg":
-                            textOnArt(R.string.art_y1bloh1oinkmmvg, R.string.art_sc_y1bloh1oinkmmvg);
-                            return;
-                        case "nmimzb9st47y6sa":
-                            textOnArt(R.string.art_nmimzb9st47y6sa, R.string.art_sc_nmimzb9st47y6sa);
-                            return;
-                        case "f4q15up66dji6oh":
-                            textOnArt(R.string.art_f4q15up66dji6oh, R.string.art_sc_f4q15up66dji6oh);
-                            return;
-                        case "tfpa926w6euaxlm":
-                            textOnArt(R.string.art_tfpa926w6euaxlm, R.string.art_sc_tfpa926w6euaxlm);
-                            return;
-                        case "1kov5ncq69f78bb":
-                            textOnArt(R.string.art_1kov5ncq69f78bb, R.string.art_sc_1kov5ncq69f78bb);
-                            return;
-                        case "uhivfps0rffu40t":
-                            textOnArt(R.string.art_uhivfps0rffu40t, R.string.art_sc_uhivfps0rffu40t);
-                            return;
-                        case "mokvtx8m5klen2q":
-                            textOnArt(R.string.art_mokvtx8m5klen2q, R.string.art_sc_mokvtx8m5klen2q);
-                            return;
-                        case "dksfma2ukv445t9":
-                            textOnArt(R.string.art_dksfma2ukv445t9, R.string.art_sc_dksfma2ukv445t9);
-                            return;
-                        case "3rrc7ojff20w4fb":
-                            barcodeValue.setText(R.string.art_3rrc7ojff20w4fb);
-                            return;
-                        case "y1tb4a41ax5bx2f": // загадать желеание монолиту
-                            barcodeValue.setText(R.string.art_y1tb4a41ax5bx2f);
-                            return;
-                        case "p3jtg9p5mbcpseq":
-                            textOnArt(R.string.art_p3jtg9p5mbcpseq, R.string.art_sc_p3jtg9p5mbcpseq);
-                            return;
-                        case "vvtdu8kyg6bicoe":
-                            textOnArt(R.string.art_vvtdu8kyg6bicoe, R.string.art_sc_vvtdu8kyg6bicoe);
-                            return;
-                        case "c727lv5eov12phh":
-                            textOnArt(R.string.art_c727lv5eov12phh, R.string.art_sc_c727lv5eov12phh);
-                            return;
-                        case "spnk46oxe12mtgn":
-                            textOnArt(R.string.art_spnk46oxe12mtgn, R.string.art_sc_spnk46oxe12mtgn);
-                            return;
-                        case "g6j2wmv4oa0i9py":
-                            textOnArt(R.string.art_g6j2wmv4oa0i9py, R.string.art_sc_g6j2wmv4oa0i9py);
-                            return;
-                        case "np3acmdvt6xr8hn":
-                            textOnArt(R.string.art_np3acmdvt6xr8hn, R.string.art_sc_np3acmdvt6xr8hn);
-                            return;
-                        case "fiaivebni6cnb9p":
-                            textOnArt(R.string.art_fiaivebni6cnb9p, R.string.art_sc_fiaivebni6cnb9p);
-                            return;
-                        case "gxh140w1ecda3za":
-                            textOnArt(R.string.art_gxh140w1ecda3za, R.string.art_sc_gxh140w1ecda3za);
-                            return;
-                        case "aafnwujc0qo26s7":
-                            barcodeValue.setText(R.string.art_aafnwujc0qo26s7);
-                            return;
-                        case "en82khxmk0":
-                            textOnArt(R.string.art_en82khxmk0, R.string.art_sc_en82khxmk0);
-                            return;
-                        case "wwpe7bv0it":
-                            textOnArt(R.string.art_wwpe7bv0it, R.string.art_sc_wwpe7bv0it);
-                            return;
-                        case "3ujhpmjg62":// сердце оазиса - артос хохла
-                            textOnArt(R.string.saveArt, R.string.art_sc_3ujhpmjg62);
-                            intent.putExtra("Command", "art_oasis");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "tuo2y36yos":
-                            textOnArt(R.string.saveArt, R.string.art_sc_tuo2y36yos);
-                            return;
-                        case "z4bc2o17wu":
-                            textOnArt(R.string.saveArt, R.string.art_sc_z4bc2o17wu);
-                            return;
-                        case "6c8qk0t4ae":
-                            textOnArt(R.string.saveArt, R.string.art_sc_6c8qk0t4ae);
-                            return;
-                        case "nqhfvux1mx":
-                            textOnArt(R.string.saveArt, R.string.art_sc_nqhfvux1mx);
-                            return;
-                        case "986yh87wk1":
-                            textOnArt(R.string.saveArt, R.string.art_sc_986yh87wk1);
-                            return;
-                        case "3o9gx3u9t1":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_3o9gx3u9t1);
-                            stalkerRoulette();
-                            return;
-                        case "u52chbbba2":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_u52chbbba2);
-                            stalkerRoulette();
-                            return;
-                        case "t2qe5jps6z":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_t2qe5jps6z);
-                            stalkerRoulette();
-                            return;
-                        case "gegquzng80":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_gegquzng80);
-                            stalkerRoulette();
-                            return;
-                        case "4d3z35kuj9":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_4d3z35kuj9);
-                            stalkerRoulette();
-                            return;
-                        case "2q8sxnv21f":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_2q8sxnv21f);
-                            stalkerRoulette();
-                            return;
-                        case "3we3y0nawh":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_3we3y0nawh);
-                            stalkerRoulette();
-                            return;
-                        case "huuldrzpbi":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_huuldrzpbi);
-                            stalkerRoulette();
-                            return;
-                        case "wl46pjuhp9":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_wl46pjuhp9);
-                            stalkerRoulette();
-                            return;
-                        case "bfedem00cd":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_bfedem00cd);
-                            stalkerRoulette();
-                            return;
-                        case "705i20mbr4":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_705i20mbr4);
-                            stalkerRoulette();
-                            return;
-                        case "0t043n0v26":
-                            textOnArt(R.string.dangerousArt, R.string.art_sc_0t043n0v26);
-                            stalkerRoulette();
-                            return;
-                        case "yypfxvjd8s96uem":
-                            textOnArt(R.string.art_yypfxvjd8s96uem, R.string.art_sc_yypfxvjd8s96uem);
-                            return;
-                        case "fVGQDa7DLoGm7Dd":
-                            textOnArt(R.string.art_fVGQDa7DLoGm7Dd, R.string.art_sc_fVGQDa7DLoGm7Dd);
-                            return;
-                        case "dke53J5WmAcZ3h3":
-                            textOnArt(R.string.art_dke53J5WmAcZ3h3, R.string.art_sc_dke53J5WmAcZ3h3);
-                            return;
-                        case "x66qcc1tm5i247i":
-                            textOnArt(R.string.art_x66qcc1tm5i247i, R.string.art_sc_x66qcc1tm5i247i);
-                            return;
-                        case "yp85b0d6d6kymw6":
-                            textOnArt(R.string.art_yp85b0d6d6kymw6, R.string.art_sc_yp85b0d6d6kymw6);
-                            return;
-                        case "2u2j1kps9l3gfso":
-                            textOnArt(R.string.art_2u2j1kps9l3gfso, R.string.art_sc_2u2j1kps9l3gfso);
-                            return;
-                        case "xonasooeq6evjnx":
-                            textOnArt(R.string.art_xonasooeq6evjnx, R.string.art_sc_xonasooeq6evjnx);
-                            return;
-                        case "nkf9a8t7opd0ram":
-                            textOnArt(R.string.art_xonasooeq6evjnx, R.string.art_sc_xonasooeq6evjnx);
-                            return;
-                        case "59b1izcgek2tide":
-                            textOnArt(R.string.art_59b1izcgek2tide, R.string.art_sc_59b1izcgek2tide);
-                            return;
-                        case "ibyyrhj490ppw5q":
-                            textOnArt(R.string.art_ibyyrhj490ppw5q, R.string.art_sc_ibyyrhj490ppw5q);
-                            return;
-                        case "16bipesl1lsl0wg":
-                            textOnArt(R.string.art_16bipesl1lsl0wg, R.string.art_sc_16bipesl1lsl0wg);
-                            return;
-                        case "d7thk3dtj8un343":
-                            textOnArt(R.string.art_d7thk3dtj8un343, R.string.art_sc_d7thk3dtj8un343);
-                            return;
-                        case "cwchdhrv4fccn5e":
-                            textOnArt(R.string.art_cwchdhrv4fccn5e, R.string.art_sc_cwchdhrv4fccn5e);
-                            return;
-                        case "0s2vvvef7bbutrs":
-                            textOnArt(R.string.art_0s2vvvef7bbutrs, R.string.art_sc_0s2vvvef7bbutrs);
-                            return;
-                        case "bxw7w19a9f8czcv":
-                            textOnArt(R.string.art_bxw7w19a9f8czcv, R.string.art_sc_bxw7w19a9f8czcv);
-                            return;
-                        case "wU81zqJLwLTYFAm":
-                            textOnArt(R.string.art_wU81zqJLwLTYFAm, R.string.art_sc_wU81zqJLwLTYFAm);
-                            return;
-                        case "yv0gu012zj93vsl":
-                            textOnArt(R.string.art_yv0gu012zj93vsl, R.string.art_sc_yv0gu012zj93vsl);
-                            return;
-                        case "rybkjlnsl38tjsp":
-                            textOnArt(R.string.art_rybkjlnsl38tjsp, R.string.art_sc_rybkjlnsl38tjsp);
-                            return;
-                        case "owg0zvzs5xoag91":
-                            textOnArt(R.string.art_owg0zvzs5xoag91, R.string.art_sc_owg0zvzs5xoag91);
-                            return;
-                        case "aaobu7zvbwcknhc":
-                            textOnArt(R.string.art_aaobu7zvbwcknhc, R.string.art_sc_aaobu7zvbwcknhc, R.string.empty_string);
-                            return;
-                        case "nm7s576l0i":
-                            Arrays.fill(monolithMech, false);
-                            monolithMech[0] = true;
-                            statusMessage.setText(composites[10]);
-                            barcodeValue.setText(R.string.art_nm7s576l0i);
-                            return;
-                        case "vz6rafxyei":
-                            if (monolithMech[0] & !monolithMech[1]) {
-                                monolithMech[1] = true;
-                                statusMessage.setText(composites[11]);
-                                barcodeValue.setText(R.string.art_vz6rafxyei);
-                            }else{
-                                statusMessage.setText(composites[13]);
-                                Arrays.fill(monolithMech, false);
-                            }
-                            return;
-                        case "jt0dfct2w0": // механизм монолита
-                            if (Calendar.getInstance().getTimeInMillis() - cooldown_time[14] > 43200000) {
-                                if (monolithMech[0] & monolithMech[1]) {
-                                    Arrays.fill(monolithMech, false);
-                                    cooldown_time[14] = Calendar.getInstance().getTimeInMillis();
-                                    statusMessage.setText(composites[12]);
-                                    barcodeValue.setText(R.string.art_jt0dfct2w0);
-                                    intent.putExtra("Command", "monolithStrong");
-                                    Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                }else{
-                                    statusMessage.setText(composites[13]);
-                                    Arrays.fill(monolithMech, false);
-                                }
-                            }else{
-                                statusMessage.setText(composites[14]);
-                                Arrays.fill(monolithMech, false);
-                            }
-                            return;
-                        case "jtodfct2w0":
-                            if (scienceQR){
-                                barcodeValue.setText(R.string.art_sc_jtodfct2w0);
-                            }
-                            if (Calendar.getInstance().getTimeInMillis() - cooldown_time[14] > 43200000) {
-                                if (monolithMech[0] & monolithMech[1]) {
-                                    Arrays.fill(monolithMech, false);
-                                    cooldown_time[14] = Calendar.getInstance().getTimeInMillis();
-                                    statusMessage.setText(R.string.art_jt0dfct2w0);
-                                    barcodeValue.setText(R.string.art_jtodfct2w0);
-                                    intent.putExtra("Command", "monolithWeak");
-                                    Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                }else{
-                                    statusMessage.setText(composites[13]);
-                                    Arrays.fill(monolithMech, false);
-                                }
-                            }else{
-                                statusMessage.setText(composites[14]);
-                                Arrays.fill(monolithMech, false);
-                            }
-                            return;
-                        case "p58QbpBST5KvByt": // благословление монолита на 15 минут защиты от пси
-                            barcodeValue.setText(R.string.art_p58QbpBST5KvByt);
-                            intent.putExtra("Command", "monolith_blessing");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "4kL3GuNJaG9ZxSM":
-                            textOnArt(R.string.art_4kL3GuNJaG9ZxSM, R.string.art_sc_4kL3GuNJaG9ZxSM);
-                            return;
-                        case "uyAqwPXXLU8MY3r":
-                            textOnArt(R.string.art_uyAqwPXXLU8MY3r, R.string.art_sc_uyAqwPXXLU8MY3r);
-                            return;
-                        case "gUrZPkqLZ4xJ8ZR": // +10 защиты от рад
-                            barcodeValue.setText(R.string.art_gUrZPkqLZ4xJ8ZR);
-                            intent.putExtra("Command", "plus10RadProtection");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "tbNk88P4NyE3A39": // +10 защиты от био
-                            barcodeValue.setText(R.string.art_tbNk88P4NyE3A39);
-                            intent.putExtra("Command", "plus10BioProtection");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "mutAPnJHY84gG6f":
-                            textOnArt(R.string.art_mutAPnJHY84gG6f, R.string.art_sc_mutAPnJHY84gG6f);
-                            return;
+                            return;*/
+
                         case "mezfB2Jn7H8n2JP":
                             barcodeValue.setText(R.string.art_mezfB2Jn7H8n2JP);
                             return;
-                        case "FuJyu9rPLWKq6rw":
-                            barcodeValue.setText(R.string.art_FuJyu9rPLWKq6rw);
-                            return;
-                            // май 21
-                        case "ziw3zsbpzkx0lgq":
-                            barcodeValue.setText(R.string.item_0521_01);
-                            return;
-                        case "vzjkromfohvtrmv":
-                            barcodeValue.setText("Накопитель данных с последовательностью команд.");
-                            return;
-                        case "96z763xlzcf55nq":
-                            textOnArt(R.string.item_0521_02, R.string.item_0521_02s);
-                            return;
-                        case "3mv6e0m4cofc1ni":
-                            textOnArt(R.string.item_0521_03, R.string.item_0521_03s);
-                            return;
-                        case "dxee8kkqytx52tn":
-                            textOnArt(R.string.item_0521_04, R.string.item_0521_04s);
-                            return;
-                        case "8uy5094dhv61eie":
-                            textOnArt(R.string.item_0521_05, R.string.item_0521_05s);
-                            return;
-                        case "q82pkauqr8mfdhx":
-                            textOnArt(R.string.item_0521_06, R.string.item_0521_06s);
-                            return;
-                        case "zxirnvw2qy1t6k7":
-                            textOnArt(R.string.item_0521_07, R.string.item_0521_07s);
-                            return;
+
+                            /*
+                            2021 год
+                            */
+
+                        // чтец ноосферы
                         case "n888x6powrkmojj":
-                            int str;
-                            Location point_location = new Location("");
-                            point_location.setLatitude(64.534456d);
-                            point_location.setLongitude(40.153305d);
+                            int str = R.string.quest_21_02sc;
+                            Location point_location = new Location("GPS");
+                            point_location.setLatitude(64.35084939443712d);
+                            point_location.setLongitude(40.7199666393824d);
                             double distanceToPoint = point_location.distanceTo(globals.location);
-                            if(distanceToPoint <= 26){
-                                str = R.string.item_0521_08s_1;
-                                textOnArt(R.string.item_0521_08, str);
+                            if(distanceToPoint <= 40){
+                                //str = R.string.item_0521_08s_1;
+                                textOnArt(R.string.quest_21_02_01, str);
                                 return;
                             }
-                            Location point_location_1 = new Location("");
-                            point_location_1.setLatitude(64.532701d);
-                            point_location_1.setLongitude( 40.152736d);
+                            Location point_location_1 = new Location("GPS");
+                            point_location_1.setLatitude(64.35304402555298d);
+                            point_location_1.setLongitude(40.73663992875095d);
                             double distanceToPoint_1 = point_location_1.distanceTo(globals.location);
-                            if (distanceToPoint_1 <= 52){
-                                str = R.string.item_0521_08s_2;
-                                textOnArt(R.string.item_0521_08, str);
+                            if (distanceToPoint_1 <= 20){
+                                //str = R.string.item_0521_08s_2;
+                                textOnArt(R.string.quest_21_02_02, str);
                                 return;
                             }
-                            Location point_location_2 = new Location("");
-                            point_location_2.setLatitude(64.530017d);
-                            point_location_2.setLongitude(40.155451d);
+                            Location point_location_2 = new Location("GPS");
+                            point_location_2.setLatitude(64.35248480210454d);
+                            point_location_2.setLongitude(40.7318765714623d);
                             double distanceToPoint_2 = point_location_2.distanceTo(globals.location);
-                            if (distanceToPoint_2 <= 30){
-                                str = R.string.item_0521_08s_3;
-                                textOnArt(R.string.item_0521_08, str);
+                            if (distanceToPoint_2 <= 20){
+                                //str = R.string.item_0521_08s_3;
+                                textOnArt(R.string.quest_21_02_03, str);
                                 return;
                             }
-                            Location point_location_3 = new Location("");
-                            point_location_3.setLatitude(64.528701d);
-                            point_location_3.setLongitude(40.151996d);
+                            Location point_location_3 = new Location("GPS");
+                            point_location_3.setLatitude(64.35215333997971d);
+                            point_location_3.setLongitude(40.730394103138664d);
                             double distanceToPoint_3 = point_location_3.distanceTo(globals.location);
-                            if (distanceToPoint_3 <= 45){
-                                str = R.string.item_0521_08s_4;
-                                textOnArt(R.string.item_0521_08, str);
+                            if (distanceToPoint_3 <= 30){
+                                //str = R.string.item_0521_08s_4;
+                                textOnArt(R.string.quest_21_02_04, str);
                                 return;
                             }
-                            Location point_location_4 = new Location("");
-                            point_location_4.setLatitude(64.531412d);
-                            point_location_4.setLongitude(40.152532d);
+                            Location point_location_4 = new Location("GPS");
+                            point_location_4.setLatitude(64.35205497292027d);
+                            point_location_4.setLongitude(40.737743477046465d);
                             double distanceToPoint_4 = point_location_4.distanceTo(globals.location);
                             if (distanceToPoint_4 <= 66){
-                                str = R.string.item_0521_08s_5;
-                                textOnArt(R.string.item_0521_08, str);
+                                //str = R.string.item_0521_08s_5;
+                                textOnArt(R.string.quest_21_02_05, str);
                                 return;
                             }
-                            Location point_location_5 = new Location("");
-                            point_location_5.setLatitude(64.532707d);
-                            point_location_5.setLongitude(40.155037);
+                            Location point_location_5 = new Location("GPS");
+                            point_location_5.setLatitude(64.35266067713242d);
+                            point_location_5.setLongitude(40.73464018333524d);
                             double distanceToPoint_5 = point_location_5.distanceTo(globals.location);
-                            if (distanceToPoint_5 <= 25){//64.532707, 40.155037
-                                str = R.string.item_0521_08s_6;
-                                textOnArt(R.string.item_0521_08, str);
+                            if (distanceToPoint_5 <= 30){//64.532707, 40.155037
+                                //str = R.string.item_0521_08s_6;
+                                textOnArt(R.string.quest_21_02_06, str);
                                 return;
                             }
-                            str = R.string.item_0521_08s_7;
-                            textOnArt(R.string.item_0521_08, str);
+                            Location point_location_6 = new Location("GPS");
+                            point_location_6.setLatitude(64.35155365136347d);
+                            point_location_6.setLongitude(40.72763529934451d);
+                            double distanceToPoint_6 = point_location_6.distanceTo(globals.location);
+                            if (distanceToPoint_6 <= 15){//64.532707, 40.155037
+                                //str = R.string.item_0521_08s_6;
+                                textOnArt(R.string.quest_21_02_07, str);
+                                return;
+                            }
+                            Location point_location_7 = new Location("GPS");
+                            point_location_7.setLatitude(64.34994500125134d);
+                            point_location_7.setLongitude(40.726044220119505d);
+                            double distanceToPoint_7 = point_location_7.distanceTo(globals.location);
+                            if (distanceToPoint_7 <= 30){//64.532707, 40.155037
+                                //str = R.string.item_0521_08s_6;
+                                textOnArt(R.string.quest_21_02_08, str);
+                                return;
+                            }
+                            Location point_location_8 = new Location("GPS");
+                            point_location_8.setLatitude(64.35109295085896d);
+                            point_location_8.setLongitude(40.73626007320802d);
+                            double distanceToPoint_8 = point_location_8.distanceTo(globals.location);
+                            if (distanceToPoint_8 <= 30){//64.532707, 40.155037
+                                //str = R.string.item_0521_08s_6;
+                                textOnArt(R.string.quest_21_02_09, str);
+                                return;
+                            }
+                            Location point_location_9 = new Location("GPS");
+                            point_location_9.setLatitude(64.35222932765502d);
+                            point_location_9.setLongitude(40.72776883876071d);
+                            double distanceToPoint_9 = point_location_9.distanceTo(globals.location);
+                            if (distanceToPoint_9 <= 20){//64.532707, 40.155037
+                                //str = R.string.item_0521_08s_6;
+                                textOnArt(R.string.quest_21_02_10, str);
+                                return;
+                            }
+                            Location point_location_10 = new Location("GPS");
+                            point_location_10.setLatitude(64.35715845524946d);
+                            point_location_10.setLongitude(40.721214319321d);
+                            double distanceToPoint_10 = point_location_10.distanceTo(globals.location);
+                            if (distanceToPoint_10 <= 30){//64.532707, 40.155037
+                                //str = R.string.item_0521_08s_6;
+                                textOnArt(R.string.quest_21_02_11, str);
+                                return;
+                            }
+                            //str = R.string.item_0521_08s_7;
+                            textOnArt(R.string.quest_21_02_0, str);
                             return;
-                        case "qwerty_1":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nВ ходе провередния опыта вы умрете, следайте скрин экрана, пройдите в камеру и тихо умрите. Следуйте в мертвяк");
+                        case "olkkihlsyf":
+                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_1, R.string.quest_21_06sc, 20d);
                             return;
-                        case "qwerty_2":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nВ ходе провередния опыта вы умрете, следайте скрин экрана, пройдите в камеру и тихо умрите. Следуйте в мертвяк");
+                        case "qirhtruhoc":
+                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_2, R.string.quest_21_06sc, 20d);
                             return;
-                        case "qwerty_3":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nВ ходе провередния опыта вы умрете, следайте скрин экрана, пройдите в камеру и тихо умрите. Следуйте в мертвяк");
+                        case "zvkwridurj":
+                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_3, R.string.quest_21_06sc, 20d);
                             return;
-                        case "qwerty_4":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nВ ходе провередния опыта вы умрете, следайте скрин экрана, пройдите в камеру, в ней ведите себя буйно  и в какой-то момент умрите. Вас могут вскрыть, потом следуйте в мертвяк");
+                        case "enogktjwkl":
+                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_4, R.string.quest_21_06sc, 20d);
                             return;
-                        case "qwerty_5":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nВ ходе провередния опыта вы умрете, следайте скрин экрана, пройдите в камеру, в ней сядьте в угол и тихо умрите. Вас могут вскрыть, потом следуйте в мертвяк");
+                        case "gcedsruvlp":
+                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_5, R.string.quest_21_06sc, 20d);
                             return;
-                        case "qwerty_6":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nВ ходе провередния опыта вы превратитесь в зомби, пройдите в камеру, возьмиите в ящике маску зомби и отыгрывайте зомби. Время пребывания в образе зомби пойдет в счет отсидки в мертвяке");
+                        case "nzwgnqmzpc":
+                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_6, R.string.quest_21_06sc, 20d);
                             return;
-                        case "qwerty_10":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nВ ходе провередния опыта вы превратитесь в снорка, пройдите в камеру, возьмиите в ящике противогаз и отыгрывайте снорка. Время пребывания в образе снорка пойдет в счет отсидки в мертвяке");
+                            // Этот и следующие два: доступны одна, две, три защиты
+                        case "разреш1тип":
+                            barcodeValue.setText("Установлено разрешение на защиту от 1 типа урона одновременно");
+                            intent.putExtra("Command", "setOneProtAv");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "qwerty_11":
-                            barcodeValue.setText("Здравствуйте, товарищ сталкер. Сообщение от мастера.\n\nТеперь ты адепт монолита. Но перед этим потребуй у того, кто тебя обратил подтверждения от мастера в виде сообщения.\n\nАдапт монолита не может причинить вред служителем монолита или своим бездействием допустить, чтобы вред был причинен. Адепты имеют 100% защиту от пси, потребуй, чтобы обративший тебя поставил тебе эту защиту");
+                        case "разреш2тип":
+                            barcodeValue.setText("Установлено разрешение на защиту от 2 типов урона одновременно");
+                            intent.putExtra("Command", "setTwoProtAv");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "разреш3тип":
+                            barcodeValue.setText("Установлено разрешение на защиту от 3 типов урона одновременно");
+                            intent.putExtra("Command", "setThreeProtAv");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                            //здесь и далее Глеб
+                        case "radiation":
+                            textAndCoolDawn(intent, 0, 2400000, R.string.glebRad0,R.string.glebRadsc, R.string.glebRadDawn, "radiation");
+                            return;
+                        case "radiation1":
+                            textAndCoolDawn(intent, 1, 2400000, R.string.glebRad1,R.string.glebRadsc, R.string.glebRadDawn, "radiation1");
+                            return;
+                        case "radiation2":
+                            textAndCoolDawn(intent, 2, 2400000, R.string.glebRad2,R.string.glebRadsc, R.string.glebRadDawn, "radiation2");
+                            return;
+                        case "radiation3":
+                            textAndCoolDawn(intent, 3, 2400000, R.string.glebRad3,R.string.glebRadsc, R.string.glebRadDawn, "radiation3");
+                            return;
+                        case "biohazard":
+                            textAndCoolDawn(intent, 4, 2400000, R.string.glebBio0,R.string.glebRadsc, R.string.glebRadDawn, "biohazard");
+                            return;
+                        case "biohazard1":
+                            textAndCoolDawn(intent, 5, 2400000, R.string.glebBio1,R.string.glebRadsc, R.string.glebRadDawn, "biohazard1");
+                            return;
+                        case "biohazard2":
+                            textAndCoolDawn(intent, 6, 2400000, R.string.glebBio2,R.string.glebRadsc, R.string.glebRadDawn, "biohazard2");
+                            return;
+                        case "biohazard3":
+                            textAndCoolDawn(intent, 7, 2400000, R.string.glebBio3,R.string.glebRadsc, R.string.glebRadDawn, "biohazard3");
+                            return;
+                        case "health":
+                            textAndCoolDawn(intent, 8, 2400000, R.string.glebHP0,R.string.glebRadsc, R.string.glebRadDawn, "health");
+                            return;
+                        case "health1":
+                            textAndCoolDawn(intent, 9, 2400000, R.string.glebHP1,R.string.glebRadsc, R.string.glebRadDawn, "health1");
+                            return;
+                        case "health2":
+                            textAndCoolDawn(intent, 10, 2400000, R.string.glebHP2,R.string.glebRadsc, R.string.glebRadDawn, "health2");
+                            return;
+                        case "health3":
+                            textAndCoolDawn(intent, 11, 2400000, R.string.glebHP3,R.string.glebRadsc, R.string.glebRadDawn, "health3");
+                            return;
+                        case "pngxtfgtdo":
+                            textOnArt(R.string.item_21_01, R.string.item_21_01sc);
+                            return;
+                        case "vpqntomoro":
+                            textOnArt(R.string.item_21_02, R.string.item_21_02sc);
+                            return;
+                        case "yabfencbeh":
+                            textOnArt(R.string.item_21_03, R.string.item_21_03sc);
+                            return;
+                        case "wxvbbxvpqp":
+                            textOnArt(R.string.item_21_04, R.string.item_21_04sc);
+                            return;
+                        case "fbhlgqbwty":
+                            textOnArt(R.string.item_21_05, R.string.item_21_05sc);
+                            return;
+                        case "xvbghtzjmc":
+                            textOnArt(R.string.item_21_06, R.string.item_21_06sc);
+                            return;
+                        case "nlzaxlghou":
+                            textOnArt(R.string.item_21_07, R.string.item_21_07sc);
+                            return;
+                        case "zlyopchbci":
+                            textOnArt(R.string.item_21_08, R.string.item_21_08sc);
+                            return;
+                        case "qfbenyqbls":
+                            textOnArt(R.string.item_21_09, R.string.item_21_09sc);
+                            return;
+                        case "cycmkdenil":
+                            textOnArt(R.string.item_21_10, R.string.item_21_10sc);
+                            return;
+                        case "lhktfjrqju":
+                            textOnArt(R.string.item_21_11, R.string.item_21_11sc);
+                            return;
+                        case "spbptowvss":
+                            textOnArt(R.string.item_21_12, R.string.item_21_12sc);
+                            return;
+                        case "csvdavjshl":
+                            textOnArt(R.string.item_21_13, R.string.item_21_13sc);
+                            return;
+                        case "pcmbkoehgq":
+                            textOnArt(R.string.item_21_14, R.string.item_21_14sc);
+                            return;
+                        case "mpjvqlzkws": // этот и два следующих - шприцы от рад, био и хп
+                            textAndCoolDawn(intent, 12, 900000, R.string.injectorRad,R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad");
+                            return;
+                        case "xrjoqykant":
+                            textAndCoolDawn(intent, 13, 960000, R.string.injectorBio,R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio");
+                            return;
+                        case "pjiscyunaf":
+                            textAndCoolDawn(intent, 14, 1020000, R.string.injectorHP,R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP");
+                            return;
+                        case "yzvdzfbesq": // здесь и далее артосы 2021
+                            textOnArt(R.string.art_21_norm, R.string.art_21_01sc);
+                            return;
+                        case "kghmzmtrfh":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_02sc);
+                            return;
+                        case "lbbbzgutsc":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 15, 300000, R.string.art_21_dang, R.string.art_21_03sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "ejrzgsbynq":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_04sc);
+                            return;
+                        case "suqxdukcpx":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_05sc);
+                            return;
+                        case "juoqudtxgc":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 16, 300000, R.string.art_21_dang, R.string.art_21_06sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "jujztkmtay":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_07sc);
+                            return;
+                        case "xsqebiqemi":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_08sc);
+                            return;
+                        case "opdcplctlz":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 17, 300000, R.string.art_21_dang, R.string.art_21_09sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "fewbuvfgin":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_10sc);
+                            return;
+                        case "ktrewhbuhy":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 18, 300000, R.string.art_21_dang, R.string.art_21_11sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "ntpoqmdtsp":
+                            textAndCoolDawn(intent, 19, 600000, R.string.art_21_12, R.string.art_21_12sc, R.string.art_21_12_dawn_compas, "artCompass");
+                            return;
+                        case "kwsiajfcik":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 20, 300000, R.string.art_21_dang, R.string.art_21_13sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "duytiylzfg":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_14sc);
+                            return;
+                        case "hjplmdsekj":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_15sc);
+                            return;
+                        case "wnlaygkgex":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_16sc);
+                            return;
+                        case "doitupwwvc":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_17sc);
+                            return;
+                        case "mzfcfvscco":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 21, 300000, R.string.art_21_dang, R.string.art_21_18sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "bmwnngcjhq":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 22, 300000, R.string.art_21_dang, R.string.art_21_19sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "yharsxnqll":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_20sc);
+                            return;
+                        case "zzoxwlkyzp":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_21sc);
+                            return;
+                        case "maaerpdbrz":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 23, 300000, R.string.art_21_dang, R.string.art_21_22sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "theleeyyrw":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_23sc);
+                            return;
+                        case "cqrdpwrdpr":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_24sc);
+                            return;
+                        case "dxpdhslptg":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_25sc);
+                            return;
+                        case "uwnxmyrzew":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_26sc);
+                            return;
+                        case "tkeqcqlvlu":
+                            textOnArt(R.string.art_21_norm, R.string.art_21_27sc);
+                            return;
+                        case "pjvmppohse":
+                            stalkerRoulette();
+                            textAndCoolDawn(intent, 24, 300000, R.string.art_21_dang, R.string.art_21_28sc, R.string.art_21_dawn_1, "nope");
+                            return;
+                        case "gbmiavcnwe":
+                            textOnArt(R.string.quest_21_01, R.string.quest_21_01sc);
+                            return;
+                        case "hwhfkrpois":
+                            textOnArt(R.string.quest_21_05, R.string.quest_21_05sc);
+                            return;
+                        case "y1tb4a41ax5bx2f":
+                            textOnArt(R.string.quest_21_12, R.string.empty_string);
+                            return;
+                        case "ohcgmehbyb":
+                            textOnArt(R.string.quest_21_13, R.string.quest_21_13sc);
+                            return;
+                        case "igtdaixicb":
+                            barcodeValue.setText(R.string.quest_21_14);
+                            return;
+                        case "lnbhxllvvt":
+                            barcodeValue.setText(R.string.quest_21_15);
+                            return;
+                        case "samnwsyuxx":
+                            barcodeValue.setText(R.string.quest_21_16);
+                            return;
+                        case "swygbgulnj":
+                            barcodeValue.setText(R.string.quest_21_17);
+                            return;
+                        case "cpehrpgzsi":
+                            barcodeValue.setText(R.string.quest_21_18);
+                            return;
+                        case "rrescqknte":
+                            barcodeValue.setText(R.string.quest_21_19);
+                            return;
+                        case "yctwpgxnnq":
+                            barcodeValue.setText(R.string.quest_21_20);
+                            return;
+                        case "elfjpnbrhb":
+                            barcodeValue.setText(R.string.quest_21_21);
+                            return;
+                        case "zwtcojlmsr":
+                            barcodeValue.setText(R.string.quest_21_22);
+                            return;
+                        case "xmzbqdtpps":
+                            barcodeValue.setText(R.string.quest_21_23);
+                            return;
+                        case "eebpfgdiqw":
+                            barcodeValue.setText(R.string.quest_21_24);
+                            return;
+                        case "coslhafgne":
+                            barcodeValue.setText(R.string.quest_21_25);
+                            return;
+                        case "gktdfyrrda":
+                            barcodeValue.setText(R.string.quest_21_26);
+                            return;
+                        case "amkstawjtg":
+                            barcodeValue.setText(R.string.quest_21_27);
+                            return;
+                        case "zyrbhecbvs":
+                            barcodeValue.setText(R.string.quest_21_28);
+                            return;
+                        case "uhgjtwdygz":
+                            textOnArt(R.string.quest_21_29, R.string.quest_21_29sc);
+                            return;
+                        case "yswhfypvtg":
+                            barcodeValue.setText(R.string.quest_21_30);
+                            return;
+                        case "psytwdicgo":
+                            barcodeValue.setText(R.string.quest_21_31);
+                            return;
+                        case "wuwapfrfci":
+                            barcodeValue.setText(R.string.quest_21_32);
+                            return;
+                        case "isfjzmeadf":
+                            barcodeValue.setText(R.string.quest_21_33);
+                            return;
+                        case "ltrxtkpapb":
+                            barcodeValue.setText(R.string.quest_21_34);
+                            return;
+                        case "sihroxooxg":
+                            barcodeValue.setText(R.string.quest_21_35);
+                            return;
+                        case "wciotomxpk":
+                            barcodeValue.setText(R.string.quest_21_36);
+                            return;
+                        case "rnlbvlfaqj":
+                            barcodeValue.setText(R.string.quest_21_37);
+                            return;
+                        case "hfcqafirdj":
+                            barcodeValue.setText(R.string.quest_21_38);
+                            return;
+                        case "hjravnikxn":
+                            textOnArt(R.string.quest_21_39, R.string.quest_21_39sc);
+                            return;
+                        case "eukebgdxuz":
+                            textOnArt(R.string.quest_21_40, R.string.quest_21_40sc);
+                            return;
+                        case "tfvajqrxvh":
+                            barcodeValue.setText(R.string.quest_21_41);
+                            return;
+                        case "pryynkqqsm":
+                            barcodeValue.setText(R.string.quest_21_42);
+                            return;
+                        case "kwxtyregob":
+                            barcodeValue.setText(R.string.quest_21_43);
+                            return;
+                        case "rbcldsgiyu":
+                            barcodeValue.setText(R.string.quest_21_44);
+                            return;
+                        case "csyvxiwfmp":
+                            barcodeValue.setText(R.string.quest_21_45);
+                            return;
+                        case "pxgqbanfuz":
+                            textOnArt(R.string.quest_21_46, R.string.quest_21_46sc);
+                            return;
+                        case "ixdpwulpic": // здесь и далее установка защит
+                            barcodeValue.setText(R.string.protection_21_04);
+                            intent.putExtra("Command", "sc1, bio, suit, 80");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "vaxhhgwbob": // здесь и далее установка защит
+                            barcodeValue.setText(R.string.protection_21_05);
+                            intent.putExtra("Command", "sc1, rad, suit, 80");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "fgmkzxrddw": // здесь и далее установка защит
+                            barcodeValue.setText(R.string.protection_21_06);
+                            intent.putExtra("Command", "sc1, bio, suit, 50");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "mtqlvkqorz": // здесь и далее установка защит
+                            barcodeValue.setText(R.string.protection_21_07);
+                            intent.putExtra("Command", "sc1, bio, suit, 25");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "rqxdohhlcs": // здесь и далее установка защит
+                            barcodeValue.setText(R.string.protection_21_08);
+                            intent.putExtra("Command", "sc1, rad, suit, 25");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "bzqglooxoc": // здесь и далее установка защит
+                            barcodeValue.setText(R.string.protection_21_09);
+                            intent.putExtra("Command", "sc1, bio, suit, 50");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "kpqufqpwae": // здесь и далее установка защит
+                            barcodeValue.setText(R.string.protection_21_10);
+                            intent.putExtra("Command", "sc1, rad, suit, 50");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "коссева": // здесь и далее установка защит
+                            barcodeValue.setText("Надет костюм СЕВА (80% БИО)");
+                            intent.putExtra("Command", "sc1, bio, suit, 80");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "косзаря": // здесь и далее установка защит
+                            barcodeValue.setText("Надет костюм ЗАРЯ (80% РАД)");
+                            intent.putExtra("Command", "sc1, rad, suit, 80");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "косстраж": // здесь и далее установка защит
+                            barcodeValue.setText("Надет костюм СТРАЖ СВОБОДЫ (50% БИО)");
+                            intent.putExtra("Command", "sc1, bio, suit, 50");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "стражснять": // здесь и далее установка защит
+                            barcodeValue.setText("Костюм СТРАЖ СВОБОДЫ снят");
+                            intent.putExtra("Command", "sc1, bio, suit, 0");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "косучен": // здесь и далее установка защит
+                            barcodeValue.setText("Надет костюм ЭЗС Драговича М0.1");
+                            intent.putExtra("Command", "sc1, bio, suit, 80");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            intent.putExtra("Command", "sc1, rad, suit, 80");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            return;
+                        case "штраф":
+                            barcodeValue.setText("Применена штрафная санкция.");
+                            intent.putExtra("Command", "штраф");
+                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
 
                         //////////////////////////////////////////////////////////////////////////////
@@ -1118,13 +1160,13 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
-                    String str = "plus10RadProtection"; //"Соня не убивала" -1022716346     // "health5" 795560281       // "BDplus2Health"    -16716590  // "dolgDischargeImmunity"  -1449685624 // gestalt_closed_3   1910275381
-                    String str2 = "plus10BioProtection"; //"ScienceQR" -1555514523    // "health25" -1107435105     // "BDplus5Health"   -1649172843  // "dolgDischargeImmunity"  1259972122      // gestalt_closed_4   1910275382
-                    String str3 = "долматинец"; //"ScienceQRoff" -1930888214 //  "health50" -1107435017    // "BDplus10Health"    1381804599  // "mechMinus60Rad"  -1658045336             // monolithStrong   1989494219
-                    String str4 = "азесмьцарь"; //"G" 71                  // "health75"  -1107434950       // "BDplus45HealthRandom"  1036792636  //  "mechMinus60Bio"  -1658060453        // monolithWeak  1749658540
-                    String str5 = "доставщик"; // "gestalt_closed" 1704779201     // "health100"  29249045         // "BDminus5Health"  -944954941  // "mechPlus70Health"  -232827188      // monolith_blessing -63138094
-                    String str6 = "шпагат";             // "gestalt_closed_2" 1910275380   // "radProtection100" 1293683299  // "BDminus10HealthRandom"  804709100     // "setRad0"  1984920125   // plus10RadProtection  852949013
-                    String str7 = "поперечный";               // "всегдазакрыт" -1925203169       // "radProt10030"  -1800724366   // "BDminus21HealthRandom"  5747468       // "setBio15"  1388454378  //  plus10BioProtection  -301504184
+                    String str = "gloriamonolithhaereticorummors"; //"Соня не убивала" -1022716346     // "health5" 795560281       // "BDplus2Health"    -16716590  // "dolgDischargeImmunity"  -1449685624 // gestalt_closed_3   1910275381
+                    String str2 = "наукада"; //"ScienceQR" -1555514523    // "health25" -1107435105     // "BDplus5Health"   -1649172843  // "dolgDischargeImmunity"  1259972122      // gestalt_closed_4   1910275382
+                    String str3 = "наука-"; //"ScienceQRoff" -1930888214 //  "health50" -1107435017    // "BDplus10Health"    1381804599  // "mechMinus60Rad"  -1658045336             // monolithStrong   1989494219
+                    String str4 = "гагры"; //"G" 71                  // "health75"  -1107434950       // "BDplus45HealthRandom"  1036792636  //  "mechMinus60Bio"  -1658060453        // monolithWeak  1749658540
+                    String str5 = "штраф"; // "gestalt_closed" 1704779201     // "health100"  29249045         // "BDminus5Health"  -944954941  // "mechPlus70Health"  -232827188      // monolith_blessing -63138094
+                    String str6 = "200";             // "gestalt_closed_2" 1910275380   // "radProtection100" 1293683299  // "BDminus10HealthRandom"  804709100     // "setRad0"  1984920125   // plus10RadProtection  852949013
+                    String str7 = "300";               // "всегдазакрыт" -1925203169       // "radProt10030"  -1800724366   // "BDminus21HealthRandom"  5747468       // "setBio15"  1388454378  //  plus10BioProtection  -301504184
                                               //  "SetGesProtection" 317294316     // "radProt10060" -1800724273   // "BDprotectionBio6025"  1323666026      // "setBio0"  1984451498
                                               //  "теперьоткрыт" 1974805046        // "radProt10090" -1800724180   // "BDprotectionBio6035"  1323666057  // "minus15Rad"  1784296673
                                               //  "SetGesProtectionOFF" -707972381  // "bioProt10030" 1071529183   // "BDprotectionRad6025"  -1895336201  // "ifLess50healthSet70RadProt"  1265750414
@@ -1136,6 +1178,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                                               // "minus25Bio" 1785205077            // discharge10Sc  -1975691119  // "setRadOn80Percent"   -1167097637  // "anomalyFreedomOn"   551741458
                                               // "plus40Health" -201032814          // discharge10BD   -1975691677  // "setBioOn80Percent"  1699558920  // "anomalyFreedomOff"  -75884132
                                               // "plus20Health" 608313812           // discharge45    1271685827    // "discharge10OA"   -1975691277    // "art_oasis" 283987183
+                                              // irfD5rXx 607639868  3lk98Q5H -1127128685 LxPfas9O 823391914
                     statusMessage.setText(R.string.barcode_failure);
                     Log.d(TAG, "No barcode captured, intent data is null " + str.hashCode() + "  " + str2.hashCode() + "  " + str3.hashCode() + "  " + str4.hashCode() + "  " + str5.hashCode() + "  " + str6.hashCode() + "  " + str7.hashCode());
                 }
@@ -1188,6 +1231,19 @@ public class QRTab extends Fragment implements View.OnClickListener{
         }
 
     }
+
+    //текст в зависимости от местоположения
+    public void simpleLocationDepend(double lat, double lng, int outLoc, int inLoc, int sc, double radius){
+        Location location = new Location("GPS");
+        location.setLatitude(lat);
+        location.setLongitude(lng);
+        double distanceToPoint = location.distanceTo(globals.location);
+        if(distanceToPoint <= radius){
+            textOnArt(inLoc, sc);
+        } else {
+          textOnArt(outLoc, sc);
+        }
+    }
     // композитные артефакты
     private boolean compositeTimeCheck(){
        return ((Calendar.getInstance().getTimeInMillis() - cooldown_time[6]) < 180000);
@@ -1215,6 +1271,25 @@ public class QRTab extends Fragment implements View.OnClickListener{
            barcodeValue.setText(nonScience);
        }
     }
+
+    private void textAndCoolDawn(Intent intent, int coolDawnNumber, int coolDawnMillis, int nonScience, int science, int txtCoolDawn, String command){
+        if (scienceQR){
+            barcodeValue.setText(science);
+        } else {
+            firstTime = Calendar.getInstance().getTimeInMillis();
+            if (firstTime - cooldown_time[coolDawnNumber] > coolDawnMillis) {
+                barcodeValue.setText(nonScience);
+                intent.putExtra("Command", command);
+                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                cooldown_time[coolDawnNumber] = firstTime;
+            } else {
+                barcodeValue.setText(txtCoolDawn);
+            }
+        }
+
+    }
+
+
     private void compositeFinalPart (int checkCooldown, Spanned message, String barcode){
         if (compositeTimeCheck_2(checkCooldown)) {
             Intent intent;
@@ -1254,6 +1329,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
 // сохраняет текст от последнего отсканированного qr
     public void SaveBarcodeText() {
         SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+        edit.putString("isScienceQR", String.valueOf(isScienceQR));
         edit.putString("BarcodeValue", String.valueOf(barcodeValue.getText()));
         edit.putString("SecondTime", String.valueOf(secondTime)); //майский тест
         edit.putString("Cooldown_0", String.valueOf(cooldown_time[0]));
@@ -1271,11 +1347,22 @@ public class QRTab extends Fragment implements View.OnClickListener{
         edit.putString("Cooldown_12", String.valueOf(cooldown_time[12]));
         edit.putString("Cooldown_13", String.valueOf(cooldown_time[13]));
         edit.putString("Cooldown_14", String.valueOf(cooldown_time[14]));
-        edit.commit();
+        edit.putString("Cooldown_15", String.valueOf(cooldown_time[15]));
+        edit.putString("Cooldown_16", String.valueOf(cooldown_time[16]));
+        edit.putString("Cooldown_17", String.valueOf(cooldown_time[17]));
+        edit.putString("Cooldown_18", String.valueOf(cooldown_time[18]));
+        edit.putString("Cooldown_19", String.valueOf(cooldown_time[19]));
+        edit.putString("Cooldown_20", String.valueOf(cooldown_time[20]));
+        edit.putString("Cooldown_21", String.valueOf(cooldown_time[21]));
+        edit.putString("Cooldown_22", String.valueOf(cooldown_time[22]));
+        edit.putString("Cooldown_23", String.valueOf(cooldown_time[23]));
+        edit.putString("Cooldown_24", String.valueOf(cooldown_time[24]));
+        edit.apply();
     }
 // загружает текст от последнего отсканированного qr
     public void LoadBarcodeText() {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        isScienceQR = Boolean.parseBoolean(defaultSharedPreferences.getString("isScienceQR", "false"));
         barcodeValue.setText(defaultSharedPreferences.getString("BarcodeValue", "ждем-с сканирования"));
         secondTime = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("SecondTime", "0"))); // майски тест
         cooldown_time[0] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_0", "0")));
@@ -1293,6 +1380,16 @@ public class QRTab extends Fragment implements View.OnClickListener{
         cooldown_time[12] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_12", "0")));
         cooldown_time[13] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_13", "0")));
         cooldown_time[14] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_14", "0")));
+        cooldown_time[15] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_15", "0")));
+        cooldown_time[16] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_16", "0")));
+        cooldown_time[17] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_17", "0")));
+        cooldown_time[18] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_18", "0")));
+        cooldown_time[19] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_19", "0")));
+        cooldown_time[20] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_20", "0")));
+        cooldown_time[21] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_21", "0")));
+        cooldown_time[22] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_22", "0")));
+        cooldown_time[23] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_23", "0")));
+        cooldown_time[24] = Long.parseLong(Objects.requireNonNull(defaultSharedPreferences.getString("Cooldown_24", "0")));
     }
 
 

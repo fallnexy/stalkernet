@@ -44,14 +44,14 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/button_action_0521"
         android:text="Отключить вибрацию"
         android:textColor="@color/common_google_signin_btn_text_dark_pressed"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/btnBroadcastCommand"
-        app:layout_constraintTop_toBottomOf="@+id/btnBroadcastCommand" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtViewChat" />
 
     <Button
         android:id="@+id/btnOnVib"
@@ -68,14 +68,28 @@
         app:layout_constraintTop_toBottomOf="@+id/btnStopVib" />
 
     <ListView
+        android:id="@+id/lvWiFi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/lvWiFi"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnOnVib" />
+
+    <TextView
+        android:id="@+id/txtViewChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="16dp"
+        android:text=""
+        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnBroadcastCommand" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

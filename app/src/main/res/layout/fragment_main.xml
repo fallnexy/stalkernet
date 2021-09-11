@@ -1,57 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto">
+	android:layout_height="wrap_content">
 
-		<ImageView
-			android:id="@+id/ImageViewHealth"
-			android:layout_width="28dp"
-			android:layout_height="28dp"
-			android:layout_marginStart="24dp"
-			android:layout_marginTop="24dp"
-			android:src="@drawable/health_symbol_0521"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+	<ImageView
+		android:id="@+id/ImageViewHealth"
+		android:layout_width="28dp"
+		android:layout_height="28dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="24dp"
+		android:src="@drawable/health_symbol_0521"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
 
 
-		<ProgressBar
-			android:id="@+id/ProgressHealth"
-			style="?android:attr/progressBarStyleHorizontal"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_margin="10dp"
-			android:layout_marginStart="16dp"
-			android:layout_marginTop="10dp"
-			android:layout_marginEnd="16dp"
-			android:progressDrawable="@drawable/prog"
-			android:scaleY="1.5"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ImageViewHealth" />
+	<ProgressBar
+		android:id="@+id/ProgressHealth"
+		style="?android:attr/progressBarStyleHorizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="10dp"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="10dp"
+		android:layout_marginEnd="16dp"
+		android:progressDrawable="@drawable/prog"
+		android:scaleY="1.5"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/ImageViewHealth" />
 
 
-		<ImageView
-			android:id="@+id/ImageViewRad"
-			android:layout_width="28dp"
-			android:layout_height="28dp"
-			android:layout_marginStart="24dp"
-			android:layout_marginTop="24dp"
-			android:src="@drawable/rad_symbol_0521"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ProgressHealth" />
+	<ImageView
+		android:id="@+id/ImageViewRad"
+		android:layout_width="28dp"
+		android:layout_height="28dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="24dp"
+		android:src="@drawable/rad_symbol_0521"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/ProgressHealth" />
 
-		<TextView
-			android:id="@+id/txtProtectionRad"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="10dp"
-			android:layout_weight="1"
-			android:text="Защита от радиации"
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			app:layout_constraintBottom_toTopOf="@+id/ProgressRad"
-			app:layout_constraintStart_toEndOf="@+id/ImageViewRad" />
+	<TextView
+		android:id="@+id/txtProtectionRad"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_marginBottom="4dp"
+		android:layout_weight="1"
+		android:text="Защита от радиации"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintBottom_toTopOf="@+id/txtCapacityProtRad"
+		app:layout_constraintStart_toEndOf="@+id/ImageViewRad" />
+
+	<TextView
+		android:id="@+id/txtCapacityProtRad"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_marginBottom="4dp"
+		android:text="@string/capacity"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintBottom_toTopOf="@+id/FL_Rad"
+		app:layout_constraintStart_toEndOf="@+id/ImageViewRad" />
+
+	<FrameLayout
+		android:id="@+id/FL_Rad"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/ImageViewRad">
 
 		<ProgressBar
 			android:id="@+id/ProgressRad"
@@ -61,19 +81,49 @@
 			android:layout_margin="10dp"
 			android:layout_marginTop="10dp"
 			android:progressDrawable="@drawable/prog"
-			android:scaleY="1.5"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ImageViewRad" />
+			android:scaleY="1.5" />
 
-		<ImageView
-			android:id="@+id/ImageViewBio"
-			android:layout_width="28dp"
-			android:layout_height="28dp"
-			android:layout_marginStart="24dp"
-			android:layout_marginTop="24dp"
-			android:src="@drawable/bio_symbol_0521"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ProgressRad" />
+		<TextView
+			android:id="@+id/txtRadPercent"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="end|center_vertical"
+			android:layout_marginEnd="16dp"
+			android:layout_marginBottom="0dp"
+			android:text="@string/loading"
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:visibility="visible"
+			app:layout_constraintEnd_toStartOf="@+id/ProgressRad" />
+	</FrameLayout>
+
+	<ImageView
+		android:id="@+id/ImageViewBio"
+		android:layout_width="28dp"
+		android:layout_height="28dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="24dp"
+		android:src="@drawable/bio_symbol_0521"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/FL_Rad" />
+
+	<TextView
+		android:id="@+id/txtCapacityProtBio"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_marginBottom="4dp"
+		android:text="@string/capacity"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintBottom_toTopOf="@+id/FL_Bio"
+		app:layout_constraintStart_toEndOf="@+id/ImageViewBio" />
+
+	<FrameLayout
+		android:id="@+id/FL_Bio"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/ImageViewBio">
 
 		<ProgressBar
 			android:id="@+id/ProgressBio"
@@ -83,19 +133,48 @@
 			android:layout_margin="10dp"
 			android:progressDrawable="@drawable/prog"
 			android:scaleY="1.5"
-			android:secondaryProgressTint="@color/secondaryGreen"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ImageViewBio" />
+			android:secondaryProgressTint="@color/secondaryGreen" />
 
-		<ImageView
-			android:id="@+id/ImageViewPsy"
-			android:layout_width="28dp"
-			android:layout_height="28dp"
-			android:layout_marginStart="24dp"
-			android:layout_marginTop="24dp"
-			android:src="@drawable/psy_symbol_0521"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ProgressBio" />
+		<TextView
+			android:id="@+id/txtBioPercent"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="end|center_vertical"
+			android:layout_marginEnd="16dp"
+			android:layout_marginBottom="0dp"
+			android:text="@string/loading"
+			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+			android:visibility="visible" />
+	</FrameLayout>
+
+	<ImageView
+		android:id="@+id/ImageViewPsy"
+		android:layout_width="28dp"
+		android:layout_height="28dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="24dp"
+		android:src="@drawable/psy_symbol_0521"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/FL_Bio" />
+
+	<TextView
+		android:id="@+id/txtCapacityProtPsy"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_marginBottom="4dp"
+		android:text="@string/capacity"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintBottom_toTopOf="@+id/FL_Psy"
+		app:layout_constraintStart_toEndOf="@+id/ImageViewPsy" />
+
+	<FrameLayout
+		android:id="@+id/FL_Psy"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/ImageViewPsy">
 
 		<ProgressBar
 			android:id="@+id/ProgressPsy"
@@ -106,118 +185,104 @@
 			android:layout_marginStart="16dp"
 			android:layout_marginTop="10dp"
 			android:progressDrawable="@drawable/prog"
-			android:scaleY="1.5"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ImageViewPsy" />
-
-		<TextView
-			android:id="@+id/txtCoordinates"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="24dp"
-			android:layout_marginTop="24dp"
-			android:layout_marginEnd="24dp"
-			android:text="координаты"
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ProgressPsy" />
-
-		<TextView
-			android:id="@+id/txtMessages"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="24dp"
-			android:layout_marginEnd="24dp"
-			android:text="V 0.44"
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/txtCoordinates" />
-
-		<TextView
-			android:id="@+id/txtVersion"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="24dp"
-			android:layout_marginEnd="24dp"
-			android:text="V 0.44"
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/txtMessages" />
-
-		<TextView
-			android:id="@+id/txtProtectionBio"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="10dp"
-			android:text="Защита от био"
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			app:layout_constraintBottom_toTopOf="@+id/ProgressBio"
-			app:layout_constraintStart_toEndOf="@+id/ImageViewBio" />
-
-		<TextView
-			android:id="@+id/txtProtectionPsy"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="10dp"
-			android:text="Защита от пси"
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			app:layout_constraintBottom_toTopOf="@+id/ProgressPsy"
-			app:layout_constraintStart_toEndOf="@+id/ImageViewPsy" />
-
-		<TextView
-			android:id="@+id/txtHealthPercent"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:layout_marginEnd="16dp"
-			android:layout_marginBottom="8dp"
-			android:text="загрузка..."
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			android:visibility="visible"
-			app:layout_constraintBottom_toTopOf="@+id/ProgressHealth"
-			app:layout_constraintEnd_toEndOf="parent" />
-
-		<TextView
-			android:id="@+id/txtRadPercent"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:layout_marginEnd="16dp"
-			android:layout_marginBottom="8dp"
-			android:text="загрузка..."
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			android:visibility="visible"
-			app:layout_constraintBottom_toTopOf="@+id/ProgressRad"
-			app:layout_constraintEnd_toEndOf="parent" />
-
-		<TextView
-			android:id="@+id/txtBioPercent"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:layout_marginEnd="16dp"
-			android:layout_marginBottom="8dp"
-			android:text="загрузка..."
-			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			android:visibility="visible"
-			app:layout_constraintBottom_toTopOf="@+id/ProgressBio"
-			app:layout_constraintEnd_toEndOf="parent" />
+			android:scaleY="1.5" />
 
 		<TextView
 			android:id="@+id/txtPsyPercent"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center"
+			android:layout_gravity="end|center_vertical"
 			android:layout_marginEnd="16dp"
-			android:layout_marginBottom="8dp"
-			android:text="загрузка..."
+			android:layout_marginBottom="0dp"
+			android:text="@string/loading"
 			android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-			android:visibility="visible"
-			app:layout_constraintBottom_toTopOf="@+id/ProgressPsy"
-			app:layout_constraintEnd_toEndOf="parent" />
-	</androidx.constraintlayout.widget.ConstraintLayout>
+			android:visibility="visible" />
+	</FrameLayout>
+
+	<TextView
+		android:id="@+id/txtCoordinates"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="24dp"
+		android:layout_marginEnd="16dp"
+		android:text="координаты"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/FL_Psy" />
+
+	<TextView
+		android:id="@+id/txtMessages"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginEnd="16dp"
+		android:text="V 0.51"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/txtMaxProtections" />
+
+	<TextView
+		android:id="@+id/txtVersion"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginEnd="16dp"
+		android:text="V 0.51"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/txtMessages" />
+
+	<TextView
+		android:id="@+id/txtProtectionBio"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_marginBottom="4dp"
+		android:text="Защита от био"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintBottom_toTopOf="@+id/txtCapacityProtBio"
+		app:layout_constraintStart_toEndOf="@+id/ImageViewBio" />
+
+	<TextView
+		android:id="@+id/txtProtectionPsy"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="10dp"
+		android:layout_marginBottom="4dp"
+		android:text="Защита от пси"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintBottom_toTopOf="@+id/txtCapacityProtPsy"
+		app:layout_constraintStart_toEndOf="@+id/ImageViewPsy" />
+
+	<TextView
+		android:id="@+id/txtHealthPercent"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:layout_marginEnd="16dp"
+		android:layout_marginBottom="8dp"
+		android:text="@string/loading"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		android:visibility="visible"
+		app:layout_constraintBottom_toTopOf="@+id/ProgressHealth"
+		app:layout_constraintEnd_toEndOf="parent" />
+
+	<TextView
+		android:id="@+id/txtMaxProtections"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginEnd="16dp"
+		android:text="количество защит"
+		android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/txtCoordinates" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 

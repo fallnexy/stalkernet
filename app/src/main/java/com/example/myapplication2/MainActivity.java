@@ -18,17 +18,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.LinearLayout;
 
+import com.example.myapplication2.fragments.ChatTab;
+import com.example.myapplication2.fragments.GeneralTab;
+import com.example.myapplication2.fragments.MapTab;
+import com.example.myapplication2.fragments.PointTab;
+import com.example.myapplication2.fragments.QRTab;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.tabs.TabLayout;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AnomalyTypeInterface {
 
     private boolean FineLocationPermissionGranted;
     private int Fine_Location_RequestCode = 1;
+    private int Course_Location_RequestCode = 1;
     public Globals globals;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -38,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String[] split = intent.getStringExtra("Stats").split(":");
+            Log.d("main_split", String.valueOf(split[19]));
             if (Double.parseDouble(split[0]) <= 0.0d) {
                 globals.Health = "Вы умерли.";
                 mainLayout.setBackgroundResource(R.drawable.death_0521);
@@ -56,11 +62,26 @@ public class MainActivity extends AppCompatActivity {
             globals.location.setLatitude(Double.parseDouble(split[4]));
             globals.location.setLongitude(Double.parseDouble(split[5]));
             globals.ScienceQR = Integer.parseInt(split[6]);
-            globals.ProtectionRad = split[7];
-            globals.ProtectionBio = split[8];
-            globals.ProtectionPsy = split[9];
-            globals.anomalyCenter = new LatLng(Double.parseDouble(split[10]), Double.parseDouble(split[11]));
-            globals.anomalyRadius = Double.parseDouble(split[12]);
+            globals.TotalProtectionRad = split[7];
+            globals.TotalProtectionBio = split[8];
+            globals.TotalProtectionPsy = split[9];
+            try {
+                globals.anomalyCenter = new LatLng(Double.parseDouble(split[10]), Double.parseDouble(split[11]));
+                globals.anomalyRadius = Double.parseDouble(split[12]);
+            } catch (Exception e) {
+                globals.anomalyCenter = new LatLng(0, 0);
+                globals.anomalyRadius = 0d;
+            }
+            globals.CapacityProtectionRad = split[13];
+            globals.MaxCapacityProtectionRad = split[14];
+            globals.CapacityProtectionBio = split[15];
+            globals.MaxCapacityProtectionBio = split[16];
+            globals.CapacityProtectionPsy = split[17];
+            globals.MaxCapacityProtectionPsy = split[18];
+            globals.ProtectionRadArr = split[19];
+            globals.ProtectionBioArr = split[20];
+            globals.ProtectionPsyArr = split[21];
+            globals.MaxProtectionAvailable.setText("Количество разрешенных защит: " + split[22]);
          //   globals.anomalyIndex = Integer.parseInt(split[13]);
             globals.UpdateStats();
         }
@@ -190,6 +211,27 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(this.broadcastReceiverMessages, new IntentFilter("StatsService.Message"));
         super.onResume();
     }
+
+    // часть кода по обнулению третьей защиты,если разрешены только 2
+    @Override
+    public void nullifyProtection(String type, String nullifyType) {
+        Intent intent = new Intent("Command");;
+        switch (type){
+            case "Rad":
+                intent.putExtra("Command", "nullifyRad");
+                getApplicationContext().sendBroadcast(intent);
+                break;
+            case "Bio":
+                intent.putExtra("Command", "nullifyBio");
+                getApplicationContext().sendBroadcast(intent);
+                break;
+            case "Psi":
+                intent.putExtra("Command", "nullifyPsy");
+                getApplicationContext().sendBroadcast(intent);
+                break;
+        }
+    }
+
     //верхние кнопки
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         public int getCount() {
@@ -211,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 case 3:
                     return new QRTab(globals);
                 case 4:
-                    return new ChatTab();
+                    return new ChatTab(globals);
                 default:
                     return null;
             }
@@ -231,6 +273,10 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(activity, "android.permission.ACCESS_FINE_LOCATION") != 0) {
             FineLocationPermissionGranted = false;
             ActivityCompat.requestPermissions(activity, new String[]{"android.permission.ACCESS_FINE_LOCATION"}, Fine_Location_RequestCode);
+            if (ContextCompat.checkSelfPermission(activity, "android.permission.ACCESS_COURSE_LOCATION") != 0){
+                FineLocationPermissionGranted = false;
+                ActivityCompat.requestPermissions(activity, new String[]{"android.permission.ACCESS_COURSE_LOCATION"}, Course_Location_RequestCode);
+            }
             return;
         }
         FineLocationPermissionGranted = true;

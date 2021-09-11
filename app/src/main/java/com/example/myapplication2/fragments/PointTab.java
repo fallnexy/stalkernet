@@ -1,4 +1,4 @@
-package com.example.myapplication2;
+package com.example.myapplication2.fragments;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -15,6 +15,10 @@ import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
+import com.example.myapplication2.DBHelper;
+import com.example.myapplication2.Globals;
+import com.example.myapplication2.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

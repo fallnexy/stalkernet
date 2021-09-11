@@ -160,6 +160,13 @@ public class EffectManager {
                     break;
             }
         }
+        if (str.equals("ClS")){
+            switch (i){
+                case 1:
+                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.gestalt_on);
+                    break;
+            }
+        }
         if (str.equals("Start")){
             switch (i){
                 case 1:
