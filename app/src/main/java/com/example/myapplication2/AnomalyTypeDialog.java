@@ -29,7 +29,7 @@ public class AnomalyTypeDialog extends DialogFragment {
         String firstProtection = getArguments().getString("typeFirstProtection");
         String secondProtection = getArguments().getString("typeSecondProtection");
         String thirdProtection = getArguments().getString("typeThirdProtection");
-        AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 
         return builder
                 .setCancelable(false)

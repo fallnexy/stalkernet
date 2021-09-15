@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
             globals.ProtectionBioArr = split[20];
             globals.ProtectionPsyArr = split[21];
             globals.MaxProtectionAvailable.setText("Количество разрешенных защит: " + split[22]);
-         //   globals.anomalyIndex = Integer.parseInt(split[13]);
+            //   globals.anomalyIndex = Integer.parseInt(split[13]);
             globals.UpdateStats();
         }
     };
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
                 intent.putExtra("Command", "nullifyBio");
                 getApplicationContext().sendBroadcast(intent);
                 break;
-            case "Psi":
+            case "Psy":
                 intent.putExtra("Command", "nullifyPsy");
                 getApplicationContext().sendBroadcast(intent);
                 break;
@@ -283,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
     }
 
     public void onRequestPermissionsResult(int i, @NonNull String[] strArr, @NonNull int[] iArr) {
+        super.onRequestPermissionsResult(i, strArr, iArr);
         if (i == 1) {
             if (iArr.length <= 0 || iArr[0] != 0) {
                 FineLocationPermissionGranted = false;

@@ -134,10 +134,10 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
 
         drawConstantCircle();
 
-        /*if (mapCircle!=null) {
+        if (mapCircle!=null) {
             mapCircle.remove();
             mapCircle = null;
-        }*/
+        }
 
     }
     //сюда ставится карта
@@ -146,7 +146,7 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
         googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2021)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
         //майдан низкого качества
         //googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.map2021g)).positionFromBounds(new LatLngBounds(new LatLng(64.34759866104574d, 40.71273050428501d), new LatLng(64.36016771016875d, 40.75285586089982d))));
-        // карта около Адмиралтейской 6
+        // карта около Адмиралтейской
         //googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.mapadm6)).positionFromBounds(new LatLngBounds(new LatLng(64.573228d, 40.514540d), new LatLng(64.574154d, 40.518798d))));
         // курятник
         //googleMap.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.kury)).positionFromBounds(new LatLngBounds(new LatLng(64.527070d, 40.142495d), new LatLng(64.536994d, 40.160006d))));
@@ -154,9 +154,9 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
 
      private void drawCirceAnomaly(){
 
-        //if (mapCircle==null){
+        if (mapCircle==null){
             mapCircle = mMap.addCircle(globals.circleOptions);
-        //}
+        }
         if (globals.anomalyRadius == 0){
             mapCircle.remove();
             mapCircle = null;
