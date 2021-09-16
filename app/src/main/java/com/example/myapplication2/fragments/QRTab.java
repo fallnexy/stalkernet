@@ -187,14 +187,14 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             btnScienceQR.setVisibility(View.VISIBLE);
                             barcodeValue.setText(R.string.scienceQR_on);
                             intent.putExtra("Command", "ScienceQR");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "наука-":  //отключает QR ученого
                            // isScienceQR = false;
                             btnScienceQR.setVisibility(View.INVISIBLE);
                             barcodeValue.setText(R.string.scienceQR_off);
                             intent.putExtra("Command", "ScienceQRoff");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                             // скрыты гештальты
                        /* case "cv7mtd4tm4knk8w":
@@ -220,28 +220,28 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "safezonef": // сентябрь21 - чистое небо
                             textOnArt(R.string.dischargeImmunity, R.string.dischargeImmunitySc);
                             intent.putExtra("Command", "naemnikiDischargeImmunity");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
 
                         case "12543659521":
                             barcodeValue.setText("Защита от радиации на 2 часа поставлена");
                             intent.putExtra("Command", "TwoHoursRadProtection");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "приветбумеранг":
                             barcodeValue.setText("Старт игры");
                             intent.putExtra("Command", "MakeAlive");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "выходигрока":
                             barcodeValue.setText("Установлен иммунитет для выхода в зону респауна");
                             intent.putExtra("Command", "15minutesGod");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "снятьнеуяз":
                             barcodeValue.setText("Точка респауна достигнута, иммунитет снят. Старт игры");
                             intent.putExtra("Command", "noMoreGod");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "явсемогущий+":
                             barcodeValue.setText("Неуязвимость включена");

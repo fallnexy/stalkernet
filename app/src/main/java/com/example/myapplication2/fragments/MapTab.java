@@ -445,7 +445,7 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
     @Override
     public void onPause() {
         super.onPause();
-        Objects.requireNonNull(getActivity()).unregisterReceiver(broadcastReceiverCircle);
+        requireActivity().unregisterReceiver(broadcastReceiverCircle);
         mMap.clear();
     }
 }
