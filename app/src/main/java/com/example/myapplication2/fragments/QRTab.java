@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.example.myapplication2.CodesQRAndText;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
 import com.example.myapplication2.barcode.BarcodeCaptureActivity;
@@ -34,6 +35,7 @@ import androidx.fragment.app.Fragment;
 
 public class QRTab extends Fragment implements View.OnClickListener{
     private Globals globals;
+    CodesQRAndText codesQRAndText;
     // use a compound button so either checkbox or switch widgets work.
     private CompoundButton autoFocus;
     private CompoundButton useFlash;
@@ -81,6 +83,9 @@ public class QRTab extends Fragment implements View.OnClickListener{
         if (globals.ScienceQR == 0 /*|| !isScienceQR*/){
             btnScienceQR.setVisibility(View.INVISIBLE);
         }
+
+        codesQRAndText = new CodesQRAndText(this, barcodeValue);
+
         firstTime = Calendar.getInstance().getTimeInMillis();
         secondTime = 0;
         cooldown_time = new long[25];
@@ -178,9 +183,10 @@ public class QRTab extends Fragment implements View.OnClickListener{
                     Intent intent;
                     intent = new Intent("Command");
                     //MakeSplit(barcode.displayValue);
-                    Log.d(TAG, "splitted: " + bcode);
+                    //Log.d(TAG, "splitted: " + bcode);
                     bcode = barcode.displayValue;
                     //считывает qr код и в соответствии с case выдает нужный текст
+
                     switch (bcode){
                         case "наукада":  //включает QR ученого
                             //isScienceQR = true;
@@ -360,93 +366,93 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "dh22ibvye055lq3":
                             barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Устройство зарегистрировано на 10 минут.");
                             intent.putExtra("Command", "discharge10Sc");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "30f23o9miysuvas":
                             barcodeValue.setText("Зафиксировано кратковременное локальное искажение пространства. Пользователь защищён от Выброса на короткое время.");
                             intent.putExtra("Command", "discharge10BD");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
 
                         case "i8qpfu02xjuvmzu":
                             barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Устройство зарегистрировано на 30 минут.");
                             intent.putExtra("Command", "discharge45");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "rdg9qhqrkffjvz2":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Зафиксирована незначительная стабилизация жизненных показателей пользователя. Проверьте состояние пользователя для фиксации эффекта.");
                             intent.putExtra("Command", "BDplus2Health");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "22d78ptbvz3gxgy":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Зафиксирована слабая стабилизация жизненных показателей пользователя. Проверьте состояние пользователя для фиксации эффекта.");
                             intent.putExtra("Command", "BDplus5Health");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "em7npa1e96zwgzf":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Зафиксирована умеренная стабилизация жизненных показателей пользователя. Проверьте состояние пользователя для фиксации эффекта.");
                             intent.putExtra("Command", "BDplus10Health");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "pcozme0htw7nn69":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Зафиксирована значительная стабилизация жизненных показателей пользователя. Проверьте состояние пользователя для фиксации эффекта.");
                             intent.putExtra("Command", "BDplus45HealthRandom");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "gxehzewa0pthph1":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Зафиксирована слабая дестабилизация жизненных показателей пользователя. Проверьте состояние пользователя для фиксации эффекта и обратитесь за медицинской помощью при первой возможности.");
                             intent.putExtra("Command", "BDminus5Health");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "2omtlr5z3bji8mi":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Зафиксирована умеренная дестабилизация жизненных показателей пользователя. Проверьте состояние пользователя для фиксации эффекта и обратитесь за медицинской помощью при первой возможности.");
                             intent.putExtra("Command", "BDminus10HealthRandom");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "z8fl7dt7zmpryjb":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Зафиксирована значительная дестабилизация жизненных показателей пользователя. Проверьте состояние пользователя для фиксации эффекта и обратитесь за медицинской помощью при первой возможности.");
                             intent.putExtra("Command", "BDminus21HealthRandom");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "u7bua8tzmdbbmga":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена защита от биологического воздействия.");
                             intent.putExtra("Command", "BDprotectionBio6025");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "5o1wzi0b6ebokd9":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена защита от биологического воздействия.");
                             intent.putExtra("Command", "BDprotectionBio6035");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "ji282s9rfofumsr":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена защита от радиационного воздействия.");
                             intent.putExtra("Command", "BDprotectionRad6025");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "kab6b1efzvg4sdx":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена защита от радиационного воздействия.");
                             intent.putExtra("Command", "BDprotectionRad6035");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "mpv8gnpr8r8oe2p":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена защита от пси-полей.");
                             intent.putExtra("Command", "BDprotectionPsy6025");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "odu0yajypyl2cng":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена слабая защита от биологического воздействия.");
                             intent.putExtra("Command", "BDprotectionBio120");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "lapursrlu0yv10k":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена слабая защита от радиационного воздействия.");
                             intent.putExtra("Command", "BDprotectionRad120");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "0deupx1zzl0yyxr":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружено воздействие на организм пользователя. Обнаружена слабая защита от пси-полей.");
                             intent.putExtra("Command", "BDprotectionPsy120");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "sz0api94eaisrsf":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Обнаружена локальная акселерация регенерации тканей и внутренних органов пользователя. Проверьте состояние здоровья и обратитесь за квалифицированной помощью при первой возможности.");
@@ -460,19 +466,19 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "d8pzzgr8lru47z8":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Внимание! Критический уровень облучения! Требуется срочная медицинская помощь.");
                             intent.putExtra("Command", "setRadOn80Percent");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "cat0u5axnlsezs2":
                             barcodeValue.setText("ОШИБКА: Сбой оборудования. Внимание! Химический ожог! Требуется срочная медицинская помощь.");
                             intent.putExtra("Command", "setBioOn80Percent");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "h29fthyiij":
                             firstTime = Calendar.getInstance().getTimeInMillis();
                             if (firstTime - cooldown_time[3] > 43200000) {
                                 barcodeValue.setText("Механизм применён. Выведение радиационного воздействия из организма.");
                                 intent.putExtra("Command", "mechMinus60Rad");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                                QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                                 cooldown_time[3] = firstTime;
                             } else {
                                 barcodeValue.setText("Повторное применение в краткой срок опасно для здоровья. Функционал заблокирован.");
@@ -484,7 +490,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             if (firstTime - cooldown_time[4] > 43200000) {
                                 barcodeValue.setText("Механизм применён. Выведение биологического воздействия из организма.");
                                 intent.putExtra("Command", "mechMinus60Bio");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                                QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                                 cooldown_time[4] = firstTime;
                             } else {
                                 barcodeValue.setText("Повторное применение в краткой срок опасно для здоровья. Функционал заблокирован.");
@@ -495,32 +501,33 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             if (firstTime - cooldown_time[5] > 43200000) {
                                 barcodeValue.setText("Механизм применён. Жизненные показатели пользователя стабилизированы.");
                                 intent.putExtra("Command", "mechPlus70Health");
-                                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                                QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                                 cooldown_time[5] = firstTime;
                             } else {
                                 barcodeValue.setText("Повторное применение в краткой срок опасно для здоровья. Функционал заблокирован.");
                             }
                             return;
-                        case "nuyzi2sg7y3vq5f":
-                            barcodeValue.setText("Старт игры");
+                            // переехал в CodesQRAndText
+                        /*case "nuyzi2sg7y3vq5f":
+                            barcodeValue.setText(R.string.beginNewGame);
                             intent.putExtra("Command", "ResetStats");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             Arrays.fill(cooldown_time, 0);
-                            return;
+                            return;*/
                         case "ovg1m1ngxzp15ti":
                             barcodeValue.setText("Нейтрализация радиационного воздействия. Показатели пользователя в пределах нормы.");
                             intent.putExtra("Command", "setRad0");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "2lfzs5u7idb1yvl":
                             barcodeValue.setText("Нейтрализация биологического воздействия. Состояние пользователя удовлетворительно, рекомендован дополнительный курс лечения.");
                             intent.putExtra("Command", "setBio15");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "xfy3srgs36tjwlu":
                             barcodeValue.setText("Нейтрализация биологического воздействия. Показатели пользователя в пределах нормы..");
                             intent.putExtra("Command", "setBio0");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         // тут и далее композитные артосы
                        /* case "8xxv2bxw26":
@@ -762,54 +769,54 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "разреш1тип":
                             barcodeValue.setText("Установлено разрешение на защиту от 1 типа урона одновременно");
                             intent.putExtra("Command", "setOneProtAv");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "разреш2тип":
                             barcodeValue.setText("Установлено разрешение на защиту от 2 типов урона одновременно");
                             intent.putExtra("Command", "setTwoProtAv");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "разреш3тип":
                             barcodeValue.setText("Установлено разрешение на защиту от 3 типов урона одновременно");
                             intent.putExtra("Command", "setThreeProtAv");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                             //здесь и далее Глеб
                         case "radiation":
-                            textAndCoolDawn(intent, 0, 2400000, R.string.glebRad0,R.string.glebRadsc, R.string.glebRadDawn, "radiation");
+                            textAndCoolDown(intent, 0, 2400000, R.string.glebRad0,R.string.glebRadsc, R.string.glebRadDawn, "radiation");
                             return;
                         case "radiation1":
-                            textAndCoolDawn(intent, 1, 2400000, R.string.glebRad1,R.string.glebRadsc, R.string.glebRadDawn, "radiation1");
+                            textAndCoolDown(intent, 1, 2400000, R.string.glebRad1,R.string.glebRadsc, R.string.glebRadDawn, "radiation1");
                             return;
                         case "radiation2":
-                            textAndCoolDawn(intent, 2, 2400000, R.string.glebRad2,R.string.glebRadsc, R.string.glebRadDawn, "radiation2");
+                            textAndCoolDown(intent, 2, 2400000, R.string.glebRad2,R.string.glebRadsc, R.string.glebRadDawn, "radiation2");
                             return;
                         case "radiation3":
-                            textAndCoolDawn(intent, 3, 2400000, R.string.glebRad3,R.string.glebRadsc, R.string.glebRadDawn, "radiation3");
+                            textAndCoolDown(intent, 3, 2400000, R.string.glebRad3,R.string.glebRadsc, R.string.glebRadDawn, "radiation3");
                             return;
                         case "biohazard":
-                            textAndCoolDawn(intent, 4, 2400000, R.string.glebBio0,R.string.glebRadsc, R.string.glebRadDawn, "biohazard");
+                            textAndCoolDown(intent, 4, 2400000, R.string.glebBio0,R.string.glebRadsc, R.string.glebRadDawn, "biohazard");
                             return;
                         case "biohazard1":
-                            textAndCoolDawn(intent, 5, 2400000, R.string.glebBio1,R.string.glebRadsc, R.string.glebRadDawn, "biohazard1");
+                            textAndCoolDown(intent, 5, 2400000, R.string.glebBio1,R.string.glebRadsc, R.string.glebRadDawn, "biohazard1");
                             return;
                         case "biohazard2":
-                            textAndCoolDawn(intent, 6, 2400000, R.string.glebBio2,R.string.glebRadsc, R.string.glebRadDawn, "biohazard2");
+                            textAndCoolDown(intent, 6, 2400000, R.string.glebBio2,R.string.glebRadsc, R.string.glebRadDawn, "biohazard2");
                             return;
                         case "biohazard3":
-                            textAndCoolDawn(intent, 7, 2400000, R.string.glebBio3,R.string.glebRadsc, R.string.glebRadDawn, "biohazard3");
+                            textAndCoolDown(intent, 7, 2400000, R.string.glebBio3,R.string.glebRadsc, R.string.glebRadDawn, "biohazard3");
                             return;
                         case "health":
-                            textAndCoolDawn(intent, 8, 2400000, R.string.glebHP0,R.string.glebRadsc, R.string.glebRadDawn, "health");
+                            textAndCoolDown(intent, 8, 2400000, R.string.glebHP0,R.string.glebRadsc, R.string.glebRadDawn, "health");
                             return;
                         case "health1":
-                            textAndCoolDawn(intent, 9, 2400000, R.string.glebHP1,R.string.glebRadsc, R.string.glebRadDawn, "health1");
+                            textAndCoolDown(intent, 9, 2400000, R.string.glebHP1,R.string.glebRadsc, R.string.glebRadDawn, "health1");
                             return;
                         case "health2":
-                            textAndCoolDawn(intent, 10, 2400000, R.string.glebHP2,R.string.glebRadsc, R.string.glebRadDawn, "health2");
+                            textAndCoolDown(intent, 10, 2400000, R.string.glebHP2,R.string.glebRadsc, R.string.glebRadDawn, "health2");
                             return;
                         case "health3":
-                            textAndCoolDawn(intent, 11, 2400000, R.string.glebHP3,R.string.glebRadsc, R.string.glebRadDawn, "health3");
+                            textAndCoolDown(intent, 11, 2400000, R.string.glebHP3,R.string.glebRadsc, R.string.glebRadDawn, "health3");
                             return;
                         case "pngxtfgtdo":
                             textOnArt(R.string.item_21_01, R.string.item_21_01sc);
@@ -853,15 +860,16 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "pcmbkoehgq":
                             textOnArt(R.string.item_21_14, R.string.item_21_14sc);
                             return;
-                        case "mpjvqlzkws": // этот и два следующих - шприцы от рад, био и хп
-                            textAndCoolDawn(intent, 12, 900000, R.string.injectorRad,R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad");
-                            return;
-                        case "xrjoqykant":
-                            textAndCoolDawn(intent, 13, 960000, R.string.injectorBio,R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio");
+                            // переехали в CodesQRAndText
+                        /*case "mpjvqlzkws": // этот и два следующих - шприцы от рад, био и хп
+                            textAndCoolDown(intent, 12, 900000, R.string.injectorRad,R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad");
+                            return;*/
+/*                        case "xrjoqykant":
+                            textAndCoolDown(intent, 13, 960000, R.string.injectorBio,R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio");
                             return;
                         case "pjiscyunaf":
-                            textAndCoolDawn(intent, 14, 1020000, R.string.injectorHP,R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP");
-                            return;
+                            textAndCoolDown(intent, 14, 1020000, R.string.injectorHP,R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP");
+                            return;*/
                         case "yzvdzfbesq": // здесь и далее артосы 2021
                             textOnArt(R.string.art_21_norm, R.string.art_21_01sc);
                             return;
@@ -870,7 +878,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             return;
                         case "lbbbzgutsc":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 15, 300000, R.string.art_21_dang, R.string.art_21_03sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 15, 300000, R.string.art_21_dang, R.string.art_21_03sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "ejrzgsbynq":
                             textOnArt(R.string.art_21_norm, R.string.art_21_04sc);
@@ -880,7 +888,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             return;
                         case "juoqudtxgc":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 16, 300000, R.string.art_21_dang, R.string.art_21_06sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 16, 300000, R.string.art_21_dang, R.string.art_21_06sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "jujztkmtay":
                             textOnArt(R.string.art_21_norm, R.string.art_21_07sc);
@@ -890,21 +898,21 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             return;
                         case "opdcplctlz":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 17, 300000, R.string.art_21_dang, R.string.art_21_09sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 17, 300000, R.string.art_21_dang, R.string.art_21_09sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "fewbuvfgin":
                             textOnArt(R.string.art_21_norm, R.string.art_21_10sc);
                             return;
                         case "ktrewhbuhy":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 18, 300000, R.string.art_21_dang, R.string.art_21_11sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 18, 300000, R.string.art_21_dang, R.string.art_21_11sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "ntpoqmdtsp":
-                            textAndCoolDawn(intent, 19, 600000, R.string.art_21_12, R.string.art_21_12sc, R.string.art_21_12_dawn_compas, "artCompass");
+                            textAndCoolDown(intent, 19, 600000, R.string.art_21_12, R.string.art_21_12sc, R.string.art_21_12_dawn_compas, "artCompass");
                             return;
                         case "kwsiajfcik":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 20, 300000, R.string.art_21_dang, R.string.art_21_13sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 20, 300000, R.string.art_21_dang, R.string.art_21_13sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "duytiylzfg":
                             textOnArt(R.string.art_21_norm, R.string.art_21_14sc);
@@ -920,11 +928,11 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             return;
                         case "mzfcfvscco":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 21, 300000, R.string.art_21_dang, R.string.art_21_18sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 21, 300000, R.string.art_21_dang, R.string.art_21_18sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "bmwnngcjhq":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 22, 300000, R.string.art_21_dang, R.string.art_21_19sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 22, 300000, R.string.art_21_dang, R.string.art_21_19sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "yharsxnqll":
                             textOnArt(R.string.art_21_norm, R.string.art_21_20sc);
@@ -934,7 +942,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             return;
                         case "maaerpdbrz":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 23, 300000, R.string.art_21_dang, R.string.art_21_22sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 23, 300000, R.string.art_21_dang, R.string.art_21_22sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "theleeyyrw":
                             textOnArt(R.string.art_21_norm, R.string.art_21_23sc);
@@ -953,7 +961,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             return;
                         case "pjvmppohse":
                             stalkerRoulette();
-                            textAndCoolDawn(intent, 24, 300000, R.string.art_21_dang, R.string.art_21_28sc, R.string.art_21_dawn_1, "nope");
+                            textAndCoolDown(intent, 24, 300000, R.string.art_21_dang, R.string.art_21_28sc, R.string.art_21_dawn_1, "nope");
                             return;
                         case "gbmiavcnwe":
                             textOnArt(R.string.quest_21_01, R.string.quest_21_01sc);
@@ -1089,49 +1097,49 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "rqxdohhlcs": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_08);
                             intent.putExtra("Command", "sc1, rad, suit, 25");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "bzqglooxoc": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_09);
                             intent.putExtra("Command", "sc1, bio, suit, 50");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "kpqufqpwae": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_10);
                             intent.putExtra("Command", "sc1, rad, suit, 50");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "коссева": // здесь и далее установка защит
                             barcodeValue.setText("Надет костюм СЕВА (80% БИО)");
                             intent.putExtra("Command", "sc1, bio, suit, 80");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "косзаря": // здесь и далее установка защит
                             barcodeValue.setText("Надет костюм ЗАРЯ (80% РАД)");
                             intent.putExtra("Command", "sc1, rad, suit, 80");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "косстраж": // здесь и далее установка защит
                             barcodeValue.setText("Надет костюм СТРАЖ СВОБОДЫ (50% БИО)");
                             intent.putExtra("Command", "sc1, bio, suit, 50");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "стражснять": // здесь и далее установка защит
                             barcodeValue.setText("Костюм СТРАЖ СВОБОДЫ снят");
                             intent.putExtra("Command", "sc1, bio, suit, 0");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "косучен": // здесь и далее установка защит
                             barcodeValue.setText("Надет костюм ЭЗС Драговича М0.1");
                             intent.putExtra("Command", "sc1, bio, suit, 80");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             intent.putExtra("Command", "sc1, rad, suit, 80");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "штраф":
                             barcodeValue.setText("Применена штрафная санкция.");
                             intent.putExtra("Command", "штраф");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
 
                         //////////////////////////////////////////////////////////////////////////////
@@ -1158,11 +1166,14 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             barcodeValue.setText("иди своей дорогой, сталкер");
                     }
 
+                    codesQRAndText.checkCode(bcode);
+                    codesQRAndText.checkCode(bcode, scienceQR);
+
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
-                    String str = "gloriamonolithhaereticorummors"; //"Соня не убивала" -1022716346     // "health5" 795560281       // "BDplus2Health"    -16716590  // "dolgDischargeImmunity"  -1449685624 // gestalt_closed_3   1910275381
-                    String str2 = "наукада"; //"ScienceQR" -1555514523    // "health25" -1107435105     // "BDplus5Health"   -1649172843  // "dolgDischargeImmunity"  1259972122      // gestalt_closed_4   1910275382
-                    String str3 = "наука-"; //"ScienceQRoff" -1930888214 //  "health50" -1107435017    // "BDplus10Health"    1381804599  // "mechMinus60Rad"  -1658045336             // monolithStrong   1989494219
+                    String str = "mpjvqlzkws"; //"Соня не убивала" -1022716346     // "health5" 795560281       // "BDplus2Health"    -16716590  // "dolgDischargeImmunity"  -1449685624 // gestalt_closed_3   1910275381
+                    String str2 = "xrjoqykant"; //"ScienceQR" -1555514523    // "health25" -1107435105     // "BDplus5Health"   -1649172843  // "dolgDischargeImmunity"  1259972122      // gestalt_closed_4   1910275382
+                    String str3 = "pjiscyunaf"; //"ScienceQRoff" -1930888214 //  "health50" -1107435017    // "BDplus10Health"    1381804599  // "mechMinus60Rad"  -1658045336             // monolithStrong   1989494219
                     String str4 = "гагры"; //"G" 71                  // "health75"  -1107434950       // "BDplus45HealthRandom"  1036792636  //  "mechMinus60Bio"  -1658060453        // monolithWeak  1749658540
                     String str5 = "штраф"; // "gestalt_closed" 1704779201     // "health100"  29249045         // "BDminus5Health"  -944954941  // "mechPlus70Health"  -232827188      // monolith_blessing -63138094
                     String str6 = "200";             // "gestalt_closed_2" 1910275380   // "radProtection100" 1293683299  // "BDminus10HealthRandom"  804709100     // "setRad0"  1984920125   // plus10RadProtection  852949013
@@ -1198,7 +1209,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
         intent = new Intent("StRoulette");
         intent.putExtra("StRoulette", command);
         statusMessage.setText(text);
-        Objects.requireNonNull(getActivity()).getApplicationContext().sendBroadcast(intent);
+        requireActivity().getApplicationContext().sendBroadcast(intent);
     }
 // знчения в рулекте увеличены
     private void stalkerRoulette(){
@@ -1272,7 +1283,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
        }
     }
 
-    private void textAndCoolDawn(Intent intent, int coolDawnNumber, int coolDawnMillis, int nonScience, int science, int txtCoolDawn, String command){
+    private void textAndCoolDown(Intent intent, int coolDawnNumber, int coolDawnMillis, int nonScience, int science, int txtCoolDawn, String command){
         if (scienceQR){
             barcodeValue.setText(science);
         } else {
@@ -1280,7 +1291,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
             if (firstTime - cooldown_time[coolDawnNumber] > coolDawnMillis) {
                 barcodeValue.setText(nonScience);
                 intent.putExtra("Command", command);
-                Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                 cooldown_time[coolDawnNumber] = firstTime;
             } else {
                 barcodeValue.setText(txtCoolDawn);
@@ -1296,7 +1307,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
             intent = new Intent("Command");
             statusMessage.setText(message);
             intent.putExtra("Command", barcode);
-            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
             Arrays.fill(compositionOfArts, false);
             cooldown_time[checkCooldown] = Calendar.getInstance().getTimeInMillis();
         } else {

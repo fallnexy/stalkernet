@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.myapplication2.AnomalyTypeDialog;
+import com.example.myapplication2.CodesQRAndText;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
 
@@ -21,9 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class ChatTab extends Fragment /*implements AnomalyTypeInterface*/{
+public class ChatTab extends Fragment {
 
     Globals globals;
+    CodesQRAndText codesQRAndText;
     AnomalyTypeDialog dialog = new AnomalyTypeDialog();
     Bundle argsDialog = new Bundle();
 
@@ -36,26 +38,34 @@ public class ChatTab extends Fragment /*implements AnomalyTypeInterface*/{
         View inflate = layoutInflater.inflate(R.layout.fragment_chat, viewGroup, false);
         final EditText editText = inflate.findViewById(R.id.CommandLine);
         TextView txtView = inflate.findViewById(R.id.txtViewChat);
+
+        codesQRAndText = new CodesQRAndText(this, txtView);
+
         inflate.findViewById(R.id.btnBroadcastCommand).setOnClickListener(view -> {
             Intent intent;
-            byte var3;
+            int var3;
+
+            String code = String.valueOf(editText.getText());
+            MakeSplit(code);
+            if (textCode.equals("sc1") | textCode.equals("sc2")) {
+                code = textCode;
+            }
+            codesQRAndText.checkCode(code);
+            codesQRAndText.checkCode(code, globals.ScienceQR == 1);
+
             label94: {
-                String code = String.valueOf(editText.getText());
-                MakeSplit(code);
-                if (textCode.equals("sc1") | textCode.equals("sc2")) {
-                    code = textCode;
-                }
-                //Log.d("textCode", Arrays.toString(textCodeSplitted).replaceAll("\\[|\\]", ""));
+
                 editText.setText("");
                 intent = new Intent("Command");
                 switch(code.hashCode()) {
                         // старые коды
-                    case 1025788929: // полное воскрешение со сбросом всех параметров
+                    // переехал в codesQRAndText
+                   /* case 1025788929: // полное воскрешение со сбросом всех параметров
                         if (code.equals("гагры")) {
                             var3 = 0;
                             break label94;
                         }
-                        break;
+                        break;*/
                     case 1456976519: // пси
                         if (code.equals("191000")) {
                             var3 = 1;
@@ -298,152 +308,152 @@ public class ChatTab extends Fragment /*implements AnomalyTypeInterface*/{
             switch(var3) {
                 case 0:
                     intent.putExtra("Command", "ResetStats");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 1:
                     argsDialog.putString("type", "Psy");
                     dialog.setArguments(argsDialog);
-                    dialog.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "custom");
+                    dialog.show(requireActivity().getSupportFragmentManager(), "custom");
                     intent.putExtra("Command", "SetPsyProtection00");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 2:
                     intent.putExtra("Command", "SetPsyProtection50");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 3:
                     intent.putExtra("Command", "SetPsyProtection100");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 4:
                     intent.putExtra("Command", "SetRadProtection0");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 5:
                     intent.putExtra("Command", "SetRadProtection50");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 6:
                     intent.putExtra("Command", "SetRadProtection100");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 7:
                     intent.putExtra("Command", "SetBioProtection0");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 8:
                     intent.putExtra("Command", "SetBioProtection50");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 9:
                     intent.putExtra("Command", "SetBioProtection100");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 10:
                     intent.putExtra("Command", "SetDischargeImmunityTrue");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 11:
                     intent.putExtra("Command", "SetDischargeImmunityFalse");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 12:
                     intent.putExtra("Command", "SetMaxHealth100");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 13:
                     intent.putExtra("Command", "SetMaxHealth200");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 14:
                     intent.putExtra("Command", "MakeAlive");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 15:
                     intent.putExtra("Command", "ComboResetProtections");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 16:
                     intent.putExtra("Command", "Monolith");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 17:
                     intent.putExtra("Command", "God");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 18:
                     intent.putExtra("Command", "Discharge");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 19:
                     intent.putExtra("Command", "SetGesProtection");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 20:
                     intent.putExtra("Command", "SetGesProtectionOFF");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 21: //sc1
                     //Log.d("wft", String.valueOf(textCodeSplitted));
                     anomalyTypeChecker(textCodeSplitted[1]);
-                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("\\[|\\]", ""));
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 22: //sc2
                     //Log.d("wft", String.valueOf(textCodeSplitted));
-                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("\\[|\\]", ""));
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 23:
                     intent.putExtra("Command", "setOneProtAv");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 24:
                     intent.putExtra("Command", "setTwoProtAv");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 25:
                     intent.putExtra("Command", "setThreeProtAv");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 26:
                     intent.putExtra("Command", "15minutesGod");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 27:
                     intent.putExtra("Command", "noMoreGod");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 28:
                     intent.putExtra("Command", "sc1, rad, suit, 80");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                      intent.putExtra("Command", "sc1, bio, suit, 80");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 29:
                     intent.putExtra("Command", "штраф");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 30:
                     intent.putExtra("Command", "discharge10BD");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 31:
                     intent.putExtra("Command", "dolgDischargeImmunity");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 32:
                     txtView.setText("Если у тебя нет жетона Монолита, то ты становишься адептом Монолита. Выйди на связь с бойцами Монолита, чтобы получить задание. Задача по умолчанию: не допустить уничтожение Монолита.\nКоличество разрешенных защит увеличено на 1\n\nЕсли у тебя есть жетон, то с возвращением в семью, брат!");
                     intent.putExtra("Command", "SetPsyProtection0");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 33:
                     intent.putExtra("Command", "ScienceQR");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 34:
                     intent.putExtra("Command", "ScienceQRoff");
-                    Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                    ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
             }
 
@@ -451,12 +461,12 @@ public class ChatTab extends Fragment /*implements AnomalyTypeInterface*/{
         inflate.findViewById(R.id.btnStopVib).setOnClickListener(view -> {
             Intent intent = new Intent("Command");
             intent.putExtra("Command", "StopVib");
-            Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+            ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
         });
         inflate.findViewById(R.id.btnOnVib).setOnClickListener(view -> {
             Intent intent = new Intent("Command");
             intent.putExtra("Command", "OnVib");
-            Objects.requireNonNull(ChatTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+            ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
         });
         return inflate;
     }

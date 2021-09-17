@@ -44,7 +44,7 @@ public class Globals {
   //  public int anomalyIndex;
     public CircleOptions circleOptions;
 
-    public int ScienceQR;          // не работает
+    public int ScienceQR;          // не работает или работает?
 
     private LocationManager locationManager;
 

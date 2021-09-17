@@ -67,10 +67,6 @@ public class StatsService extends Service {
 
     public int MaxProtectionsAvailable = 1;
 
-    public double BioSuitProtection = 0, BioArtifactProtection = 0, BioQuestProtection = 0;
-
-    public double PsySuitProtection = 0, PsyArtifactProtection = 0, PsyQuestProtection = 0;
-
     public double[] ProtectionCapacity = {100000, 2000, 2000};
 
     public double[] RadProtectionArr = {0, 0, 0};
@@ -120,6 +116,8 @@ public class StatsService extends Service {
     long daySecond = 1631024580;
     long dayThird = 1631087220;
     long dayFourth = 1631183820;
+
+    public long[] coolDawn = new long[25];
 
 
 
@@ -2231,15 +2229,7 @@ public class StatsService extends Service {
 
     // Нужно чтобы загружать из памяти массивы, которые из double были переведены в string
     public double[] StringArrToDoubleArr (String stringArr){
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            return Arrays.stream(Objects.requireNonNull(defaultSharedPreferences.getString(stringArr, "0, 0, 0")).split(", ")).mapToDouble(Double::parseDouble).toArray();
-        } else{
-            double[] doubleArr = {0, 0, 0};
-            for (int i = 0; i < 3; i++){
-                doubleArr[i] = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString(stringArr, "0, 0, 0")).split(", ")[i]);
-            }
-            return doubleArr;
-        }
+        return Arrays.stream(Objects.requireNonNull(defaultSharedPreferences.getString(stringArr, "0, 0, 0")).split(", ")).mapToDouble(Double::parseDouble).toArray();
     }
 
     SharedPreferences defaultSharedPreferences;
@@ -2279,15 +2269,15 @@ public class StatsService extends Service {
         edit.putString("Rad", Double.toString(this.Rad));
         edit.putString("Bio", Double.toString(this.Bio));
         edit.putString("Psy", Double.toString(this.Psy));
-        edit.putString("RadProtectionArr", Arrays.toString(RadProtectionArr).replaceAll("\\[|\\]", ""));
-        edit.putString("BioProtectionArr", Arrays.toString(BioProtectionArr).replaceAll("\\[|\\]", ""));
-        edit.putString("PsyProtectionArr", Arrays.toString(PsyProtectionArr).replaceAll("\\[|\\]", ""));
-        edit.putString("RadProtectionCapacityArr", Arrays.toString(RadProtectionCapacityArr).replaceAll("\\[|\\]", ""));
-        edit.putString("BioProtectionCapacityArr", Arrays.toString(BioProtectionCapacityArr).replaceAll("\\[|\\]", ""));
-        edit.putString("PsyProtectionCapacityArr", Arrays.toString(PsyProtectionCapacityArr).replaceAll("\\[|\\]", ""));
-        edit.putString("MaxRadProtectionCapacityArr", Arrays.toString(MaxRadProtectionCapacityArr).replaceAll("\\[|\\]", ""));
-        edit.putString("MaxBioProtectionCapacityArr", Arrays.toString(MaxBioProtectionCapacityArr).replaceAll("\\[|\\]", ""));
-        edit.putString("MaxPsyProtectionCapacityArr", Arrays.toString(MaxPsyProtectionCapacityArr).replaceAll("\\[|\\]", ""));
+        edit.putString("RadProtectionArr", Arrays.toString(RadProtectionArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("BioProtectionArr", Arrays.toString(BioProtectionArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("PsyProtectionArr", Arrays.toString(PsyProtectionArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("RadProtectionCapacityArr", Arrays.toString(RadProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("BioProtectionCapacityArr", Arrays.toString(BioProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("PsyProtectionCapacityArr", Arrays.toString(PsyProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("MaxRadProtectionCapacityArr", Arrays.toString(MaxRadProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("MaxBioProtectionCapacityArr", Arrays.toString(MaxBioProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
+        edit.putString("MaxPsyProtectionCapacityArr", Arrays.toString(MaxPsyProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
         edit.putString("GesProtection", Boolean.toString(this.GestaltProtection));
         edit.putString("GesStatus", Integer.toString(this.anomalies[0].gesStatus));
         edit.putString("ScienceQR", Integer.toString(this.ScienceQR));

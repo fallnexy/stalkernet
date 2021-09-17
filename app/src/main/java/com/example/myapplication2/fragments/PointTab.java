@@ -34,6 +34,7 @@ public class PointTab extends Fragment {
     ListView listViewPoints;
     ContentValues contentValues;
     public static final int IDM_DELETE = 1102;
+
     public PointTab(Globals globals) {
         this.globals = globals;
     }
@@ -73,18 +74,14 @@ public class PointTab extends Fragment {
             });*/
 
             // устанавливаем провайдер фильтрации
-            userAdapter.setFilterQueryProvider(new FilterQueryProvider() {
-                @Override
-                public Cursor runQuery(CharSequence constraint) {
+            userAdapter.setFilterQueryProvider(constraint -> {
 
-                    if (constraint == null || constraint.length() == 0) {
-
-                        return database.rawQuery("select * from " + DBHelper.TABLE_MARKERS, null);
-                    }
-                    else {
-                        return database.rawQuery("select * from " + DBHelper.TABLE_MARKERS + " where " +
-                                DBHelper.KEY_ID + " like ?", new String[]{constraint.toString() + "%"});
-                    }
+                if (constraint == null || constraint.length() == 0) {
+                    return database.rawQuery("select * from " + DBHelper.TABLE_MARKERS, null);
+                }
+                else {
+                    return database.rawQuery("select * from " + DBHelper.TABLE_MARKERS + " where " +
+                            DBHelper.KEY_ID + " like ?", new String[]{constraint.toString() + "%"});
                 }
             });
 
@@ -98,8 +95,7 @@ public class PointTab extends Fragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(0, IDM_DELETE, 0, "Удалить запись");
     }
@@ -118,7 +114,7 @@ public class PointTab extends Fragment {
 
     public void onPause() {
         super.onPause();
-        database.close();
+        dbHelper.close();
         cursor.close();
 
 
@@ -127,7 +123,7 @@ public class PointTab extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        database.close();
+        dbHelper.close();
         cursor.close();
     }
 }
