@@ -84,7 +84,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
             btnScienceQR.setVisibility(View.INVISIBLE);
         }
 
-        codesQRAndText = new CodesQRAndText(this, barcodeValue);
+        codesQRAndText = new CodesQRAndText(this, barcodeValue, globals);
 
         firstTime = Calendar.getInstance().getTimeInMillis();
         secondTime = 0;
@@ -155,24 +155,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
    */
 
-    public String bcode;
-    public String[] barcodeSplitted = new String[4];
-    public void MakeSplit(String input){
-        try {
-            Pattern pattern = Pattern.compile("[@]");
-            String[] words = pattern.split(input);
-            int i = 0;
-            for(String word:words){
-                barcodeSplitted[i] = word;
-                i++;
-            }
-            bcode = barcodeSplitted[3];
-        } catch (Exception e) {
-            bcode = input;
-        }
-    }
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_BARCODE_CAPTURE) {
@@ -182,12 +164,10 @@ public class QRTab extends Fragment implements View.OnClickListener{
                     statusMessage.setText(R.string.barcode_success);
                     Intent intent;
                     intent = new Intent("Command");
-                    //MakeSplit(barcode.displayValue);
-                    //Log.d(TAG, "splitted: " + bcode);
-                    bcode = barcode.displayValue;
+
                     //считывает qr код и в соответствии с case выдает нужный текст
 
-                    switch (bcode){
+                    switch (barcode.displayValue){
                         case "наукада":  //включает QR ученого
                             //isScienceQR = true;
                             btnScienceQR.setVisibility(View.VISIBLE);
@@ -234,21 +214,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "TwoHoursRadProtection");
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "приветбумеранг":
-                            barcodeValue.setText("Старт игры");
-                            intent.putExtra("Command", "MakeAlive");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "выходигрока":
-                            barcodeValue.setText("Установлен иммунитет для выхода в зону респауна");
-                            intent.putExtra("Command", "15minutesGod");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "снятьнеуяз":
-                            barcodeValue.setText("Точка респауна достигнута, иммунитет снят. Старт игры");
-                            intent.putExtra("Command", "noMoreGod");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
+
                         case "явсемогущий+":
                             barcodeValue.setText("Неуязвимость включена");
                             intent.putExtra("Command", "God");
@@ -264,11 +230,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "discharge10BD");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "зона5звезд":
-                            barcodeValue.setText("Иммунитет к выбросу");
-                            intent.putExtra("Command", "SetDischargeImmunityTrue");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                            return;
+
                         case "чнзнает":
                             barcodeValue.setText("Чистое Небо знает путь");
                             intent.putExtra("Command", "dolgDischargeImmunity");
@@ -765,22 +727,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "nzwgnqmzpc":
                             simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_6, R.string.quest_21_06sc, 20d);
                             return;
-                            // Этот и следующие два: доступны одна, две, три защиты
-                        case "разреш1тип":
-                            barcodeValue.setText("Установлено разрешение на защиту от 1 типа урона одновременно");
-                            intent.putExtra("Command", "setOneProtAv");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "разреш2тип":
-                            barcodeValue.setText("Установлено разрешение на защиту от 2 типов урона одновременно");
-                            intent.putExtra("Command", "setTwoProtAv");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "разреш3тип":
-                            barcodeValue.setText("Установлено разрешение на защиту от 3 типов урона одновременно");
-                            intent.putExtra("Command", "setThreeProtAv");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
+
                             //здесь и далее Глеб
                         case "radiation":
                             textAndCoolDown(intent, 0, 2400000, R.string.glebRad0,R.string.glebRadsc, R.string.glebRadDawn, "radiation");
@@ -860,16 +807,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "pcmbkoehgq":
                             textOnArt(R.string.item_21_14, R.string.item_21_14sc);
                             return;
-                            // переехали в CodesQRAndText
-                        /*case "mpjvqlzkws": // этот и два следующих - шприцы от рад, био и хп
-                            textAndCoolDown(intent, 12, 900000, R.string.injectorRad,R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad");
-                            return;*/
-/*                        case "xrjoqykant":
-                            textAndCoolDown(intent, 13, 960000, R.string.injectorBio,R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio");
-                            return;
-                        case "pjiscyunaf":
-                            textAndCoolDown(intent, 14, 1020000, R.string.injectorHP,R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP");
-                            return;*/
                         case "yzvdzfbesq": // здесь и далее артосы 2021
                             textOnArt(R.string.art_21_norm, R.string.art_21_01sc);
                             return;
@@ -1166,8 +1103,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             barcodeValue.setText("иди своей дорогой, сталкер");
                     }
 
-                    codesQRAndText.checkCode(bcode);
-                    codesQRAndText.checkCode(bcode, scienceQR);
+                    codesQRAndText.checkCode(barcode.displayValue, scienceQR);
 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {

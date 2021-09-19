@@ -219,4 +219,12 @@
     <string name="quest_21_04">Топливный блок высокой плотности.\n\nОдна такая канистра способна питать Генератор Электромагнитного поля высокой мощности в течение одного часа</string>
     <string name="quest_21_04sc">Топливный блок высокой плотности.\n\nОдна такая канистра способна питать Генератор Электромагнитного поля высокой мощности в течение одного часа</string>
     <string name="gleb">прочность</string>
+    <string name="setOneProtectionAvailable">Установлено разрешение на защиту от 1 типа урона одновременно</string>
+    <string name="setTwoProtectionsAvailable">Установлено разрешение на защиту от 2 типов урона одновременно</string>
+    <string name="setThreeProtectionsAvailable">Установлено разрешение на защиту от 3 типов урона одновременно</string>
+    <string name="setDischargeImmunityTrue">Защита от выброса установлена</string>
+    <string name="setDischargeImmunityFalse">Защита от выброса снята</string>
+    <string name="resetAllProtections">Все защиты сняты</string>
+    <string name="setNewBeginImmunity">Установлен иммунитет для выхода в зону респауна</string>
+    <string name="dropNewBeginImmunity">Точка респауна достигнута, иммунитет снят. Старт игры</string>
 </resources>

@@ -4,14 +4,19 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import android.os.Bundle;
 import android.widget.TextView;
 
 
-import com.example.myapplication2.fragments.QRTab;
+import com.example.myapplication2.fragments.ChatTab;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 /**
@@ -21,25 +26,37 @@ import androidx.fragment.app.Fragment;
 * по задумке в этом классе должны лежать qr и текстовые коды для QRTab и ChatTab, а то они стали дублироваться
 * */
 public class CodesQRAndText {
-
+    // общие переменные
+    Globals globals;
     public Fragment fragment;
     public TextView textView;
+    // переменные, необходимые для кулдаунов
     DBHelper dbHelper;
     SQLiteDatabase database;
     ContentValues contentValues = new ContentValues();
     Cursor cursor;
+    // переменные, необходимые для sc1 и sc2
+    String textCode;
+    String[] textCodeSplitted = new String[4];
+    String typeFirstProtection = "";
+    String typeSecondProtection = "";
 
-    private long firstTime, secondTime;
-
-    public CodesQRAndText(Fragment fragment, TextView textView){
+    public CodesQRAndText(Fragment fragment, TextView textView, Globals globals){
         this.fragment = fragment;
         this.textView = textView;
+        this.globals = globals;
     }
 
-    public void checkCode(String code){
+    public void checkCode(String code, boolean scienceQR){
         dbHelper = new DBHelper(fragment.requireActivity().getApplicationContext());
         Intent intent;
         int var1;
+
+        MakeSplit(code);
+        if (textCode.equals("sc1") | textCode.equals("sc2")) {
+            code = textCode;
+        }
+
         label94: {
 
             intent = new Intent("Command");
@@ -51,6 +68,77 @@ public class CodesQRAndText {
                         var1 = 0;
                         break label94;
                     }
+                case 227556695: // этот и следующие два - шприца от рад, био и для хп
+                    if (code.equals("mpjvqlzkws")) {
+                        var1 = 1;
+                        break label94;
+                    }
+                case 1134924355:
+                    if (code.equals("xrjoqykant")) {
+                        var1 = 2;
+                        break label94;
+                    }
+                case 1393505176:
+                    if (code.equals("pjiscyunaf")) {
+                        var1 = 3;
+                        break label94;
+                    }
+                case 702574009: // простое оживление
+                    if (code.equals("приветбумеранг")) {
+                        var1 = 4;
+                        break label94;
+                    }
+                case 697322052: // установить допустимое количество типов защит
+                    if (code.equals("разреш1тип")) {
+                        var1 = 5;
+                        break label94;
+                    }
+                case 697351843: //
+                    if (code.equals("разреш2тип")) {
+                        var1 = 6;
+                        break label94;
+                    }
+                case 697381634: //
+                    if (code.equals("разреш3тип")) {
+                        var1 = 7;
+                        break label94;
+                    }
+                case 113633: // умный код 1
+                    if (code.equals("sc1")) {
+                        var1 = 8;
+                        break label94;
+                    }
+                case 113634: // умный код 2
+                    if (code.equals("sc2")) {
+                        var1 = 9;
+                        break label94;
+                    }
+                case -48468164: // защита от выброса
+                    if (code.equals("зона5звезд")) {
+                        var1 = 10;
+                        break label94;
+                    }
+                case 1698598526: // снять защиту от выброса
+                    if (code.equals("доставщик")) {
+                        var1 = 11;
+                        break label94;
+                    }
+                case 1563300753: // снять все защиты
+                    if (code.equals("505050")) {
+                        var1 = 12;
+                        break label94;
+                    }
+                case -604537487: // защита на час после выхода из мертвяка
+                    if (code.equals("выходигрока")) {
+                        var1 = 13;
+                        break label94;
+                    }
+                case -189541994: // снять защиту после выхода
+                    if (code.equals("снятьнеуяз")) {
+                        var1 = 14;
+                        break label94;
+                    }
+
                 /*case 1456976519: // пси
                     if (code.equals("191000")) {
                         var3 = 1;
@@ -292,14 +380,61 @@ public class CodesQRAndText {
 
         switch(var1) {
             case 0:
-                textView.setText(R.string.beginNewGame);
-
                 database = dbHelper.getWritableDatabase();
                 database.delete(DBHelper.TABLE_COOLDOWNS, null, null);
                 dbHelper.close();
-
-                intent.putExtra("Command", "ResetStats");
+                simpleSendMessageAndText(intent, R.string.beginNewGame, "ResetStats");
+                break;
+            case 1:
+                textAndCoolDown(intent, 90000, R.string.injectorRad, R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad", code, scienceQR);
+                break;
+            case 2:
+                textAndCoolDown(intent, 90000, R.string.injectorBio, R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio", code, scienceQR);
+                break;
+            case 3:
+                textAndCoolDown(intent, 90000, R.string.injectorHP, R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP", code, scienceQR);
+                break;
+            case 4:
+                simpleSendMessageAndText(intent, R.string.beginNewGame, "MakeAlive");
+                break;
+            case 5:
+                simpleSendMessageAndText(intent, R.string.setOneProtectionAvailable, "setOneProtAv");
+                break;
+            case 6:
+                simpleSendMessageAndText(intent, R.string.setTwoProtectionsAvailable, "setTwoProtAv");
+                break;
+            case 7:
+                simpleSendMessageAndText(intent, R.string.setThreeProtectionsAvailable, "setThreeProtAv");
+                break;
+            case 8: //sc1
+                textView.setText(makeSCText(textCodeSplitted));
+                try {
+                    anomalyTypeChecker(textCodeSplitted[1]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
                 fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                break;
+            case 9: //sc2
+                textView.setText(makeSCText(textCodeSplitted));
+                intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                break;
+            case 10:
+                simpleSendMessageAndText(intent, R.string.setDischargeImmunityTrue, "SetDischargeImmunityTrue");
+                break;
+            case 11:
+                simpleSendMessageAndText(intent, R.string.setDischargeImmunityFalse, "SetDischargeImmunityFalse");
+                break;
+            case 12:
+                simpleSendMessageAndText(intent, R.string.resetAllProtections, "ComboResetProtections");
+                break;
+            case 13:
+                simpleSendMessageAndText(intent, R.string.setNewBeginImmunity, "15minutesGod");
+                break;
+            case 14:
+                simpleSendMessageAndText(intent, R.string.dropNewBeginImmunity, "noMoreGod");
                 break;
             /*case 1:
                 argsDialog.putString("type", "Psy");
@@ -450,45 +585,11 @@ public class CodesQRAndText {
         dbHelper.close();
     }
 
-    public void checkCode(String code, boolean scienceQR){
-        dbHelper = new DBHelper(fragment.requireActivity().getApplicationContext());
-        Intent intent;
-        int var2;
-        label94:{
-            intent = new Intent("Command");
-            switch (code.hashCode()) {
-                // шприца на минус рад био и плюс хп
-                case 227556695:
-                    if (code.equals("mpjvqlzkws")) {
-                        var2 = 0;
-                        break label94;
-                    }
-                case 1134924355:
-                    if (code.equals("xrjoqykant")) {
-                        var2 = 1;
-                        break label94;
-                    }
-                case 1393505176:
-                    if (code.equals("pjiscyunaf")) {
-                        var2 = 2;
-                        break label94;
-                    }
-            }
-
-            var2 = -1;
-        }
-        switch(var2) {
-            case 0:
-                textAndCoolDown(intent, 90000, R.string.injectorRad, R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad", code, scienceQR);
-                break;
-            case 1:
-                textAndCoolDown(intent, 90000, R.string.injectorBio, R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio", code, scienceQR);
-                break;
-            case 2:
-                textAndCoolDown(intent, 90000, R.string.injectorHP, R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP", code, scienceQR);
-                break;
-        }
-        dbHelper.close();
+    // простая функция, которая передает текст в textView и отправляет intent
+    private void simpleSendMessageAndText(Intent intent, int text, String command){
+        textView.setText(text);
+        intent.putExtra("Command", command);
+        fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
     }
 
     // взято из QRTab, используется для кодов с кулдаунами
@@ -514,7 +615,7 @@ public class CodesQRAndText {
         if (scienceQR){
             textView.setText(science);
         } else {
-            firstTime = Calendar.getInstance().getTimeInMillis();
+            long firstTime = Calendar.getInstance().getTimeInMillis();
             if (firstTime - cursor.getLong(cursor.getColumnIndex(DBHelper.KEY_TIME_CD)) > coolDawnMillis){
                 textView.setText(nonScience);
                 intent.putExtra("Command", command);
@@ -531,6 +632,121 @@ public class CodesQRAndText {
         cursor.close();
     }
 
+    // взято из ChatTab необходимо для sc1 и sc2
+    private void MakeSplit(String input){
+        try {
+            Pattern pattern = Pattern.compile("[@]");
+            String[] words = pattern.split(input);
+            int i = 0;
+            for(String word:words){
+                textCodeSplitted[i] = word;
+                i++;
+            }
+            if (textCodeSplitted[0].equals("sc1")) {
+                if (textCodeSplitted[2].equals("suit") && Double.parseDouble(textCodeSplitted[3]) > 80){
+                    textCodeSplitted[3] = "80";
+                } else if (!textCodeSplitted[2].equals("suit") && Double.parseDouble(textCodeSplitted[3]) > 49.95){
+                    textCodeSplitted[3] = "49.95";
+                }
+                if (Double.parseDouble(textCodeSplitted[3]) < 0){
+                    textCodeSplitted[3] = "0";
+                }
+            }
+            textCode = textCodeSplitted[0];
+        } catch (Exception e) {
+            textCode = input;
+        }
+    }
+    void showDialog(){
+        AnomalyTypeDialog dialog = new AnomalyTypeDialog();
+        Bundle args = new Bundle();
+        args.putString("typeFirstProtection", typeFirstProtection);
+        args.putString("typeSecondProtection", typeSecondProtection);
+        dialog.setCancelable(false);
+        dialog.setArguments(args);
+        dialog.show(fragment.getActivity().getSupportFragmentManager(), "custom");
+    }
+    private void anomalyTypeChecker(String type){
+        if (globals.MaxProtectionAvailable.getText().equals("Количество разрешенных защит: 2")) {
+            int counter = 0;
+            HashMap<String, String> protectionTypeMap = new HashMap<>();
+            protectionTypeMap.put("rad", globals.TotalProtectionRad);
+            protectionTypeMap.put("bio", globals.TotalProtectionBio);
+            protectionTypeMap.put("psy", globals.TotalProtectionPsy);
+            for (String protType : new String[] {"rad", "bio", "psy"}){
+                if (!protType.equals(type) && Double.parseDouble(Objects.requireNonNull(protectionTypeMap.get(protType))) > 0){
+                    counter++;
+                }
+            }
 
+            if (counter == 2 && Double.parseDouble(Objects.requireNonNull(protectionTypeMap.get(type))) == 0){
+                if (Double.parseDouble(globals.TotalProtectionRad) > 0){
+                    typeFirstProtection = "Rad";
+                    if (Double.parseDouble(globals.TotalProtectionBio) > 0){
+                        typeSecondProtection = "Bio";
+                    } else {
+                        typeSecondProtection = "Psy";
+                    }
+                } else {
+                    typeFirstProtection = "Bio";
+                    typeSecondProtection = "Psy";
+                }
 
+                showDialog();
+
+            }
+        }
+    }
+    private String makeSCText(@NonNull String[] text){
+        String textFinal = "";
+        if (text[0].equals("sc1")){
+            textFinal = "Установлено: уровень защиты от ";
+            switch (text[1]){
+                case "rad":
+                    textFinal += "рад - ";
+                    break;
+                case "bio":
+                    textFinal += "био -  ";
+                    break;
+                case "psy":
+                    textFinal += "пси - ";
+                    break;
+                default:
+                    textFinal += "ничего - ";
+            }
+            switch (text[2]){
+                case "suit":
+                    textFinal += "костюм: ";
+                    break;
+                case "art":
+                    textFinal += "артефакт: ";
+                    break;
+                case "quest":
+                    textFinal += "квест: ";
+                    break;
+                default:
+                    textFinal += "ничто: ";
+            }
+            textFinal += text[3] + "%";
+        }
+        if (text[0].equals("sc2")){
+            textFinal = "Установлено: ";
+            switch (text[1]){
+                case "rad":
+                    textFinal += "степень радиационного заражения изменена на ";
+                    break;
+                case "bio":
+                    textFinal += "степень биологического заражения изменена на ";
+                    break;
+                case "hp":
+                    textFinal += "жизненные показатели пользователя изменены на ";
+                    break;
+                default:
+                    textFinal += "ничего не изменено ";
+            }
+            textFinal += text[2] + "%";
+
+        }
+        return textFinal;
+    }
 }
