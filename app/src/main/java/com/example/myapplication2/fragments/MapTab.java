@@ -122,6 +122,7 @@ public class MapTab extends Fragment implements OnMapReadyCallback, GoogleMap.On
             mMap.addMarker(new MarkerOptions().position(latLng));
             writeMarkerToDB(latLng);
         });
+
         // экран выставляется по центру майдана
         CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(64.35342867d, 40.7328d));
         CameraUpdate zoomTo = CameraUpdateFactory.zoomTo(13.65f);

@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 
 import com.example.myapplication2.fragments.ChatTab;
 import com.example.myapplication2.fragments.GeneralTab;
+import com.example.myapplication2.fragments.MapOSMTab;
 import com.example.myapplication2.fragments.MapTab;
 import com.example.myapplication2.fragments.PointTab;
 import com.example.myapplication2.fragments.QRTab;
@@ -235,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
     //верхние кнопки
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         public int getCount() {
-            return 5;
+            return 6;
         }
 
         public SectionsPagerAdapter(FragmentManager fragmentManager) {
@@ -254,6 +255,8 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
                     return new QRTab(globals);
                 case 4:
                     return new ChatTab(globals);
+                case 5:
+                    return new MapOSMTab(globals);
                 default:
                     return null;
             }
