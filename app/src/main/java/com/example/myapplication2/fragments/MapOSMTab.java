@@ -1,22 +1,30 @@
 package com.example.myapplication2.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 
 import com.example.myapplication2.DBHelper;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -31,12 +39,23 @@ import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.GroundOverlay;
 import org.osmdroid.views.overlay.GroundOverlay2;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import static java.util.Calendar.HOUR_OF_DAY;
 
 public class MapOSMTab extends Fragment {
 
@@ -44,6 +63,9 @@ public class MapOSMTab extends Fragment {
     private MapView map = null;
     MapEventsOverlay mapEventsOverlay = null;
     CompassOverlay mCompassOverlay = null;
+    RotationGestureOverlay mRotationGestureOverlay = null;
+
+    Polygon[] circleAnomaly = null;
 
     DBHelper dbHelper;
     SQLiteDatabase database;
@@ -53,6 +75,13 @@ public class MapOSMTab extends Fragment {
         this.globals = globals;
     }
 
+
+    BroadcastReceiver broadcastReceiverCircle = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            drawCirceAnomaly();
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,33 +97,48 @@ public class MapOSMTab extends Fragment {
 
         // начальные координаты и зум
         IMapController mapController = map.getController();
-        mapController.setZoom(9.5);
-        GeoPoint startPoint = new GeoPoint(64.573632, 40.5164);
+        mapController.setZoom(14.65);
+        GeoPoint startPoint = new GeoPoint(64.35342867d, 40.7328d);
         mapController.setCenter(startPoint);
-        // показывает мое местоположение
-        MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),map);
-        mLocationOverlay.enableMyLocation();
-        map.getOverlays().add(mLocationOverlay);
+        // вращение карты
+        mRotationGestureOverlay = new RotationGestureOverlay(map);
+        mRotationGestureOverlay.setEnabled(true);
+        map.getOverlays().add(this.mRotationGestureOverlay);
         // добавляет компас на карту
         mCompassOverlay = new CompassOverlay(getContext(), new InternalCompassOrientationProvider(getContext()), map);
         mCompassOverlay.enableCompass();
         map.getOverlays().add(this.mCompassOverlay);
+
         // накладывает карту
-        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2021);
+        // карта около Адмиралтейской
+        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.mapadm6);
+        // карта МАйдан
+        //Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2021);
         GroundOverlay overlay = new GroundOverlay();
         overlay.setTransparency(0f);
         overlay.setImage(currentMap);
-        overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.34758838, 40.75284205));
+        // адмиралтейская
+        overlay.setPosition(new GeoPoint(64.574154d, 40.518798d), new GeoPoint( 64.573228d, 40.514540d));
+        // майдан
+        //overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.34758838, 40.75284205));
         map.getOverlayManager().add(overlay);
+
         // возможность ставить маркеры на карту
         mapEventsOverlay = new MapEventsOverlay(mapEventsReceiver);
         map.getOverlays().add(mapEventsOverlay);
-
+        // рисует маркеры из БД на карте
         try {
             drawMarkers();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
+        //
+        // показывает мое местоположение
+        MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),map);
+        mLocationOverlay.enableMyLocation();
+        map.getOverlays().add(mLocationOverlay);
+        // создаем круглые аномалии
+        createCircleAnomaly (getNumberOfAnomalies());
         // Inflate the layout for this fragment
         return inflate;
     }
@@ -102,12 +146,14 @@ public class MapOSMTab extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        getActivity().registerReceiver(broadcastReceiverCircle, new IntentFilter("MapTab.Circle"));
         map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        requireActivity().unregisterReceiver(broadcastReceiverCircle);
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
     // обработчик нажатий на карту, долгое - добавление маркер
@@ -153,7 +199,7 @@ public class MapOSMTab extends Fragment {
         int commentIndex = cursor.getColumnIndex(DBHelper.KEY_COMMENT);
         Marker startMarker = new Marker(map);
         startMarker.setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         //startMarker.setIcon(getResources().getDrawable(R.drawable.ic_launcher));
         startMarker.setTitle(cursor.getString(idIndex));
         map.getOverlays().add(startMarker);
@@ -174,7 +220,7 @@ public class MapOSMTab extends Fragment {
             do {
                 Marker startMarker = new Marker(map);
                 startMarker.setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
-                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                 //startMarker.setIcon(getResources().getDrawable(R.drawable.ic_launcher));
                 startMarker.setTitle(cursor.getString(idIndex));
                 map.getOverlays().add(startMarker);
@@ -182,6 +228,92 @@ public class MapOSMTab extends Fragment {
         }
         cursor.close();
         dbHelper.close();
+    }
+    /*
+    * Когда координата меняется, то происходит цепочка вызовов, которая приводит к drawCirceAnomaly().
+    * Этот метод проверяет в таблице DBHelper.TABLE_ANOMALY значение строки DBHelper.KEY_BOOL_SHOW_ON_MAP:
+    * если "true", то показываем круг на карте setVisible(true), "false" то скрываем setVisible(false)
+    */
+    private void drawCirceAnomaly(){
+        database = dbHelper.open();
+        cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{"_id", "bool_show_on_map"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID_ANOMALY);
+            int boolShowOnMap = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOW_ON_MAP);
+
+            do {
+                Log.d("аномалия_bool", String.valueOf(cursor.getString(boolShowOnMap)));
+                if (cursor.getString(boolShowOnMap).equals("true") && !circleAnomaly[cursor.getInt(idIndex) - 1].isVisible()) {
+                    circleAnomaly[cursor.getInt(idIndex) - 1].setVisible(true);
+                } else if(cursor.getString(boolShowOnMap).equals("false")){
+                    circleAnomaly[cursor.getInt(idIndex) - 1].setVisible(false);
+                }
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        dbHelper.close();
+    }
+    // высчитывание количества круглых аномалий
+    private int getNumberOfAnomalies(){
+        int numberOfAnomalies = 0;
+        database = dbHelper.open();
+        cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{"COUNT(_id)"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            numberOfAnomalies = cursor.getInt(0);
+        }
+        cursor.close();
+        dbHelper.close();
+        Log.d("аномалия", String.valueOf(numberOfAnomalies));
+        return numberOfAnomalies;
+    }
+    /*
+    * В onCreate все аномалии добавляются на карту, но с параметром setVisible(false).
+    * Когда координата меняется, то происходит цепочка вызовов, в результате которой вызывается drawCirceAnomaly().
+    * Метод drawCirceAnomaly() проверяет следующее: если в таблице DBHelper.TABLE_ANOMALY
+    * строка DBHelper.KEY_BOOL_SHOW_ON_MAP равна "true", то для аномалии ставится setVisible(true)
+    */
+    private void createCircleAnomaly(int numberOfAnomalies){
+        circleAnomaly = new Polygon[numberOfAnomalies];
+        database = dbHelper.open();
+        cursor = database.query(DBHelper.TABLE_ANOMALY, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID_ANOMALY);
+            int type = cursor.getColumnIndex(DBHelper.KEY_TYPE);
+            int radius = cursor.getColumnIndex(DBHelper.KEY_RADIUS);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE_ANOMALY);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE_ANOMALY);
+            int boolShowOnMap = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOW_ON_MAP);
+            do {
+                circleAnomaly[cursor.getInt(idIndex) - 1] = new Polygon();
+                switch (cursor.getString(type)){
+                    case "Rad":
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1Efca800")); // цвет заливки
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#fca800")); // цвет окружности
+                        break;
+                    case "Bio":
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1E00ff2b")); //set fill color
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#00ff2b"));
+                        break;
+                    case "Psy":
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1E0011ff")); //set fill color
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#0011ff"));
+                        break;
+                    default:
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1EFFE70E")); //set fill color
+                        break;
+                }
+                circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setStrokeWidth(3); // толщина окружности
+                circleAnomaly[cursor.getInt(idIndex) - 1].setPoints(Polygon.pointsAsCircle(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), cursor.getDouble(radius)));
+                //circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1EFFE70E")); //set fill color
+                map.getOverlayManager().add(circleAnomaly[cursor.getInt(idIndex) - 1]);
+                circleAnomaly[cursor.getInt(idIndex) - 1].setVisible(false);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        dbHelper.close();
+
     }
 
 }

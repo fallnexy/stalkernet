@@ -16,6 +16,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
     private ViewPager mViewPager;
     public Boolean ServiceIsRunning;
     private LinearLayout mainLayout;
+
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
                 globals.anomalyCenter = new LatLng(0, 0);
                 globals.anomalyRadius = 0d;
             }
+            Log.d("аномалия", String.valueOf(globals.anomalyCenter));
             globals.CapacityProtectionRad = split[13];
             globals.MaxCapacityProtectionRad = split[14];
             globals.CapacityProtectionBio = split[15];

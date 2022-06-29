@@ -22,7 +22,7 @@ public class MonolithAnomaly extends Anomaly {
         this.Service = statsService;
     }
 
-    public MonolithAnomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gesStatus, Boolean boolShow) {
+    public MonolithAnomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gesStatus, String boolShow) {
         super(str, str2, d, d2, latLng, statsService, gesStatus, boolShow);
         this.Figure = str;
         this.center = latLng;

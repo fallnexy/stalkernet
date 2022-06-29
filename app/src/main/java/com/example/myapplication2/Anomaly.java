@@ -37,7 +37,7 @@ public class Anomaly {
         this.Service = statsService;
     }
 
-    public Anomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gestaltStatus, Boolean boolShow) {
+    public Anomaly(String str, String str2, Double d, Double d2, LatLng latLng, StatsService statsService, Integer gestaltStatus, String boolShow) {
         Figure = str;
         Type = str2;
         strenght = d;
@@ -45,7 +45,8 @@ public class Anomaly {
         radius = d2;
         Service = statsService;
         gesStatus = gestaltStatus;
-        toShow = boolShow;
+        toShow = boolShow.equals("true");
+
     }
 //для сталкерской рулетки
     public Anomaly(String str, String str2, Double d, Double d2, StatsService statsService){

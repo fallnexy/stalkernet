@@ -13,7 +13,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -29,6 +31,10 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -48,7 +54,7 @@ import static android.app.NotificationManager.IMPORTANCE_HIGH;
 
 public class StatsService extends Service {
     private static final int ID_SERVICE = 101;
-    private static final int NUMBER_OF_ANOMALIES = 109;
+    public int NUMBER_OF_ANOMALIES = 0; // задается в onCreate
     private static final int NUMBER_OF_GESTALT_ANOMALIES = 0;
     private static final int NUMBER_OF_SAVE_ZONES = 5;
     public static final int SUIT_PROTECTION = 80; //ЗАЩИТА ОТ КОСТЮМА
@@ -104,6 +110,8 @@ public class StatsService extends Service {
     public int[] gesLockoutList = {0, 0, 0, 0, 0, 0};
     public boolean GestaltProtection = false;
     DBHelper dbHelper;
+    SQLiteDatabase database;
+    Cursor cursor;
 
     private Calendar cal = Calendar.getInstance();
     private int Hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -1608,6 +1616,9 @@ public class StatsService extends Service {
         this.wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(1, "STALKERNET:My_Partial_Wake_Lock");
         this.wl.acquire(10*60*1000L /*10 minutes*/);   //timeout заставила студия поставить, не знаю как это работает
         this.EM = new EffectManager(this);
+        dbHelper = new DBHelper(getApplicationContext());
+        dbHelper.create_db();
+        NUMBER_OF_ANOMALIES = getNumberOfAnomalies();
         GetAnomalies();
         CreateSafeZones();
         LoadStats();
@@ -1631,7 +1642,7 @@ public class StatsService extends Service {
 
             startForeground(1, notification);
         }
-        dbHelper = new DBHelper(getApplicationContext());
+
         //MaxRadProtectionCapacity = 1000;
 
         protectionMap.put("Rad", RadProtectionArr);
@@ -1688,10 +1699,17 @@ public class StatsService extends Service {
         }
     }
 
-
-
-
-
+    private int getNumberOfAnomalies(){
+        int numberOfAnomalies = 0;
+        database = dbHelper.open();
+        cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{"COUNT(_id)"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            numberOfAnomalies = cursor.getInt(0);
+        }
+        cursor.close();
+        dbHelper.close();
+        return numberOfAnomalies;
+    }
 
     // гештальт аномалию 180 сек. нельзя снова открыть
     private void GestaltLockout(final int gesIndex){
@@ -1705,18 +1723,54 @@ public class StatsService extends Service {
     // гештальт должен идти первым
     // 0 - не гештальт, 1 - закрыто, 2 - открыто
     // вызывается в onCreate()
+    /*
+    * Вызывается в class MyLocationCallback и создает список аномалий, которые берет из БД, а также
+    * добавляет 3 аномалии для QR рулетки
+    */
     private void GetAnomalies() {
         gesStatus = 1;
-        Anomaly[] anomalyArr = new Anomaly[112];  //из 101 аномалии 3 для сталкерской рулетки и не учитываются в CheckAnomalies()
-        // чистое небо 2021
-        anomalyArr[0] = new Anomaly("Circle", "ClS", 10d, 65.0d, new LatLng(64.350906d, 40.719229d), this, 0, true); // особая аномаль чистого неба
+        /*
+        * к NUMBER_OF_ANOMALIES  добавляем 3 в счет аномалий у сталкерской рулетки,
+        * которые не учитываются в CheckAnomalies()
+        */
+        Anomaly[] anomalyArr = new Anomaly[NUMBER_OF_ANOMALIES + 3];  // +3 аномалии для сталкерской рулетки
+        database = dbHelper.open();
+        cursor = database.query(DBHelper.TABLE_ANOMALY, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID_ANOMALY);
+            int polygon_type = cursor.getColumnIndex(DBHelper.KEY_POLYGON_TYPE);
+            int type = cursor.getColumnIndex(DBHelper.KEY_TYPE);
+            int radius = cursor.getColumnIndex(DBHelper.KEY_RADIUS);
+            int power = cursor.getColumnIndex(DBHelper.KEY_POWER);
+            int minPower = cursor.getColumnIndex(DBHelper.KEY_MIN_POWER);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE_ANOMALY);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE_ANOMALY);
+           // int statService = cursor.getColumnIndex(DBHelper.KEY_STATSERVICE);  - не подумал, что у БД нет типа statService
+            int gestaltStatus = cursor.getColumnIndex(DBHelper.KEY_GESTALT_STATUS);
+            int boolShow = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOWABLE);
+            do {
+                if (!cursor.getString(type).equals("")) {
+                    anomalyArr[cursor.getInt(idIndex)-1] = new Anomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
+                    anomalyArr[cursor.getInt(idIndex)-1].minstrenght = cursor.getDouble(minPower);
+                } else{
+                    anomalyArr[cursor.getInt(idIndex)-1] = new MonolithAnomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
+
+                }
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        dbHelper.close();
+
+        /*// чистое небо 2021
+        anomalyArr[0] = new Anomaly("Circle", "ClS", 10d, 65.0d, new LatLng(64.350906d, 40.719229d), this, 0, "true"); // особая аномаль чистого неба
         anomalyArr[0].minstrenght = 10;
         // пси пустошь 2021
-        anomalyArr[1] = new Anomaly("Circle", "Psy", 50000.0d, 250d, new LatLng(64.354306d, 40.744084d), this, 0, true); // троицкий 106
-        anomalyArr[1].minstrenght = 10000;
-        anomalyArr[2] = new Anomaly("Circle", "Psy", 50000.0d, 90d, new LatLng(64.352991d, 40.741052d), this, 0, true); // кпп майдан
-        anomalyArr[2].minstrenght = 10000;
-        anomalyArr[3] = new Anomaly("Circle", "Psy", 50000d, 90d, new LatLng(64.352655d, 40.742348d), this, 0, true); // 65-42-3
+        anomalyArr[1] = new Anomaly("Circle", "Psy", 1.0d, 50d, new LatLng(64.5736076d, 40.516662d), this, 0, "true"); //адмиралтейская
+        anomalyArr[1].minstrenght = 1;
+        anomalyArr[2] = new Anomaly("Circle", "Bio", 1.0d, 90d, new LatLng(64.573608d, 40.516663d), this, 0, "true"); // кпп майдан
+        anomalyArr[2].minstrenght = 1;*/
+        /*anomalyArr[3] = new Anomaly("Circle", "Psy", 50000d, 90d, new LatLng(64.352655d, 40.742348d), this, 0, true); // 65-42-3
         anomalyArr[3].minstrenght = 10000;
         anomalyArr[4] = new Anomaly("Circle", "Psy", 50000d, 90d, new LatLng(64.355109d, 40.739336d), this, 0, true); // 66-43-8
         anomalyArr[4].minstrenght = 10000;
@@ -1831,10 +1885,10 @@ public class StatsService extends Service {
         anomalyArr[106] = new Anomaly("Circle", "Rad", 70.0d, 10.0d, new LatLng(64.35374207549692d, 40.72686678795913d), this, 0, true);  //
         anomalyArr[107] = new Anomaly("Circle", "Rad", 70.0d, 15.0d, new LatLng(64.35380966062684d, 40.72800631707114d), this, 0, true);  //
         anomalyArr[108] = new Anomaly("Circle", "Rad", 25.0d, 10.0d, new LatLng(64.35392743705654d, 40.72682310973268d), this, 0, true);  //
-        /**/
-        anomalyArr[109] = new Anomaly("QR", "Rad", 1d, 1d, this);  //QR рулетка - нигде не учитывается
-        anomalyArr[110] = new Anomaly("QR", "Bio", 2d, 1d, this);  //QR рулетка - нигде не учитывается
-        anomalyArr[111] = new Anomaly("QR", "Psy", 1d, 1d, this);  //QR рулетка - нигде не учитывается
+        */
+        anomalyArr[NUMBER_OF_ANOMALIES] = new Anomaly("QR", "Rad", 1d, 1d, this);  //QR рулетка - нигде не учитывается
+        anomalyArr[NUMBER_OF_ANOMALIES + 1] = new Anomaly("QR", "Bio", 2d, 1d, this);  //QR рулетка - нигде не учитывается
+        anomalyArr[NUMBER_OF_ANOMALIES + 2] = new Anomaly("QR", "Psy", 1d, 1d, this);  //QR рулетка - нигде не учитывается
         anomalies = anomalyArr;
     }
 
@@ -1853,6 +1907,7 @@ public class StatsService extends Service {
         return new LatLng(start_LatLng.latitude - (dLat * (double) Minutes), start_LatLng.longitude - (dLng * (double) Minutes));
     }
     public void getMovingAnomalies(){
+/*
         anomalies[26].center = moving_anomalies(new LatLng(64.35367638665042d, 40.72390097232614d), new LatLng(64.35447294898991d, 40.72723301461363d));
         anomalies[31].center = moving_anomalies(new LatLng(64.35320380110174d, 40.731077622120544d), new LatLng(64.35398513048334d, 40.73641791866202d));
         anomalies[34].center = moving_anomalies(new LatLng(64.35623672541492d, 40.737128289701104d), new LatLng(64.35676588233207d, 40.73945088292754d));
@@ -1864,11 +1919,13 @@ public class StatsService extends Service {
         anomalies[71].center = moving_anomalies(new LatLng(64.35108577387157d, 40.73010424116759d), new LatLng(64.35113415381451d, 40.7270970155379d));
         anomalies[97].center = moving_anomalies(new LatLng(64.35563755498839d, 40.722948500302955d), new LatLng(64.35614047773963d, 40.72465317082411d));
         anomalies[108].center = moving_anomalies(new LatLng(64.35392743705654d, 40.72682310973268d), new LatLng(64.35447674255012d, 40.72307019618953d));
+*/
     }
 
     // применяет аномалии
     // вызывается в MyLocationCallback()
     public void CheckAnomalies() {
+        Anomaly anomaly;
         if (IS_ANOMALIES_AVAILABLE && !isInSuperSaveZone) {
             long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
             // постоянные аномалии
@@ -1881,19 +1938,19 @@ public class StatsService extends Service {
                 } else{
                     ClSky = 0;
                 }
-                for (int i = ClSky; i < 12; i++) {
+                for (int i = ClSky; i < NUMBER_OF_ANOMALIES; i++) {
                     anomalies[i].Apply();
                 }
 
             }
             // с 6 сентября в 17:00
-            CheckAnomaliesRegular(dayFirst, daySecond, 12, 34);
+/*            CheckAnomaliesRegular(dayFirst, daySecond, 12, 34);
             // c 7 сентября в 17:23
             CheckAnomaliesRegular(daySecond, dayThird, 12, 46);
             // c 8 сентября в 10:47
             CheckAnomaliesRegular(dayThird, dayFourth, 46, 78);
             // c 9 сентября в 13:37
-            CheckAnomaliesRegular(dayFourth, (dayFourth + dayFourth), 78, 109);
+            CheckAnomaliesRegular(dayFourth, (dayFourth + dayFourth), 78, 109);*/
         }
     }
 
@@ -1910,15 +1967,16 @@ public class StatsService extends Service {
     public void CheckIfInAnyAnomalyRegular(long timeStart, long timeFinish, int anomalyStart, int anomalyFinish){
         long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
         if (timeInSeconds > timeStart  && timeInSeconds < timeFinish){
-            //radiusAnomaly = 0d;  // нужно для того, чтобы аномалии на карте рисовались
-
+            ContentValues contentValues;
             for (int i = anomalyStart; i < anomalyFinish; i++) {
                 if (anomalies[i].IsInside) {
                     if (anomalies[i].toShow) {
-                        latLngAnomaly = anomalies[i].center;  // нужно для того, чтобы аномалии на карте рисовались
-                        radiusAnomaly = anomalies[i].radius;  //
+                        //Log.d("аномалия_inside", String.valueOf(i));
+                        contentValues = new ContentValues();
+                        contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP, "true");
+                        cursor.moveToPosition(i +1);
+                        database.update(DBHelper.TABLE_ANOMALY, contentValues,  DBHelper.KEY_ID_ANOMALY + "=" + (cursor.getPosition()-1), null);
                     }
-                    //   anomalyIndex = i;
                     IsInsideAnomaly = Boolean.TRUE;
                     break;
                 }
@@ -1929,9 +1987,19 @@ public class StatsService extends Service {
     // вызывается в MyLocationCallback()
     public void CheckIfInAnyAnomaly() {
         this.IsInsideAnomaly = Boolean.FALSE;
+        database = dbHelper.open();
+        ContentValues contentValues;
+        cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{ "bool_show_on_map"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                contentValues = new ContentValues();
+                contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP, "false");
+                database.update(DBHelper.TABLE_ANOMALY, contentValues, null, null);
+            } while (cursor.moveToNext());
+        }
+
         detectWifi();
 
-        //radiusAnomaly = 0d; // нужно для того, чтобы аномалии на карте рисовались
         if (IS_ANOMALIES_AVAILABLE && !isInSuperSaveZone) {
 
             int ClSky;
@@ -1942,41 +2010,44 @@ public class StatsService extends Service {
             }else{
                 ClSky = 0;
             }
-            for (int i = ClSky ; i < 12; i++) {
+            for (int i = ClSky ; i < NUMBER_OF_ANOMALIES; i++) {
                 if (anomalies[i].IsInside) {
-
                     if (anomalies[i].toShow) {
-                        latLngAnomaly = anomalies[i].center; // нужно для того, чтобы аномалии на карте рисовались
-                        radiusAnomaly = anomalies[i].radius; //
+                        Log.d("аномалия_inside", String.valueOf(i));
+                        contentValues = new ContentValues();
+                        contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP, "true");
+                        cursor.moveToPosition(i+1);
+                        database.update(DBHelper.TABLE_ANOMALY, contentValues,  DBHelper.KEY_ID_ANOMALY + "=" + (cursor.getPosition()), null);
                     }
+
                     IsInsideAnomaly = Boolean.TRUE;
                     if (!GestaltProtection) {                                                 //проверка на защиту от открытия гештальта
                         if (i < NUMBER_OF_GESTALT_ANOMALIES && anomalies[i].gesStatus == 1){  //если конкретный гештальт закрыт
                             if (gesLockoutList[i] != 1) {                                     // проверяет можно ли конкретный гештальт открыть
-                                SQLiteDatabase database = dbHelper.getWritableDatabase();
+                                database = dbHelper.getWritableDatabase();
                                 anomalies[i].gesStatus = 2;                                   // открываем гештальт
                                 /*ЕСЛИ ГЕШТАЛЬТ ОТКРЫВАЕТСЯ, ТО СТАВИТ ЕГО КООРДИНАТУ НА КАРТУ*/
-                                ContentValues contentValues = new ContentValues();
+                                contentValues = new ContentValues();
                                 contentValues.put(DBHelper.KEY_NAME, "!!!GESTALT!!!");
                                 contentValues.put(DBHelper.KEY_ICON, "icon");
                                 contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(anomalies[i].center.latitude));
                                 contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(anomalies[i].center.longitude));
                                 contentValues.put(DBHelper.KEY_COMMENT, "Обнаружен Гештальт");
                                 database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
-                                dbHelper.close();
+
                             }
                         }
                     }
                 }
             }
             // с 6 сентября в 17:00
-            CheckIfInAnyAnomalyRegular(dayFirst, daySecond, 12, 34);
+/*            CheckIfInAnyAnomalyRegular(dayFirst, daySecond, 12, 34);
             // c 7 сентября в 17:23
             CheckIfInAnyAnomalyRegular(daySecond, dayThird, 12, 46);
             // c 8 сентября в 10:47
             CheckIfInAnyAnomalyRegular(dayThird, dayFourth, 46, 78);
             // c 9 сентября в 13:37
-            CheckIfInAnyAnomalyRegular(dayFourth, (dayFourth + dayFourth), 78, 109);
+            CheckIfInAnyAnomalyRegular(dayFourth, (dayFourth + dayFourth), 78, 109);*/
         }
         /*
         рад выводится само со временем
@@ -1996,6 +2067,8 @@ public class StatsService extends Service {
             Psy = 0.0d;
             EM.StopActions();
         }
+        cursor.close();
+        dbHelper.close();
     }
 
 
