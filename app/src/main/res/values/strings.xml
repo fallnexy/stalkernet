@@ -229,4 +229,6 @@
     <string name="dropNewBeginImmunity">Точка респауна достигнута, иммунитет снят. Старт игры</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="protectionsAmount">Количество разрешенных защит: </string>
+    <string name="action_settings">Settings</string>
 </resources>

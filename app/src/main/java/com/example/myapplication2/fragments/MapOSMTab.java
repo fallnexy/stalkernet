@@ -111,16 +111,16 @@ public class MapOSMTab extends Fragment {
 
         // накладывает карту
         // карта около Адмиралтейской
-        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.mapadm6);
+        //Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.mapadm6);
         // карта МАйдан
-        //Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2021);
+        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2021);
         GroundOverlay overlay = new GroundOverlay();
         overlay.setTransparency(0f);
         overlay.setImage(currentMap);
         // адмиралтейская
-        overlay.setPosition(new GeoPoint(64.574154d, 40.518798d), new GeoPoint( 64.573228d, 40.514540d));
+        //overlay.setPosition(new GeoPoint(64.574154d, 40.518798d), new GeoPoint( 64.573228d, 40.514540d));
         // майдан
-        //overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.34758838, 40.75284205));
+        overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.34758838, 40.75284205));
         map.getOverlayManager().add(overlay);
 
         // возможность ставить маркеры на карту

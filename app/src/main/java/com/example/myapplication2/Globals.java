@@ -39,10 +39,10 @@ public class Globals {
             RadCapacityPercent, BioCapacityPercent, PsyCapacityPercent;
     public Location location = new Location("GPS");
     public GoogleMap map;
-    public LatLng anomalyCenter = new LatLng(0, 0);
-    public Double anomalyRadius =0d;
+    /*public LatLng anomalyCenter = new LatLng(0, 0);
+    public Double anomalyRadius =0d;*/
   //  public int anomalyIndex;
-    public CircleOptions circleOptions;
+   /* public CircleOptions circleOptions;*/
 
     public int ScienceQR;          // не работает или работает?
 
@@ -134,12 +134,12 @@ public class Globals {
         updateBar(BioBar, MaxBio, Bio, BioPercent, CapacityProtectionBio, MaxCapacityProtectionBio, BioCapacityPercent, ProtectionBioArr, BioProtectionPercent, TotalProtectionBio);
         updateBar(PsyBar, MaxPsy, Psy, PsyPercent, CapacityProtectionPsy, MaxCapacityProtectionPsy, PsyCapacityPercent, ProtectionPsyArr, PsyProtectionPercent, TotalProtectionPsy);
 
-        try {
+        /*try {
             circleOptions = new CircleOptions().center(anomalyCenter).radius(anomalyRadius).strokeColor(Color.BLUE).strokeWidth(3).zIndex(Float.MAX_VALUE);
         } catch (Exception e) {
             circleOptions = new CircleOptions().center(new LatLng(0, 0)).radius(0).strokeColor(Color.GREEN).strokeWidth(3).zIndex(Float.MAX_VALUE);
         }
-        Log.d("координаты", String.valueOf(circleOptions.getCenter().latitude));
+        Log.d("координаты", String.valueOf(circleOptions.getCenter().latitude));*/
         // GPS
         TextView textView = CO;
         String stringBuilder = location.getLatitude() +

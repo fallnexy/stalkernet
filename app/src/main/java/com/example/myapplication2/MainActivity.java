@@ -13,25 +13,27 @@ import androidx.viewpager.widget.ViewPager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
 
-import com.example.myapplication2.fragments.ChatTab;
+import com.example.myapplication2.fragments.ParentTab;
 import com.example.myapplication2.fragments.GeneralTab;
 import com.example.myapplication2.fragments.MapOSMTab;
-import com.example.myapplication2.fragments.MapTab;
 import com.example.myapplication2.fragments.PointTab;
 import com.example.myapplication2.fragments.QRTab;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.tabs.TabLayout;
 
-public class MainActivity extends AppCompatActivity implements AnomalyTypeInterface {
+public class MainActivity extends AppCompatActivity implements AnomalyTypeInterface, QuestConfirmInterface{
 
     private boolean FineLocationPermissionGranted;
     private int Fine_Location_RequestCode = 1;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
                 mainLayout.setBackgroundResource(R.drawable.death_0521);
             } else {
                 globals.Health = split[0];
-                mainLayout.setBackgroundResource(R.drawable.fon_0521);
+                mainLayout.setBackgroundResource(R.drawable.fon/*fon_0521*/);
             }
             globals.Rad = split[1];
             globals.Bio = split[2];
@@ -68,25 +70,24 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
             globals.TotalProtectionRad = split[7];
             globals.TotalProtectionBio = split[8];
             globals.TotalProtectionPsy = split[9];
-            try {
+            /*try {
                 globals.anomalyCenter = new LatLng(Double.parseDouble(split[10]), Double.parseDouble(split[11]));
                 globals.anomalyRadius = Double.parseDouble(split[12]);
             } catch (Exception e) {
                 globals.anomalyCenter = new LatLng(0, 0);
                 globals.anomalyRadius = 0d;
             }
-            Log.d("аномалия", String.valueOf(globals.anomalyCenter));
-            globals.CapacityProtectionRad = split[13];
-            globals.MaxCapacityProtectionRad = split[14];
-            globals.CapacityProtectionBio = split[15];
-            globals.MaxCapacityProtectionBio = split[16];
-            globals.CapacityProtectionPsy = split[17];
-            globals.MaxCapacityProtectionPsy = split[18];
-            globals.ProtectionRadArr = split[19];
-            globals.ProtectionBioArr = split[20];
-            globals.ProtectionPsyArr = split[21];
-            globals.MaxProtectionAvailable.setText("Количество разрешенных защит: " + split[22]);
-            //   globals.anomalyIndex = Integer.parseInt(split[13]);
+            Log.d("аномалия", String.valueOf(globals.anomalyCenter));*/
+            globals.CapacityProtectionRad = split[10];
+            globals.MaxCapacityProtectionRad = split[11];
+            globals.CapacityProtectionBio = split[12];
+            globals.MaxCapacityProtectionBio = split[13];
+            globals.CapacityProtectionPsy = split[14];
+            globals.MaxCapacityProtectionPsy = split[15];
+            globals.ProtectionRadArr = split[16];
+            globals.ProtectionBioArr = split[17];
+            globals.ProtectionPsyArr = split[18];
+            globals.MaxProtectionAvailable.setText(getString(R.string.protectionsAmount) + split[19]);
             globals.UpdateStats();
         }
     };
@@ -186,9 +187,40 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
         TabLayout tabLayout = findViewById(R.id.tabs);
         this.mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(this.mViewPager));
-        CheckPermissions(this);
 
+        CheckPermissions(this);
     }
+    /*
+    * Меню три точки
+    * единственный пункт - вибро
+    */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    private boolean isChecked = false;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.app_bar_switch_vibration:
+                isChecked = !item.isChecked();
+                item.setChecked(isChecked);
+
+                Intent intent = new Intent("Command");
+                if (isChecked){
+                    intent.putExtra("Command", "OnVib");
+                } else {
+                    intent.putExtra("Command", "StopVib");
+                }
+                getApplicationContext().sendBroadcast(intent);
+                return true;
+            default:
+                return false;
+        }
+        //return super.onOptionsItemSelected(item);
+    }
+
     //Запуск службы, я надеюсь
     public void onStart(){
         super.onStart();
@@ -235,11 +267,64 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
                 break;
         }
     }
+    /*
+    * Кусок кода про подтверждения выполненного квеста из фрагмента QuestChildFragment в классе QuestAdapter.
+    * Если из диалога приходит true, то менят статус выбранного подквеста на выполненный (true)
+    */
+    @Override
+    public void confirmQuest(String result, String groupPosition, String childPosition) {
+        if (result.equals("true")){
+            DBHelper dbHelper;
+            SQLiteDatabase database;
+            Cursor cursor;
+            dbHelper = new DBHelper(this);
+            database = dbHelper.open();
+            cursor = database.rawQuery("SELECT _id, access_key FROM quest_step WHERE quest_id =?", new String[]{groupPosition});
+            cursor.moveToPosition(Integer.parseInt(childPosition));
+            int position = cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID_QUEST_STEP));
+            ContentValues cv = new ContentValues();
+            cv.put(DBHelper.KEY_STATUS_QUEST_STEP, result);
+            database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID_QUEST_STEP + "=" + position, null);
+            cursor.close();
+            dbHelper.close();
+        }
+
+    }
+
+    @Override
+    public void confirmCreed(String result, String groupPosition, String childPosition) {
+        if (result.equals("true")){
+            DBHelper dbHelper;
+            SQLiteDatabase database;
+            Cursor cursor;
+            dbHelper = new DBHelper(this);
+            database = dbHelper.open();
+            /*cursor = database.rawQuery("SELECT _id, access_key FROM creed_branch WHERE creed_id =?", new String[]{groupPosition});
+            cursor.moveToPosition(Integer.parseInt(childPosition));
+            int position = cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID__CREED_BRANCH));*/
+            ContentValues cv = new ContentValues();
+            cv.put(DBHelper.KEY_STATUS__CREED_BRANCH, result);
+            database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "=" + groupPosition, null);
+
+            cv = new ContentValues();
+            int branch_id = Integer.parseInt(childPosition);
+            cv.put(DBHelper.KEY_ACCESS_STATUS__CREED_BRANCH, "false");
+            if (branch_id == 1){
+                String creed_id_to_false = String.valueOf(Integer.parseInt(groupPosition) + 3);
+                database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "=" + creed_id_to_false, null);
+            } else if (branch_id == 2){
+                String creed_id_to_false = String.valueOf(Integer.parseInt(groupPosition) - 3);
+                database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "=" + creed_id_to_false, null);
+            }
+            //cursor.close();
+            dbHelper.close();
+        }
+    }
 
     //верхние кнопки
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         public int getCount() {
-            return 6;
+            return 5;
         }
 
         public SectionsPagerAdapter(FragmentManager fragmentManager) {
@@ -251,15 +336,13 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
                 case 0:
                     return new GeneralTab(globals);
                 case 1:
-                    return new MapTab(globals);
+                    return new MapOSMTab(globals);
                 case 2:
                     return new PointTab(globals);
                 case 3:
                     return new QRTab(globals);
                 case 4:
-                    return new ChatTab(globals);
-                case 5:
-                    return new MapOSMTab(globals);
+                    return new ParentTab(globals);
                 default:
                     return null;
             }

@@ -268,7 +268,19 @@ public class Anomaly {
                     intent2.putExtra("Message", "G");
                     Service.sendBroadcast(intent2);
                 }
-                AnomalyResult(distanceToAnomaly);
+
+                //
+                // Если не монлоитчик, то применяет аномалию
+                // Если монолитчик и в пси, то восстанавливает здоровье
+                // Уменьшение жизни монолитчику вне пси в статсервисе - говяненько
+                //
+                if (!Service.isMonolith) {
+                    AnomalyResult(distanceToAnomaly);
+                } else if (Service.isMonolith && Type.equals("Psy")) {
+                    Service.setHealth(Service.MaxHealth);
+                }
+
+
                 /*int round;
                 if (this.Type.equals("Rad")) {
                     this.Service.LastTimeHitBy = this.Type;

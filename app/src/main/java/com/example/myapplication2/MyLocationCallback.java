@@ -12,8 +12,11 @@ import com.google.android.gms.location.LocationResult;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import mad.location.manager.lib.Interfaces.LocationServiceInterface;
+import mad.location.manager.lib.Services.ServicesHelper;
+
 //вызывается, когда координаты изменяются
-public class MyLocationCallback extends LocationCallback {
+public class MyLocationCallback extends LocationCallback  implements LocationServiceInterface {
     private Calendar cal = Calendar.getInstance();
     private int Hour = this.cal.get(10);
     private int Minutes = this.cal.get(12);
@@ -24,6 +27,15 @@ public class MyLocationCallback extends LocationCallback {
     public MyLocationCallback(Location location, StatsService statsService) {
         this.MyCurrentLocation = location;
         this.ServiceReference = statsService;
+        ServicesHelper.addLocationServiceInterface(this);
+    }
+
+    @Override
+    public void locationChanged(Location location) {
+        /*MyCurrentLocation.setLatitude(location.getLatitude());
+        MyCurrentLocation.setLongitude(location.getLongitude());
+        Log.d("локация_после", String.valueOf(MyCurrentLocation.getLongitude()));*/
+
     }
 
     public void onLocationResult(LocationResult locationResult) {
@@ -34,6 +46,8 @@ public class MyLocationCallback extends LocationCallback {
             this.MyCurrentLocation.setProvider(location.getProvider());
             this.MyCurrentLocation.setBearing(location.getBearing());
             this.MyCurrentLocation.setAccuracy(location.getAccuracy());
+           // Log.d("локация____до", String.valueOf(MyCurrentLocation.getLongitude()));
+            locationChanged(MyCurrentLocation);
             if (!this.ServiceReference.IsDead && this.ServiceReference.IsUnlocked) {
                 GetTime();
                 TimeToDischarge();
@@ -42,6 +56,7 @@ public class MyLocationCallback extends LocationCallback {
                 ServiceReference.getMovingAnomalies();
                 ServiceReference.CheckAnomalies();
                 ServiceReference.CheckIfInAnyAnomaly();
+                ServiceReference.CheckPsyForMonolith();
                 ServiceReference.GetTime();
 
             }
@@ -69,12 +84,12 @@ public class MyLocationCallback extends LocationCallback {
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.TotalProtection(ServiceReference.PsyProtectionArr));//9
             stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.latLngAnomaly.latitude);//10
+            /*stringBuilder.append(ServiceReference.latLngAnomaly.latitude);//10
             stringBuilder.append(":");
             stringBuilder.append(ServiceReference.latLngAnomaly.longitude);//11
             stringBuilder.append(":");
             stringBuilder.append(ServiceReference.radiusAnomaly);//12
-            stringBuilder.append(":");
+            stringBuilder.append(":");*/
             stringBuilder.append(Arrays.toString(ServiceReference.RadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //13
             stringBuilder.append(":");
             stringBuilder.append(Arrays.toString(ServiceReference.MaxRadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //14
@@ -136,5 +151,6 @@ public class MyLocationCallback extends LocationCallback {
             dischargeTime(9, 13, 37);
         }
     }
+
 
 }

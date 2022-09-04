@@ -1,7 +1,10 @@
 package com.example.myapplication2.fragments;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -16,6 +19,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.myapplication2.CodesQRAndText;
+import com.example.myapplication2.DBHelper;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
 import com.example.myapplication2.barcode.BarcodeCaptureActivity;
@@ -119,33 +123,24 @@ public class QRTab extends Fragment implements View.OnClickListener{
             scienceQR = false;
             pre_scan = true;
             // launch barcode activity.
-            Intent intent = new Intent(v.getContext(), BarcodeCaptureActivity.class);
-            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
-            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
-
-            startActivityForResult(intent, RC_BARCODE_CAPTURE);
         }
         if (v.getId() == R.id.read_barcode) {
             //isScienceQR = false;
             scienceQR = false;
             pre_scan = false;
-            // launch barcode activity.
-            Intent intent = new Intent(v.getContext(), BarcodeCaptureActivity.class);
-            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
-            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
-
-            startActivityForResult(intent, RC_BARCODE_CAPTURE);
         }
         if (v.getId() == R.id.btnScienceQR){
             //isScienceQR = true;
             scienceQR = true;
             //pre_scan = false;
-            Intent intent = new Intent(v.getContext(), BarcodeCaptureActivity.class);
-            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
-            intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
-
-            startActivityForResult(intent, RC_BARCODE_CAPTURE);
         }
+
+        // launch barcode activity.
+        Intent intent = new Intent(v.getContext(), BarcodeCaptureActivity.class);
+        intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
+        intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
+
+        startActivityForResult(intent, RC_BARCODE_CAPTURE);
     }
 
 
@@ -154,7 +149,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
    вВООООООООООООООООТ ЗДЕСЬ
 
    */
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_BARCODE_CAPTURE) {
@@ -165,9 +159,22 @@ public class QRTab extends Fragment implements View.OnClickListener{
                     Intent intent;
                     intent = new Intent("Command");
 
-                    //считывает qr код и в соответствии с case выдает нужный текст
+                    // обновляет БД: ставит статус true в access
+                    makeAccessTrue(DBHelper.TABLE_QUEST, DBHelper.KEY_ACCESS_QUEST, DBHelper.KEY_ACCESS_KEY_QUEST, barcode.displayValue);
+                    makeAccessTrue(DBHelper.TABLE_LOCALITY, DBHelper.KEY_ACCESS_STATUS_LOCALITY, DBHelper.KEY_ACCESS_KEY_LOCALITY, barcode.displayValue);
+                    makeAccessTrue(DBHelper.TABLE_FACTION, DBHelper.KEY_ACCESS_STATUS_FACTION, DBHelper.KEY_ACCESS_KEY_FACTION, barcode.displayValue);
+                    makeAccessTrue(DBHelper.TABLE_QUEST_STEP, DBHelper.KEY_STATUS_QUEST_STEP, DBHelper.KEY_ACCESS_KEY_QUEST_STEP, barcode.displayValue);
 
+                    //считывает qr код и в соответствии с case выдает нужный текст
                     switch (barcode.displayValue){
+                        ////
+                        //// начало 2022 года
+                        ////
+
+
+                        ////
+                        //// конец 2022 года
+                        ////
                         case "наукада":  //включает QR ученого
                             //isScienceQR = true;
                             btnScienceQR.setVisibility(View.VISIBLE);
@@ -218,28 +225,28 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "явсемогущий+":
                             barcodeValue.setText("Неуязвимость включена");
                             intent.putExtra("Command", "God");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "явсемогущий-":
                             barcodeValue.setText("Неуязвимость выключена");
                             intent.putExtra("Command", "noMoreGod");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "чекинвыброс":
                             barcodeValue.setText("Пользователь защищён от выброса на 10 минут.");
                             intent.putExtra("Command", "discharge10BD");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
 
                         case "чнзнает":
                             barcodeValue.setText("Чистое Небо знает путь");
                             intent.putExtra("Command", "dolgDischargeImmunity");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "aperfjbasj":
                             barcodeValue.setText("Боец Чистого Неба показывает вам безопасный путь к базе");
                             intent.putExtra("Command", "clear4");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                             ///////////////////////////////////////////////////////////////////////////////
                             ///////////////////////////////////////////////////////////////////////////////
@@ -248,82 +255,82 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "z1z1ab6fu0kf3ie": // этот и ещё 4 кодов на жизни
                             barcodeValue.setText("Пользователь при смерти. Требуется срочная медицинская помощь.");
                             intent.putExtra("Command", "health5");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "a1a3d8a04e4v97b":
                             barcodeValue.setText("Пользователь в критическом состоянии. Требуется срочная медицинская помощь.");
                             intent.putExtra("Command", "health25");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "xoiu32t19zp0qew":
                             barcodeValue.setText("Пользователь в стабильном состоянии. Обратитесь за квалифицированной помощью при первой возможности.");
                             intent.putExtra("Command", "health50");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "glykfcose20cc46":
                             barcodeValue.setText("Жизненные показатели в пределах нормы.");
                             intent.putExtra("Command", "health75");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "wr73d9dw8uv1tsi":
                             barcodeValue.setText("Пользователь здоров.");
                             intent.putExtra("Command", "health100");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "012zfy971xlsoez": // далее идут различные защиты
                             barcodeValue.setText("Активирована защита костюма от радиационного воздействия.");
                             intent.putExtra("Command", "SetRadProtection100"); // написано, что 100, но на самом деле 90
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "t5izlre4vhdegt0": // это защита и предыдущая используют код от цифровых ключей
                             barcodeValue.setText("Активирована защита костюма от биологического воздействия.");
                             intent.putExtra("Command", "SetBioProtection100"); // написано, что 100, но на самом деле 90
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "1k35ibpbiinxq38":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от радиационного воздействия: нестабильный.");
                             intent.putExtra("Command", "radProt10030");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "ex2jvbswz1wmgyy":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от радиационного воздействия: умеренный.");
                             intent.putExtra("Command", "radProt10060");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "77gnxcdh115bd32":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от радиационного воздействия: надёжный.");
                             intent.putExtra("Command", "radProt10090");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "burx446yy1c6z3p":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от биологического воздействия: нестабильный.");
                             intent.putExtra("Command", "bioProt10030");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "qev1ngqe58yz70r":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от биологического воздействия: умеренный.");
                             intent.putExtra("Command", "bioProt10060");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "r7j2l73s278ty3l":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от биологического воздействия: надёжный.");
                             intent.putExtra("Command", "bioProt10090");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "k6q8g4dstmtzfau":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от воздействия пси-полей: нестабильный.");
                             intent.putExtra("Command", "psyProt10030");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "3q7nd4zssllogyw":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от воздействия пси-полей: умеренный.");
                             intent.putExtra("Command", "psyProt10060");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "876kpgh006m08tx":
                             barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от воздействия пси-полей: надёжный.");
                             intent.putExtra("Command", "psyProt10090");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "dh22ibvye055lq3":
                             barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Устройство зарегистрировано на 10 минут.");
@@ -1014,22 +1021,22 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "ixdpwulpic": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_04);
                             intent.putExtra("Command", "sc1, bio, suit, 80");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "vaxhhgwbob": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_05);
                             intent.putExtra("Command", "sc1, rad, suit, 80");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "fgmkzxrddw": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_06);
                             intent.putExtra("Command", "sc1, bio, suit, 50");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "mtqlvkqorz": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_07);
                             intent.putExtra("Command", "sc1, bio, suit, 25");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "rqxdohhlcs": // здесь и далее установка защит
                             barcodeValue.setText(R.string.protection_21_08);
@@ -1137,6 +1144,33 @@ public class QRTab extends Fragment implements View.OnClickListener{
         else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    // ищет в БД и делает доступной запись в соответствующих фрагментах
+    private void makeAccessTrue(String table, String accessColumn, String accessKeyColumn, String barcodeText) {
+        DBHelper dbHelper;
+        SQLiteDatabase database;
+        ContentValues cv;
+        dbHelper = new DBHelper(getActivity());
+        database = dbHelper.open();
+        cv = new ContentValues();
+        cv.put(accessColumn, "true");
+        database.update(table, cv, accessKeyColumn + "= ?", new String[]{barcodeText});
+
+        // проверяет количество записей в бестиарии: если больше 5, то открывает 2 квест в кредо
+        String creedString = "SELECT * FROM " +
+                "(SELECT l._id, l.access_status FROM locality AS l\n" +
+                "UNION ALL\n" +
+                "SELECT f._id, f.access_status FROM faction AS f)\n" +
+                "WHERE access_status =?";
+        Cursor cursor = database.rawQuery(creedString, new String[]{"true"});
+        if (cursor.getCount() > 4) {
+            cv = new ContentValues();
+            cv.put(DBHelper.KEY_STATUS__CREED_BRANCH, "true");
+            database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "= ?", new String[]{"1"});
+        }
+        cursor.close();
+        database.close();
     }
 
     // отправляет результат рулетки

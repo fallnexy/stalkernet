@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 
-import com.example.myapplication2.fragments.ChatTab;
-
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -60,6 +58,14 @@ public class CodesQRAndText {
         label94: {
 
             intent = new Intent("Command");
+            switch (code){
+                case "пятнистый":
+                    intent.putExtra("Command", "isMonolith");
+                    fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    var1 = -1;
+                    break label94;
+            }
+
             switch(code.hashCode()) {
                 // полное воскрешение со сбросом всех параметров
                 case 1025788929: // гагры

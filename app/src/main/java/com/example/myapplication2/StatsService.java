@@ -135,6 +135,8 @@ public class StatsService extends Service {
     public boolean FreedomDischargeImmunity = false;
     // защита от пси у монолита
     boolean MonolithOk = false;
+    //новый монолит
+    boolean isMonolith = false;
 
     public boolean fastRadPurification = false;
 
@@ -248,6 +250,12 @@ public class StatsService extends Service {
                }
                Log.d("wtf_textCode", var4);
                Toast.makeText(StatsService.this.getApplicationContext(), var4, Toast.LENGTH_LONG).show();
+               switch (var4){
+                   case "isMonolith":
+                       isMonolith = true;
+                       var3 = -1;
+                       break label110;
+               }
                switch(var4.hashCode()) {
                    case 305958064:
                        if (var4.equals("ResetStats")) {
@@ -1577,6 +1585,12 @@ public class StatsService extends Service {
                     var5 = new Intent("StatsService.Message");
                     var5.putExtra("Message", "H");
                     this.sendBroadcast(var5);
+                    break;
+                case -1:
+                    Toast.makeText(this.getApplicationContext(), "Вы умерли", Toast.LENGTH_LONG).show();
+                    var5 = new Intent("StatsService.Message");
+                    var5.putExtra("Message", "H");
+                    this.sendBroadcast(var5);
             }
         }
 
@@ -1622,10 +1636,8 @@ public class StatsService extends Service {
         GetAnomalies();
         CreateSafeZones();
         LoadStats();
-        //Create_super_save_zones();
-        create_nightZones();
-        create_stalkers_zones_in();
-        create_constantZones();
+
+
         this.mFusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
         //startForeground(101, new Builder(this, Build.VERSION.SDK_INT >= 26 ? createNotificationChannel((NotificationManager) getSystemService("notification")) : "").setOngoing(true).setSmallIcon(R.drawable.ic_launcher_background).setPriority(1).setCategory("service").setContentTitle("StatsService").setContentText("Stats are being updated.").build());
         if (Build.VERSION.SDK_INT >= 26) {
@@ -1750,10 +1762,10 @@ public class StatsService extends Service {
             int boolShow = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOWABLE);
             do {
                 if (!cursor.getString(type).equals("")) {
-                    anomalyArr[cursor.getInt(idIndex)-1] = new Anomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
-                    anomalyArr[cursor.getInt(idIndex)-1].minstrenght = cursor.getDouble(minPower);
+                    anomalyArr[cursor.getInt(idIndex) - 1] = new Anomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
+                    anomalyArr[cursor.getInt(idIndex) - 1].minstrenght = cursor.getDouble(minPower);
                 } else{
-                    anomalyArr[cursor.getInt(idIndex)-1] = new MonolithAnomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
+                    anomalyArr[cursor.getInt(idIndex) - 1] = new MonolithAnomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
 
                 }
 
@@ -1922,11 +1934,19 @@ public class StatsService extends Service {
 */
     }
 
+    public void CheckPsyForMonolith(){
+        if (isMonolith && IS_ANOMALIES_AVAILABLE){
+            double d = Health - 100;
+            setHealth(d);
+        }
+    }
+
+
     // применяет аномалии
     // вызывается в MyLocationCallback()
     public void CheckAnomalies() {
         Anomaly anomaly;
-        if (IS_ANOMALIES_AVAILABLE && !isInSuperSaveZone) {
+        if (IS_ANOMALIES_AVAILABLE && !isInSuperSaveZone && !isMonolith) {
             long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
             // постоянные аномалии
             if (timeInSeconds > dayFirst) { // 6 сентября в 17:00
@@ -1944,7 +1964,7 @@ public class StatsService extends Service {
 
             }
             // с 6 сентября в 17:00
-/*            CheckAnomaliesRegular(dayFirst, daySecond, 12, 34);
+         /*   CheckAnomaliesRegular(dayFirst, daySecond, 12, 34);
             // c 7 сентября в 17:23
             CheckAnomaliesRegular(daySecond, dayThird, 12, 46);
             // c 8 сентября в 10:47
@@ -1952,6 +1972,7 @@ public class StatsService extends Service {
             // c 9 сентября в 13:37
             CheckAnomaliesRegular(dayFourth, (dayFourth + dayFourth), 78, 109);*/
         }
+
     }
 
     public void CheckAnomaliesRegular(long timeStart, long timeFinish, int anomalyStart, int anomalyFinish){
@@ -2087,142 +2108,11 @@ public class StatsService extends Service {
 
 
 
-    LatLng[] nightZones = new LatLng[12];
-    public void create_nightZones(){
-        LatLng[] latLngs = new LatLng[12];
-        latLngs[0] = new LatLng(64.35635328466024d, 40.740526559484145d);// ночные
-        latLngs[1] = new LatLng(64.35648749695677d, 40.74024632672407d);//
-        latLngs[2] = new LatLng(64.35662201786853d, 40.7399589942588d);//
-        latLngs[3] = new LatLng(64.3567484782622d, 40.73967596773043d);// ночные
-        latLngs[4] = new LatLng(64.35190461794156d, 40.740989107818386d);//ночные
-        latLngs[5] = new LatLng(64.35186262065666d, 40.74058758789669d);// ночные
-        latLngs[6] = new LatLng(64.3517975167356d, 40.74019942527292d);// ночные
-        latLngs[7] = new LatLng(64.3548623948148d, 40.73747803747212d);// ночные
-        latLngs[8] = new LatLng(64.35479771816406d, 40.73709830414507d);// ночные
-        latLngs[9] = new LatLng(64.35279819399817d, 40.73884715079873d);//ночная
-        latLngs[10] = new LatLng(64.35597785931614d, 40.73796221719635d);
-        latLngs[11] = new LatLng(64.35606751644602d, 40.73759465692494d);
-        nightZones = latLngs;
-    }
-    LatLng[] constantZones = new LatLng[2];
-    public void create_constantZones(){
-        LatLng[] latLngs = new LatLng[2];
-        latLngs[0] = new LatLng(64.352410d, 40.739851d);//
-        latLngs[1] = new LatLng(64.352406d, 40.739431d);//
-        constantZones = latLngs;
-    }
-    LatLng[] stalkers_save_zones_in = new LatLng[96];
-    public void create_stalkers_zones_in(){
-        LatLng[] latLngs = new LatLng[96];
-        latLngs[0] = new LatLng(64.354129d, 40.743913d);// кпп и далее к выходу
-        latLngs[1] = new LatLng(64.354235d, 40.744258d);
-        latLngs[2] = new LatLng(64.35432521220459d, 40.74460558362928d);
-        latLngs[3] = new LatLng(64.35445293046173d, 40.744923831508146d);
-        latLngs[4] = new LatLng(64.3545824026996d, 40.745214162825555d);
-        latLngs[5] = new LatLng(64.35472209740922d, 40.74546291301759d);
-        latLngs[6] = new LatLng(64.35489346502892d, 40.745582845300504d);
-        latLngs[7] = new LatLng(64.35500782797686d, 40.74526722512475d);
-        latLngs[8] = new LatLng(64.35507067122896d, 40.74488372241825d);
-        latLngs[9] = new LatLng(64.35513902594106d, 40.74451641974487d);
-        latLngs[10] = new LatLng(64.3552087889606d, 40.74412309924951d);
-        latLngs[11] = new LatLng(64.3552827954611d, 40.743742309081476d);
-        latLngs[12] = new LatLng(64.35534417931994d, 40.74335453065853d);
-        latLngs[13] = new LatLng(64.35541176405508d, 40.74296775537176d);
-        latLngs[14] = new LatLng(64.35555348581504d, 40.742687429518696d);
-        latLngs[15] = new LatLng(64.35563584135113d, 40.742319967224745d);
-        latLngs[16] = new LatLng(64.3557006595403d, 40.74194897608368d);
-        latLngs[17] = new LatLng(64.3558133075042d, 40.74161370149263d);
-        latLngs[18] = new LatLng(64.35595448110925d, 40.74133608438898d);
-        latLngs[19] = new LatLng(64.35609017983464d, 40.74107015979084d);
-        latLngs[20] = new LatLng(64.35624275507247d, 40.74082160943004d);
-
-        latLngs[21] = new LatLng(64.35295356108362d, 40.7434670952109d); //толчек у монолита
-        latLngs[22] = new LatLng(64.35280265443103d, 40.74370276887028d);
-        latLngs[23] = new LatLng(64.3526529104659d, 40.74394533079032d);
-        latLngs[24] = new LatLng(64.35247292472532d, 40.74397037100172d);
-        latLngs[25] = new LatLng(64.35234879448167d, 40.74365386149042d);
-        latLngs[26] = new LatLng(64.35225051500136d, 40.7433202479478d);
-        latLngs[27] = new LatLng(64.3521427267776d, 40.74298846111945d);
-        latLngs[28] = new LatLng(64.35208781625262d, 40.74256105302851d);
-        latLngs[29] = new LatLng(64.35206614369244d, 40.742176031451784d);
-        latLngs[30] = new LatLng(64.35203133624847d, 40.74175692849512d);
-        latLngs[31] = new LatLng(64.3519613993229d, 40.741380966909865d);
-
-        latLngs[32] = new LatLng(64.35276759841277d, 40.74260360547909d); // путь военных
-        latLngs[33] = new LatLng(64.35269821146606d, 40.742199371531434d);
-        latLngs[34] = new LatLng(64.35259972068465d, 40.741861999009714d);
-        latLngs[35] = new LatLng(64.35251103312895d, 40.741499425573956d);
-        latLngs[36] = new LatLng(64.35247640158082d, 40.74108919460003d);
-        latLngs[37] = new LatLng(64.35243869370726d, 40.74068559251896d);
-        latLngs[38] = new LatLng(64.35242336435232d, 40.740270397903735d);
-
-        latLngs[39] = new LatLng(64.35317903326629d, 40.74211621986506d); // самый жирный
-        latLngs[40] = new LatLng(64.3530676855036d, 40.74177850748372d);
-        latLngs[41] = new LatLng(64.35307759043815d, 40.74136361752823d);
-        latLngs[42] = new LatLng(64.35311559862588d, 40.740947540217554d);
-        latLngs[43] = new LatLng(64.35320833036639d, 40.7406033580693d);
-        latLngs[44] = new LatLng(64.3533427514016d, 40.74088981008373d);
-        latLngs[45] = new LatLng(64.3534273880053d, 40.74125741173395d);
-        latLngs[46] = new LatLng(64.3535272506385d, 40.7416104341624d);
-        latLngs[47] = new LatLng(64.35369931415698d, 40.74167856221654d);
-        latLngs[48] = new LatLng(64.35385106807306d, 40.741420371104475d);
-        latLngs[49] = new LatLng(64.35399244102797d, 40.74117024644733d);
-        latLngs[50] = new LatLng(64.35399947701931d, 40.740757545914946d);
-        latLngs[51] = new LatLng(64.35413600828822d, 40.74047520189392d);
-        latLngs[52] = new LatLng(64.35431770759529d, 40.74047530249902d);
-        latLngs[53] = new LatLng(64.35448818768883d, 40.74060662377004d);
-        latLngs[54] = new LatLng(64.3546205550841d, 40.740366451897d);
-        latLngs[55] = new LatLng(64.35463945956784d, 40.73993880157785d);
-        latLngs[56] = new LatLng(64.35465628840566d, 40.739523336212606d);
-        latLngs[57] = new LatLng(64.35468482593951d, 40.73910560830513d);
-        latLngs[58] = new LatLng(64.35483549689444d, 40.738899002714625d);
-        latLngs[59] = new LatLng(64.354993892013d, 40.73867466493646d);
-        latLngs[60] = new LatLng(64.35498453249937d, 40.7382720979003d);
-        latLngs[61] = new LatLng(64.35492709824331d, 40.7378803923697d);
-
-        latLngs[62] = new LatLng(64.35289419918085d, 40.74006914469832d);//самая короткая
-        latLngs[63] = new LatLng(64.35282882522654d, 40.73965389027957d);
-        latLngs[64] = new LatLng(64.35281241378898d, 40.739259701118684d);
-
-        latLngs[65] = new LatLng(64.35327464552576d, 40.74278657071493d); // самая важная
-        latLngs[66] = new LatLng(64.35338909350193d, 40.74310977309313d);
-        latLngs[67] = new LatLng(64.35339042102528d, 40.742703076129935d);
-        latLngs[68] = new LatLng(64.35357354817818d, 40.74276856634414d);
-        latLngs[69] = new LatLng(64.35374926753758d, 40.74276936833783d);
-        latLngs[70] = new LatLng(64.35392842206795d, 40.74275131202157d);
-        latLngs[71] = new LatLng(64.35406736165523d, 40.74247493169485d);
-        latLngs[72] = new LatLng(64.35424611985239d, 40.7425261775552d);
-        latLngs[73] = new LatLng(64.35442159914702d, 40.74253051689229d);
-        latLngs[74] = new LatLng(64.35459589159377d, 40.74244715268726d);
-        latLngs[75] = new LatLng(64.35473228695206d, 40.7421457820547d);
-        latLngs[76] = new LatLng(64.35474349130439d, 40.74172442186285d);
-        latLngs[77] = new LatLng(64.35474117057692d, 40.741743502867166);
-        latLngs[78] = new LatLng(64.35480112579775d, 40.741346431397666d);
-        latLngs[79] = new LatLng(64.35492614666789d, 40.741040636954516d);
-        latLngs[80] = new LatLng(64.3550648535183d, 40.740787868746104d);
-        latLngs[81] = new LatLng(64.35523643165064d, 40.74092887045961d);
-        latLngs[82] = new LatLng(64.35535259212864d, 40.740618210093004d);
-        latLngs[83] = new LatLng(64.35538887008047d, 40.740199498863824d);
-        latLngs[84] = new LatLng(64.35546413114129d, 40.73981468710406d);
-        latLngs[85] = new LatLng(64.35556608591283d, 40.739482952991544d);
-        latLngs[86] = new LatLng(64.35566787403617d, 40.739141199432446d);
-        latLngs[87] = new LatLng(64.35562164086585d, 40.73873399434004d);
-        latLngs[88] = new LatLng(64.35566212114979d, 40.7383278893475d);
-        latLngs[89] = new LatLng(64.3558329544728d, 40.738182241545026d);
-        latLngs[90] = new LatLng(64.35471398517412d, 40.74072987952912d);//отворотки
-        latLngs[91] = new LatLng(64.3540625268518d, 40.74008438658268d);//отворотки
-        latLngs[92] = new LatLng(64.35388053787214d, 40.74008035258441d);//отворотки
-        latLngs[93] = new LatLng(64.35511363345678d, 40.7435522554439d);//отворотки
-        latLngs[94] = new LatLng(64.35499368143708d, 40.74324220074001d);//отворотки
-        latLngs[95] = new LatLng(64.35366985130402d, 40.74305883740328d);//
-        stalkers_save_zones_in = latLngs;
-    }
-
     public boolean isInSuperSaveZone = false;
     public void Super_save_zone_check(){
         isInSuperSaveZone = false;
         if (((Calendar.getInstance().getTimeInMillis() / 1000) >= dayFirst) /*&& ((Calendar.getInstance().getTimeInMillis() / 1000) <= (checkTime_in + 3600))*/){
-            if (Hour >= 20 || Hour <= 4) {
+/*            if (Hour >= 20 || Hour <= 4) {
                 for (LatLng latLng : nightZones){
                     Location location = new Location("GPS");
                     location.setLatitude(latLng.latitude);
@@ -2232,25 +2122,7 @@ public class StatsService extends Service {
                     }
 
                 }
-            }
-            for (LatLng latLng : stalkers_save_zones_in){
-                Location location = new Location("GPS");
-                location.setLatitude(latLng.latitude);
-                location.setLongitude(latLng.longitude);
-                if (location.distanceTo(MyCurrentLocation) <= 17){
-                    isInSuperSaveZone = true;
-                }
-
-            }
-            for (LatLng latLng : constantZones){
-                Location location = new Location("GPS");
-                location.setLatitude(latLng.latitude);
-                location.setLongitude(latLng.longitude);
-                if (location.distanceTo(MyCurrentLocation) <= 17){
-                    isInSuperSaveZone = true;
-                }
-
-            }
+            }*/
         }
     }
 
@@ -2333,6 +2205,7 @@ public class StatsService extends Service {
         this.FreedomDischargeImmunity = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("NaemnikiDischargeImmunity", "false")));
         this.fastRadPurification = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("fastRadPurification", "false")));
         this.MonolithOk = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("MonolithOk", "false")));
+        this.isMonolith = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("isMonolith", "false")));
     }
 
     public void SaveStats() {
@@ -2362,6 +2235,7 @@ public class StatsService extends Service {
         edit.putString("NaemnikiDischargeImmunity", Boolean.toString(this.FreedomDischargeImmunity));
         edit.putString("fastRadPurification", Boolean.toString(this.fastRadPurification));
         edit.putString("MonolithOk", Boolean.toString(this.MonolithOk));
+        edit.putString("isMonolith", Boolean.toString(this.isMonolith));
         edit.apply();
     }
 }
