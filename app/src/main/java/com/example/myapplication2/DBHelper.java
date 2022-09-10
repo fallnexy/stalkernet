@@ -30,8 +30,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_QUEST_STEP = "quest_step"; // сделанная на пк таблица в stalker.db
     public static final String TABLE_CREED = "creed"; // сделанная на пк таблица в stalker.db
     public static final String TABLE_CREED_BRANCH = "creed_branch"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_PERSON = "person"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_MONSTER = "monster"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_ARTEFACT = "artefact"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_MILESTONE = "milestone"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_ITEM = "item"; // сделанная на пк таблица в stalker.db
+
     // таблицы-костыли для expandableView
     public static final String TABLE_TABLE_OF_TABLES = "table_of_tables"; // сделанная на пк таблица в stalker.db
+
+
     // таблица table_of_tables
     public static final String KEY_ID_TABLE_OF_TABLES = "_id";
     public static final String KEY_NAME_TABLE_OF_TABLES = "table_name";
@@ -53,7 +61,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_BOOL_SHOW_ON_MAP = "bool_show_on_map";
 
 
-
     // таблица locality
     public static final String KEY_ID_LOCALITY = "_id";
     public static final String KEY_NAME_LOCALITY = "name";
@@ -62,7 +69,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_LONGITUDE_LOCALITY = "longitude";
     public static final String KEY_ACCESS_STATUS_LOCALITY = "access_status";
     public static final String KEY_ACCESS_KEY_LOCALITY = "access_key";
-    public static final String KEY_IMAGE_PATH_LOCALITY = "image_path";
+    public static final String KEY_IMAGE_LOCALITY = "image";
     public static final String KEY_KOSTYL_LOCALITY = "kostyl";
 
 
@@ -75,7 +82,58 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_LONGITUDE_FACTION = "longitude";
     public static final String KEY_ACCESS_STATUS_FACTION = "access_status";
     public static final String KEY_ACCESS_KEY_FACTION = "access_key";
+    public static final String KEY_IMAGE_FACTION = "image";
     public static final String KEY_KOSTYL_FACTION = "kostyl";
+
+
+    // таблица person
+    public static final String KEY_ID__PERSON = "_id";
+    public static final String KEY_NAME__PERSON = "name";
+    public static final String KEY_DESCRIPTION__PERSON = "description";
+    public static final String KEY_LOCALITY_ID__PERSON = "locality_id";
+    public static final String KEY_FACTION_ID__PERSON = "faction_id";
+    public static final String KEY_FACTION_POSITION__PERSON = "faction_position";
+    public static final String KEY_ACCESS_STATUS__PERSON = "access_status";
+    public static final String KEY_ACCESS_KEY__PERSON = "access_key";
+    public static final String KEY_IMAGE__PERSON = "image";
+    public static final String KEY_KOSTYL__PERSON = "kostyl";
+
+
+    // таблица monster
+    public static final String KEY_ID__MONSTER = "_id";
+    public static final String KEY_NAME__MONSTER = "name";
+    public static final String KEY_DESCRIPTION__MONSTER = "description";
+    public static final String KEY_ACCESS_STATUS__MONSTER = "access_status";
+    public static final String KEY_ACCESS_KEY__MONSTER = "access_key";
+    public static final String KEY_IMAGE__MONSTER = "image";
+    public static final String KEY_KOSTYL__MONSTER = "kostyl";
+
+
+    // таблица artefact
+    public static final String KEY_ID__ARTEFACT = "_id";
+    public static final String KEY_NAME__ARTEFACT = "name";
+    public static final String KEY_DESCRIPTION__ARTEFACT = "description";
+    public static final String KEY_VZAIMODEISTVIE__ARTEFACT = "vzaimodeistvie";
+    public static final String KEY_ACCESS_STATUS__ARTEFACT = "access_status";
+    public static final String KEY_ACCESS_KEY__ARTEFACT = "access_key";
+    public static final String KEY_IMAGE__ARTEFACT = "image";
+    public static final String KEY_KOSTYL__ARTEFACT = "kostyl";
+
+    // таблица milestone
+    public static final String KEY_ID__MILESTONE = "_id";
+    public static final String KEY_NAME__MILESTONE = "name";
+    public static final String KEY_DESCRIPTION__MILESTONE = "description";
+    public static final String KEY_ACCESS_STATUS__MILESTONE = "access_status";
+    public static final String KEY_ACCESS_KEY__MILESTONE = "access_key";
+    public static final String KEY_IMAGE__MILESTONE = "image";
+    public static final String KEY_KOSTYL__MILESTONE = "kostyl";
+
+    // таблица item
+    public static final String KEY_ID__ITEM = "_id";
+    public static final String KEY_NAME__ITEM = "name";
+    public static final String KEY_DESCRIPTION__ITEM = "description";
+    public static final String KEY_VZAIMODEISTVIE__ITEM = "vzaimodeistvie";
+    public static final String KEY_ACCESS_KEY__ITEM = "access_key";
 
     // таблица quest
     public static final String KEY_ID_QUEST = "_id";

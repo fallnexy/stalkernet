@@ -11,39 +11,24 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
 
 import com.example.myapplication2.DBHelper;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.events.MapListener;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.GroundOverlay;
-import org.osmdroid.views.overlay.GroundOverlay2;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
@@ -51,11 +36,7 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import static java.util.Calendar.HOUR_OF_DAY;
+import androidx.fragment.app.Fragment;
 
 public class MapOSMTab extends Fragment {
 
@@ -79,7 +60,11 @@ public class MapOSMTab extends Fragment {
     BroadcastReceiver broadcastReceiverCircle = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            drawCirceAnomaly();
+
+
+                drawCirceAnomaly();
+
+
         }
     };
 
@@ -113,25 +98,21 @@ public class MapOSMTab extends Fragment {
         // карта около Адмиралтейской
         //Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.mapadm6);
         // карта МАйдан
-        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2021);
+        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_2022);
         GroundOverlay overlay = new GroundOverlay();
         overlay.setTransparency(0f);
         overlay.setImage(currentMap);
         // адмиралтейская
         //overlay.setPosition(new GeoPoint(64.574154d, 40.518798d), new GeoPoint( 64.573228d, 40.514540d));
         // майдан
-        overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.34758838, 40.75284205));
+        overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.347312, 40.75284205));
         map.getOverlayManager().add(overlay);
 
         // возможность ставить маркеры на карту
         mapEventsOverlay = new MapEventsOverlay(mapEventsReceiver);
         map.getOverlays().add(mapEventsOverlay);
         // рисует маркеры из БД на карте
-        try {
-            drawMarkers();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
+        drawMarkers();
         //
         // показывает мое местоположение
         MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),map);
@@ -139,13 +120,57 @@ public class MapOSMTab extends Fragment {
         map.getOverlays().add(mLocationOverlay);
         // создаем круглые аномалии
         createCircleAnomaly (getNumberOfAnomalies());
+
+        CreateSafeZones();
         // Inflate the layout for this fragment
         return inflate;
     }
 
+    public Polygon[] SafeZones;
+    public void CreateSafeZones() {
+        Polygon[] safeZoneArr = new Polygon[5];
+        safeZoneArr[0] = new Polygon();
+        safeZoneArr[0].getOutlinePaint().setStrokeWidth(2);
+        safeZoneArr[0].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.351080d, 40.736224d), 50.0d));//свобода
+        safeZoneArr[0].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
+        map.getOverlayManager().add(safeZoneArr[0]);
+        safeZoneArr[1] = new Polygon();
+        safeZoneArr[1].getOutlinePaint().setStrokeWidth(2);
+        safeZoneArr[1].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.357220d, 40.721517d), 100.0d));//денисовичи
+        safeZoneArr[1].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
+        map.getOverlayManager().add(safeZoneArr[1]);
+        safeZoneArr[2] = new Polygon();
+        safeZoneArr[2].getOutlinePaint().setStrokeWidth(2);
+        safeZoneArr[2].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.351663d, 40.727578d), 40.0d));//гараж
+        safeZoneArr[2].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
+        map.getOverlayManager().add(safeZoneArr[2]);
+        safeZoneArr[3] = new Polygon();
+        safeZoneArr[3].getOutlinePaint().setStrokeWidth(2);
+        safeZoneArr[3].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.349906d, 40.725957d), 40.0d));// у озера
+        safeZoneArr[3].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
+        map.getOverlayManager().add(safeZoneArr[3]);
+        safeZoneArr[4] = new Polygon();
+        safeZoneArr[4].getOutlinePaint().setStrokeWidth(2);
+        safeZoneArr[4].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.358117d, 40.722426d), 40.0d));// опять денисовичи
+        safeZoneArr[4].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
+        map.getOverlayManager().add(safeZoneArr[4]);
+        this.SafeZones = safeZoneArr;
+    }
+
+
+
     @Override
     public void onResume() {
         super.onResume();
+        // создаем круглые аномалии
+
+        try {
+            createCircleAnomaly (getNumberOfAnomalies());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         getActivity().registerReceiver(broadcastReceiverCircle, new IntentFilter("MapTab.Circle"));
         map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
     }
@@ -298,6 +323,14 @@ public class MapOSMTab extends Fragment {
                     case "Psy":
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1E0011ff")); //set fill color
                         circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#0011ff"));
+                        break;
+                    case "Ges":
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1E58585c")); //set fill color
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#58585c"));
+                        break;
+                    case "Oas":
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1Ef227e1")); //set fill color
+                        circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#f227e1"));
                         break;
                     default:
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1EFFE70E")); //set fill color

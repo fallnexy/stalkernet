@@ -84,94 +84,103 @@ public class Anomaly {
         double[] result;
         switch (Type){
             case "Rad":
-                if (Service.RadProtectionArr[2] > 0) {
-                    result = CheckAndApplyCapacity(Service.RadProtectionArr[2], Service.RadProtectionCapacityArr[2], Service.MaxRadProtectionCapacityArr[2],
-                            Service.TotalProtection(Service.RadProtectionArr), damage);
-                    Service.RadProtectionArr[2] = result[0];
-                    Service.RadProtectionCapacityArr[2] = result[1];
-                    Service.MaxRadProtectionCapacityArr[2] = result[2];
-                } else if (Service.RadProtectionArr[1] > 0) {
-                    result = CheckAndApplyCapacity(Service.RadProtectionArr[1], Service.RadProtectionCapacityArr[1], Service.MaxRadProtectionCapacityArr[1],
-                            Service.TotalProtection(Service.RadProtectionArr), damage);
-                    Service.RadProtectionArr[1] = result[0];
-                    Service.RadProtectionCapacityArr[1] = result[1];
-                    Service.MaxRadProtectionCapacityArr[1] = result[2];
-                } else if (Service.RadProtectionArr[0] > 0){
-                    result = CheckAndApplyCapacity(Service.RadProtectionArr[0], Service.RadProtectionCapacityArr[0], Service.MaxRadProtectionCapacityArr[0],
-                            Service.TotalProtection(Service.RadProtectionArr), damage);
-                    Service.RadProtectionArr[0] = result[0];
-                    Service.RadProtectionCapacityArr[0] = result[1];
-                    Service.MaxRadProtectionCapacityArr[0] = result[2];
-                }
+                damage = damage * (1 - Service.RadProtectionTot * 0.01);
+                if (damage > 0) {
+                    if (Service.RadProtectionArr[2] > 0) {
+                        result = CheckAndApplyCapacity(Service.RadProtectionArr[2], Service.RadProtectionCapacityArr[2], Service.MaxRadProtectionCapacityArr[2],
+                                Service.TotalProtection(Service.RadProtectionArr), damage);
+                        Service.RadProtectionArr[2] = result[0];
+                        Service.RadProtectionCapacityArr[2] = result[1];
+                        Service.MaxRadProtectionCapacityArr[2] = result[2];
+                    } else if (Service.RadProtectionArr[1] > 0) {
+                        result = CheckAndApplyCapacity(Service.RadProtectionArr[1], Service.RadProtectionCapacityArr[1], Service.MaxRadProtectionCapacityArr[1],
+                                Service.TotalProtection(Service.RadProtectionArr), damage);
+                        Service.RadProtectionArr[1] = result[0];
+                        Service.RadProtectionCapacityArr[1] = result[1];
+                        Service.MaxRadProtectionCapacityArr[1] = result[2];
+                    } else if (Service.RadProtectionArr[0] > 0){
+                        result = CheckAndApplyCapacity(Service.RadProtectionArr[0], Service.RadProtectionCapacityArr[0], Service.MaxRadProtectionCapacityArr[0],
+                                Service.TotalProtection(Service.RadProtectionArr), damage);
+                        Service.RadProtectionArr[0] = result[0];
+                        Service.RadProtectionCapacityArr[0] = result[1];
+                        Service.MaxRadProtectionCapacityArr[0] = result[2];
+                    }
 
-                Service.Rad += damage * (1 - Service.TotalProtection(Service.RadProtectionArr) / 100d);
-                Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.RadProtectionArr) / 100d));
-                if (Service.Rad >= 1000.0d) {
-                    Service.setDead(Boolean.TRUE);
-                    Service.setHealth(0.0d);
-                    Intent intent2 = new Intent("StatsService.Message");
-                    intent2.putExtra("Message", "H");
-                    Service.sendBroadcast(intent2);
+                    Service.Rad += damage * (1 - Service.TotalProtection(Service.RadProtectionArr) / 100d);
+                    Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.RadProtectionArr) / 100d));
+                    if (Service.Rad >= 1000.0d) {
+                        Service.setDead(Boolean.TRUE);
+                        Service.setHealth(0.0d);
+                        Intent intent2 = new Intent("StatsService.Message");
+                        intent2.putExtra("Message", "H");
+                        Service.sendBroadcast(intent2);
+                    }
                 }
                 return;
             case "Bio":
-                if (Service.BioProtectionArr[2] > 0) {
-                    result = CheckAndApplyCapacity(Service.BioProtectionArr[2], Service.BioProtectionCapacityArr[2], Service.MaxBioProtectionCapacityArr[2],
-                            Service.TotalProtection(Service.BioProtectionArr), damage);
-                    Service.BioProtectionArr[2] = result[0];
-                    Service.BioProtectionCapacityArr[2] = result[1];
-                    Service.MaxBioProtectionCapacityArr[2] = result[2];
-                } else if (Service.BioProtectionArr[1] > 0) {
-                    result = CheckAndApplyCapacity(Service.BioProtectionArr[1], Service.BioProtectionCapacityArr[1], Service.MaxBioProtectionCapacityArr[1],
-                            Service.TotalProtection(Service.BioProtectionArr), damage);
-                    Service.BioProtectionArr[1] = result[0];
-                    Service.BioProtectionCapacityArr[1] = result[1];
-                    Service.MaxBioProtectionCapacityArr[1] = result[2];
-                } else if (Service.BioProtectionArr[0] > 0){
-                    result = CheckAndApplyCapacity(Service.BioProtectionArr[0], Service.BioProtectionCapacityArr[0], Service.MaxBioProtectionCapacityArr[0],
-                            Service.TotalProtection(Service.BioProtectionArr), damage);
-                    Service.BioProtectionArr[0] = result[0];
-                    Service.BioProtectionCapacityArr[0] = result[1];
-                    Service.MaxBioProtectionCapacityArr[0] = result[2];
-                }
-                Service.Bio += damage * (1 - Service.TotalProtection(Service.BioProtectionArr) / 100d);
-                Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.BioProtectionArr) / 100d));
-                if (Service.Bio >= 1000.0d) {
-                    Service.setDead(Boolean.TRUE);
-                    Service.setHealth(0.0d);
-                    Intent intent2 = new Intent("StatsService.Message");
-                    intent2.putExtra("Message", "P");
-                    Service.sendBroadcast(intent2);
+                damage = damage * (1 - Service.BioProtectionTot * 0.01);
+                if (damage >0) {
+                    if (Service.BioProtectionArr[2] > 0) {
+                        result = CheckAndApplyCapacity(Service.BioProtectionArr[2], Service.BioProtectionCapacityArr[2], Service.MaxBioProtectionCapacityArr[2],
+                                Service.TotalProtection(Service.BioProtectionArr), damage);
+                        Service.BioProtectionArr[2] = result[0];
+                        Service.BioProtectionCapacityArr[2] = result[1];
+                        Service.MaxBioProtectionCapacityArr[2] = result[2];
+                    } else if (Service.BioProtectionArr[1] > 0) {
+                        result = CheckAndApplyCapacity(Service.BioProtectionArr[1], Service.BioProtectionCapacityArr[1], Service.MaxBioProtectionCapacityArr[1],
+                                Service.TotalProtection(Service.BioProtectionArr), damage);
+                        Service.BioProtectionArr[1] = result[0];
+                        Service.BioProtectionCapacityArr[1] = result[1];
+                        Service.MaxBioProtectionCapacityArr[1] = result[2];
+                    } else if (Service.BioProtectionArr[0] > 0){
+                        result = CheckAndApplyCapacity(Service.BioProtectionArr[0], Service.BioProtectionCapacityArr[0], Service.MaxBioProtectionCapacityArr[0],
+                                Service.TotalProtection(Service.BioProtectionArr), damage);
+                        Service.BioProtectionArr[0] = result[0];
+                        Service.BioProtectionCapacityArr[0] = result[1];
+                        Service.MaxBioProtectionCapacityArr[0] = result[2];
+                    }
+                    Service.Bio += damage * (1 - Service.TotalProtection(Service.BioProtectionArr) / 100d);
+                    Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.BioProtectionArr) / 100d));
+                    if (Service.Bio >= 1000.0d) {
+                        Service.setDead(Boolean.TRUE);
+                        Service.setHealth(0.0d);
+                        Intent intent2 = new Intent("StatsService.Message");
+                        intent2.putExtra("Message", "P");
+                        Service.sendBroadcast(intent2);
+                    }
                 }
                 return;
             case "Psy":
-                if (Service.PsyProtectionArr[2] > 0) {
-                    result = CheckAndApplyCapacity(Service.PsyProtectionArr[2], Service.PsyProtectionCapacityArr[2], Service.MaxPsyProtectionCapacityArr[2],
-                            Service.TotalProtection(Service.PsyProtectionArr), damage);
-                    Service.PsyProtectionArr[2] = result[0];
-                    Service.PsyProtectionCapacityArr[2] = result[1];
-                    Service.MaxPsyProtectionCapacityArr[2] = result[2];
-                } else if (Service.PsyProtectionArr[1] > 0) {
-                    result = CheckAndApplyCapacity(Service.PsyProtectionArr[1], Service.PsyProtectionCapacityArr[1], Service.MaxPsyProtectionCapacityArr[1],
-                            Service.TotalProtection(Service.PsyProtectionArr), damage);
-                    Service.PsyProtectionArr[1] = result[0];
-                    Service.PsyProtectionCapacityArr[1] = result[1];
-                    Service.MaxPsyProtectionCapacityArr[1] = result[2];
-                } else if (Service.PsyProtectionArr[0] > 0){
-                    result = CheckAndApplyCapacity(Service.PsyProtectionArr[0], Service.PsyProtectionCapacityArr[0], Service.MaxPsyProtectionCapacityArr[0],
-                            Service.TotalProtection(Service.PsyProtectionArr), damage);
-                    Service.PsyProtectionArr[0] = result[0];
-                    Service.PsyProtectionCapacityArr[0] = result[1];
-                    Service.MaxPsyProtectionCapacityArr[0] = result[2];
-                }
-                Service.Psy += damage * (1 - Service.TotalProtection(Service.PsyProtectionArr) / 100d);
-                Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.PsyProtectionArr) / 100d));
-                if (Service.Psy >= 1000.0d) {
-                    Service.setDead(Boolean.TRUE);
-                    Service.setHealth(0.0d);
-                    Intent intent2 = new Intent("StatsService.Message");
-                    intent2.putExtra("Message", "P");
-                    Service.sendBroadcast(intent2);
+                damage = damage * (1 - Service.PsyProtectionTot * 0.01);
+                if (damage > 0) {
+                    if (Service.PsyProtectionArr[2] > 0) {
+                        result = CheckAndApplyCapacity(Service.PsyProtectionArr[2], Service.PsyProtectionCapacityArr[2], Service.MaxPsyProtectionCapacityArr[2],
+                                Service.TotalProtection(Service.PsyProtectionArr), damage);
+                        Service.PsyProtectionArr[2] = result[0];
+                        Service.PsyProtectionCapacityArr[2] = result[1];
+                        Service.MaxPsyProtectionCapacityArr[2] = result[2];
+                    } else if (Service.PsyProtectionArr[1] > 0) {
+                        result = CheckAndApplyCapacity(Service.PsyProtectionArr[1], Service.PsyProtectionCapacityArr[1], Service.MaxPsyProtectionCapacityArr[1],
+                                Service.TotalProtection(Service.PsyProtectionArr), damage);
+                        Service.PsyProtectionArr[1] = result[0];
+                        Service.PsyProtectionCapacityArr[1] = result[1];
+                        Service.MaxPsyProtectionCapacityArr[1] = result[2];
+                    } else if (Service.PsyProtectionArr[0] > 0){
+                        result = CheckAndApplyCapacity(Service.PsyProtectionArr[0], Service.PsyProtectionCapacityArr[0], Service.MaxPsyProtectionCapacityArr[0],
+                                Service.TotalProtection(Service.PsyProtectionArr), damage);
+                        Service.PsyProtectionArr[0] = result[0];
+                        Service.PsyProtectionCapacityArr[0] = result[1];
+                        Service.MaxPsyProtectionCapacityArr[0] = result[2];
+                    }
+                    Service.Psy += damage * (1 - Service.TotalProtection(Service.PsyProtectionArr) / 100d);
+                    Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.PsyProtectionArr) / 100d));
+                    if (Service.Psy >= 1000.0d) {
+                        Service.setDead(Boolean.TRUE);
+                        Service.setHealth(0.0d);
+                        Intent intent2 = new Intent("StatsService.Message");
+                        intent2.putExtra("Message", "P");
+                        Service.sendBroadcast(intent2);
+                    }
                 }
                 return;
             case "ClS":
@@ -242,7 +251,11 @@ public class Anomaly {
         }
         if (Figure.equals("QR")){
             double valueOf = 0;
-            AnomalyResult(valueOf);
+            if (!Service.isMonolith) {
+                AnomalyResult(valueOf);
+            } else {
+                Service.setHealth(Service.MaxHealth);
+            }
             this.Service.LastTimeChanged = Calendar.getInstance().getTime();
             this.Service.EM.StopActions();
             if (!this.Service.IsDead) {
@@ -262,6 +275,7 @@ public class Anomaly {
                 Gestalt(distanceToAnomaly);
             }
 
+
             if (distanceToAnomaly <= radius) {
                 if (Type.equals("Ges")){
                     Intent intent2 = new Intent("StatsService.Message");  // отправляет сообщение на главный экран "Не выходи из виброзоны, пока не закроешь гештальт."
@@ -276,11 +290,17 @@ public class Anomaly {
                 //
                 if (!Service.isMonolith) {
                     AnomalyResult(distanceToAnomaly);
-                } else if (Service.isMonolith && Type.equals("Psy")) {
+                } else if (Type.equals("Psy")) {
                     Service.setHealth(Service.MaxHealth);
                 }
+                if (Service.isMonolith){
+                    IsInside = Boolean.TRUE;
+                }
 
-
+                if (Type.equals("Oas")){
+                    IsInside = Boolean.TRUE;
+                    Service.setHealth(Service.Health + 0.1);
+                }
                 /*int round;
                 if (this.Type.equals("Rad")) {
                     this.Service.LastTimeHitBy = this.Type;
@@ -303,7 +323,9 @@ public class Anomaly {
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                     this.Service.EM.StopActions();
                     if (!this.Service.IsDead) {
-                        this.Service.EM.PlaySound(this.Type, this.strenght);
+                        if (!Service.isMonolith) {
+                            this.Service.EM.PlaySound(this.Type, this.strenght);
+                        }
                         if (this.Service.Vibrate) {
                             this.Service.EM.VibrateInPattern();
                         }

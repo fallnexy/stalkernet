@@ -1,6 +1,5 @@
 package com.example.myapplication2;
 
-import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
 import android.util.Log;
@@ -51,6 +50,11 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
             if (!this.ServiceReference.IsDead && this.ServiceReference.IsUnlocked) {
                 GetTime();
                 TimeToDischarge();
+                try {
+                    ServiceReference.GetAnomalies();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 ServiceReference.artCompass(); // артос компас, который дает неуязвимость на 15 нимут
                 ServiceReference.Super_save_zone_check();
                 ServiceReference.getMovingAnomalies();
@@ -58,6 +62,7 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
                 ServiceReference.CheckIfInAnyAnomaly();
                 ServiceReference.CheckPsyForMonolith();
                 ServiceReference.GetTime();
+                ServiceReference.checkQuest();
 
             }
             if (this.ServiceReference.Health <= 0.0d) {
@@ -84,31 +89,31 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.TotalProtection(ServiceReference.PsyProtectionArr));//9
             stringBuilder.append(":");
-            /*stringBuilder.append(ServiceReference.latLngAnomaly.latitude);//10
+            stringBuilder.append(Arrays.toString(ServiceReference.RadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //10
             stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.latLngAnomaly.longitude);//11
+            stringBuilder.append(Arrays.toString(ServiceReference.MaxRadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //11
             stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.radiusAnomaly);//12
-            stringBuilder.append(":");*/
-            stringBuilder.append(Arrays.toString(ServiceReference.RadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //13
+            stringBuilder.append(Arrays.toString(ServiceReference.BioProtectionCapacityArr).replaceAll("\\[|\\]", "")); //12
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.MaxRadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //14
+            stringBuilder.append(Arrays.toString(ServiceReference.MaxBioProtectionCapacityArr).replaceAll("\\[|\\]", "")); //13
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.BioProtectionCapacityArr).replaceAll("\\[|\\]", "")); //15
+            stringBuilder.append(Arrays.toString(ServiceReference.PsyProtectionCapacityArr).replaceAll("\\[|\\]", "")); //14
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.MaxBioProtectionCapacityArr).replaceAll("\\[|\\]", "")); //16
+            stringBuilder.append(Arrays.toString(ServiceReference.MaxPsyProtectionCapacityArr).replaceAll("\\[|\\]", "")); //15
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.PsyProtectionCapacityArr).replaceAll("\\[|\\]", "")); //17
+            stringBuilder.append(Arrays.toString(ServiceReference.RadProtectionArr).replaceAll("\\[|\\]", "")); //16
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.MaxPsyProtectionCapacityArr).replaceAll("\\[|\\]", "")); //18
+            stringBuilder.append(Arrays.toString(ServiceReference.BioProtectionArr).replaceAll("\\[|\\]", "")); //17
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.RadProtectionArr).replaceAll("\\[|\\]", "")); //19
+            stringBuilder.append(Arrays.toString(ServiceReference.PsyProtectionArr).replaceAll("\\[|\\]", "")); //18
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.BioProtectionArr).replaceAll("\\[|\\]", "")); //20
+            stringBuilder.append(ServiceReference.MaxProtectionsAvailable); //19
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.PsyProtectionArr).replaceAll("\\[|\\]", "")); //21
+            stringBuilder.append(ServiceReference.RadProtectionTot); //20
             stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.MaxProtectionsAvailable); //22
+            stringBuilder.append(ServiceReference.BioProtectionTot); //21
+            stringBuilder.append(":");
+            stringBuilder.append(ServiceReference.PsyProtectionTot); //22
             Log.d("гагарин", String.valueOf("гагарин".hashCode()));
             Log.d("выброс", String.valueOf("выброс".hashCode()));
             Log.d("координаты", String.valueOf(ServiceReference.latLngAnomaly.longitude));
@@ -146,9 +151,9 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
 //timeToDischarge
     private void TimeToDischarge() {
         if (!this.ServiceReference.IsDischarging) {
-            dischargeTime(7, 17, 23);
-            dischargeTime(8, 10, 47);
-            dischargeTime(9, 13, 37);
+            dischargeTime(13, 11, 26);// c 13 сентября в 11:36
+            dischargeTime(14, 15, 10);// c 14 сентября в 15:20
+            dischargeTime(15, 11, 10);// c 15 сентября в 11:20
         }
     }
 

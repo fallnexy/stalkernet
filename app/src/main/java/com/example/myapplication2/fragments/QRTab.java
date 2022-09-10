@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -164,9 +163,27 @@ public class QRTab extends Fragment implements View.OnClickListener{
                     makeAccessTrue(DBHelper.TABLE_LOCALITY, DBHelper.KEY_ACCESS_STATUS_LOCALITY, DBHelper.KEY_ACCESS_KEY_LOCALITY, barcode.displayValue);
                     makeAccessTrue(DBHelper.TABLE_FACTION, DBHelper.KEY_ACCESS_STATUS_FACTION, DBHelper.KEY_ACCESS_KEY_FACTION, barcode.displayValue);
                     makeAccessTrue(DBHelper.TABLE_QUEST_STEP, DBHelper.KEY_STATUS_QUEST_STEP, DBHelper.KEY_ACCESS_KEY_QUEST_STEP, barcode.displayValue);
+                    try {
+                        makeAccessTrue(DBHelper.TABLE_MILESTONE, DBHelper.KEY_ACCESS_STATUS__MILESTONE, DBHelper.KEY_ACCESS_KEY__MILESTONE, barcode.displayValue);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        makeAccessTrue(DBHelper.TABLE_ARTEFACT, DBHelper.KEY_ACCESS_STATUS__ARTEFACT, DBHelper.KEY_ACCESS_KEY__ARTEFACT, barcode.displayValue);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        simpleTextFromDB(barcode.displayValue);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     //считывает qr код и в соответствии с case выдает нужный текст
+
                     switch (barcode.displayValue){
+
                         ////
                         //// начало 2022 года
                         ////
@@ -190,17 +207,17 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                             // скрыты гештальты
-                       /* case "cv7mtd4tm4knk8w":
+                        case "hjopgirgyo":
                             textOnArt (R.string.gestalt_closed, R.string.gestalt_closed_Sc);
                             intent.putExtra("Command", "gestalt_closed");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "5ckxozbw2r4gm5p":
+                        case "hgpveepiwsp":
                             textOnArt (R.string.gestalt_closed, R.string.gestalt_closed_Sc);
                             intent.putExtra("Command", "gestalt_closed_2");
-                            Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
+                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "xgnn6u3h313kvqg":
+                        /*case "xgnn6u3h313kvqg":
                             textOnArt (R.string.gestalt_closed, R.string.gestalt_closed_Sc);
                             intent.putExtra("Command", "gestalt_closed_3");
                             Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
@@ -613,108 +630,170 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
                         // чтец ноосферы
                         case "n888x6powrkmojj":
+                            SQLiteDatabase database;
+                            DBHelper dbHelper;
+                            ContentValues cv;
+                            dbHelper = new DBHelper(getActivity());
+                            database = dbHelper.open();
+                            cv = new ContentValues();
+
                             int str = R.string.quest_21_02sc;
-                            Location point_location = new Location("GPS");
-                            point_location.setLatitude(64.35084939443712d);
-                            point_location.setLongitude(40.7199666393824d);
+                            Location point_location = new Location("GPS"); //64.352436, 40.730303
+                            point_location.setLatitude(64.352453d);
+                            point_location.setLongitude(40.730271d);
                             double distanceToPoint = point_location.distanceTo(globals.location);
-                            if(distanceToPoint <= 40){
-                                //str = R.string.item_0521_08s_1;
+                            if(distanceToPoint <= 20){
                                 textOnArt(R.string.quest_21_02_01, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"mngrndfjpa"});
                                 return;
                             }
-                            Location point_location_1 = new Location("GPS");
-                            point_location_1.setLatitude(64.35304402555298d);
-                            point_location_1.setLongitude(40.73663992875095d);
+                            Location point_location_1 = new Location("GPS"); //64.351072, 40.736246 //64.573659 40.516644
+                            point_location_1.setLatitude(64.351072d);
+                            point_location_1.setLongitude(40.736246d);
                             double distanceToPoint_1 = point_location_1.distanceTo(globals.location);
                             if (distanceToPoint_1 <= 20){
-                                //str = R.string.item_0521_08s_2;
                                 textOnArt(R.string.quest_21_02_02, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"pdfekdpyku"});
                                 return;
                             }
-                            Location point_location_2 = new Location("GPS");
-                            point_location_2.setLatitude(64.35248480210454d);
-                            point_location_2.setLongitude(40.7318765714623d);
+                            Location point_location_2 = new Location("GPS"); //64.351816, 40.730527
+                            point_location_2.setLatitude(64.351883d);
+                            point_location_2.setLongitude(40.730606d);
                             double distanceToPoint_2 = point_location_2.distanceTo(globals.location);
                             if (distanceToPoint_2 <= 20){
-                                //str = R.string.item_0521_08s_3;
                                 textOnArt(R.string.quest_21_02_03, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"tvzokeydzf"});
                                 return;
                             }
-                            Location point_location_3 = new Location("GPS");
-                            point_location_3.setLatitude(64.35215333997971d);
-                            point_location_3.setLongitude(40.730394103138664d);
+                            Location point_location_3 = new Location("GPS"); //64.351460, 40.727674
+                            point_location_3.setLatitude(64.351476d);
+                            point_location_3.setLongitude(40.727656d);
                             double distanceToPoint_3 = point_location_3.distanceTo(globals.location);
-                            if (distanceToPoint_3 <= 30){
-                                //str = R.string.item_0521_08s_4;
+                            if (distanceToPoint_3 <= 20){
                                 textOnArt(R.string.quest_21_02_04, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"ghsdqjdsfj"});
                                 return;
                             }
-                            Location point_location_4 = new Location("GPS");
-                            point_location_4.setLatitude(64.35205497292027d);
-                            point_location_4.setLongitude(40.737743477046465d);
+                            Location point_location_4 = new Location("GPS"); //64.352197, 40.728258
+                            point_location_4.setLatitude(64.351899d);
+                            point_location_4.setLongitude(40.728058d);
                             double distanceToPoint_4 = point_location_4.distanceTo(globals.location);
-                            if (distanceToPoint_4 <= 66){
-                                //str = R.string.item_0521_08s_5;
+                            if (distanceToPoint_4 <= 20){
                                 textOnArt(R.string.quest_21_02_05, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"xoejrqltgx"});
                                 return;
                             }
-                            Location point_location_5 = new Location("GPS");
-                            point_location_5.setLatitude(64.35266067713242d);
-                            point_location_5.setLongitude(40.73464018333524d);
+                            Location point_location_5 = new Location("GPS"); //64.351971, 40.726708
+                            point_location_5.setLatitude(64.351976d);
+                            point_location_5.setLongitude(40.726690d);
                             double distanceToPoint_5 = point_location_5.distanceTo(globals.location);
-                            if (distanceToPoint_5 <= 30){//64.532707, 40.155037
-                                //str = R.string.item_0521_08s_6;
+                            if (distanceToPoint_5 <= 20){//64.532707, 40.155037
                                 textOnArt(R.string.quest_21_02_06, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"twnephdsrw"});
                                 return;
                             }
-                            Location point_location_6 = new Location("GPS");
-                            point_location_6.setLatitude(64.35155365136347d);
-                            point_location_6.setLongitude(40.72763529934451d);
+                            Location point_location_6 = new Location("GPS"); //64.349660, 40.732067
+                            point_location_6.setLatitude(64.349660d);
+                            point_location_6.setLongitude(40.732067d);
                             double distanceToPoint_6 = point_location_6.distanceTo(globals.location);
-                            if (distanceToPoint_6 <= 15){//64.532707, 40.155037
-                                //str = R.string.item_0521_08s_6;
+                            if (distanceToPoint_6 <= 20){//64.532707, 40.155037
                                 textOnArt(R.string.quest_21_02_07, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"tbgjtovwnc"});
                                 return;
                             }
-                            Location point_location_7 = new Location("GPS");
-                            point_location_7.setLatitude(64.34994500125134d);
-                            point_location_7.setLongitude(40.726044220119505d);
+                            Location point_location_7 = new Location("GPS"); //64.355877, 40.723001
+                            point_location_7.setLatitude(64.355877d);
+                            point_location_7.setLongitude(40.723001d);
                             double distanceToPoint_7 = point_location_7.distanceTo(globals.location);
-                            if (distanceToPoint_7 <= 30){//64.532707, 40.155037
-                                //str = R.string.item_0521_08s_6;
+                            if (distanceToPoint_7 <= 20){//64.532707, 40.155037
                                 textOnArt(R.string.quest_21_02_08, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"bknrfruger"});
                                 return;
                             }
-                            Location point_location_8 = new Location("GPS");
-                            point_location_8.setLatitude(64.35109295085896d);
-                            point_location_8.setLongitude(40.73626007320802d);
+                            Location point_location_8 = new Location("GPS");//64.355059, 40.725659
+                            point_location_8.setLatitude(64.355059d);
+                            point_location_8.setLongitude(40.725659d);
                             double distanceToPoint_8 = point_location_8.distanceTo(globals.location);
-                            if (distanceToPoint_8 <= 30){//64.532707, 40.155037
-                                //str = R.string.item_0521_08s_6;
+                            if (distanceToPoint_8 <= 60){//64.532707, 40.155037
                                 textOnArt(R.string.quest_21_02_09, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"rnvicjmnpa"});
                                 return;
                             }
-                            Location point_location_9 = new Location("GPS");
-                            point_location_9.setLatitude(64.35222932765502d);
-                            point_location_9.setLongitude(40.72776883876071d);
+                            Location point_location_9 = new Location("GPS");//64.356943, 40.721201
+                            point_location_9.setLatitude(64.356943d);
+                            point_location_9.setLongitude(40.721201d);
                             double distanceToPoint_9 = point_location_9.distanceTo(globals.location);
                             if (distanceToPoint_9 <= 20){//64.532707, 40.155037
-                                //str = R.string.item_0521_08s_6;
                                 textOnArt(R.string.quest_21_02_10, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"xyyhxrhqkl"});
                                 return;
                             }
-                            Location point_location_10 = new Location("GPS");
-                            point_location_10.setLatitude(64.35715845524946d);
-                            point_location_10.setLongitude(40.721214319321d);
+                            Location point_location_10 = new Location("GPS"); //64.353715, 40.743905
+                            point_location_10.setLatitude(64.353715d);
+                            point_location_10.setLongitude(40.743905d);
                             double distanceToPoint_10 = point_location_10.distanceTo(globals.location);
-                            if (distanceToPoint_10 <= 30){//64.532707, 40.155037
-                                //str = R.string.item_0521_08s_6;
+                            if (distanceToPoint_10 <= 20){
                                 textOnArt(R.string.quest_21_02_11, str);
+                                cv.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                                database.update(DBHelper.TABLE_MILESTONE, cv, DBHelper.KEY_ACCESS_KEY__MILESTONE + "= ?", new String[]{"aczxmrzobz"});
                                 return;
                             }
-                            //str = R.string.item_0521_08s_7;
+                            database.close();
                             textOnArt(R.string.quest_21_02_0, str);
+                            return;
+                        case "mono37":
+                            int str_1 = R.string.quest_21_02sc;
+                            Location point_location_m = new Location("GPS"); //64.353468, 40.743153
+                            point_location_m.setLatitude(64.353468);
+                            point_location_m.setLongitude(40.743153);
+                            double distanceToPoint_m = point_location_m.distanceTo(globals.location);
+                            if(distanceToPoint_m <= 35){
+                                textOnArt(R.string.mono_1, str_1);
+                                return;
+                            }
+                            Location point_location_1_m = new Location("GPS"); //64.354130, 40.743956
+                            point_location_1_m.setLatitude(64.354130d);
+                            point_location_1_m.setLongitude(40.743956d);
+                            double distanceToPoint_1_m = point_location_1_m.distanceTo(globals.location);
+                            if (distanceToPoint_1_m <= 20){
+                                textOnArt(R.string.mono_2, str_1);
+                                return;
+                            }
+                            Location point_location_2_m = new Location("GPS"); //64.353162, 40.737232
+                            point_location_2_m.setLatitude(64.353162d);
+                            point_location_2_m.setLongitude(40.737232d);
+                            double distanceToPoint_2_m = point_location_2_m.distanceTo(globals.location);
+                            if (distanceToPoint_2_m <= 50){
+                                textOnArt(R.string.mono_3, str_1);
+                                return;
+                            }
+                            Location point_location_3_m = new Location("GPS"); //64.352157, 40.730430
+                            point_location_3_m.setLatitude(64.352157d);
+                            point_location_3_m.setLongitude(40.730430d);
+                            double distanceToPoint_3_m = point_location_3_m.distanceTo(globals.location);
+                            if (distanceToPoint_3_m <= 20){
+                                textOnArt(R.string.mono_4, str_1);
+                                return;
+                            }
+                            Location point_location_4_m = new Location("GPS"); //64.356972, 40.721597
+                            point_location_4_m.setLatitude(64.356972d);
+                            point_location_4_m.setLongitude(40.721597d);
+                            double distanceToPoint_4_m = point_location_4_m.distanceTo(globals.location);
+                            if (distanceToPoint_4_m <= 20){
+                                textOnArt(R.string.mono_5, str_1);
+                                return;
+                            }
+                            textOnArt(R.string.quest_21_02_0, str_1);
                             return;
                         case "olkkihlsyf":
                             simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_1, R.string.quest_21_06sc, 20d);
@@ -814,38 +893,17 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "pcmbkoehgq":
                             textOnArt(R.string.item_21_14, R.string.item_21_14sc);
                             return;
-                        case "yzvdzfbesq": // здесь и далее артосы 2021
-                            textOnArt(R.string.art_21_norm, R.string.art_21_01sc);
-                            return;
-                        case "kghmzmtrfh":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_02sc);
-                            return;
                         case "lbbbzgutsc":
                             stalkerRoulette();
                             textAndCoolDown(intent, 15, 300000, R.string.art_21_dang, R.string.art_21_03sc, R.string.art_21_dawn_1, "nope");
-                            return;
-                        case "ejrzgsbynq":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_04sc);
-                            return;
-                        case "suqxdukcpx":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_05sc);
                             return;
                         case "juoqudtxgc":
                             stalkerRoulette();
                             textAndCoolDown(intent, 16, 300000, R.string.art_21_dang, R.string.art_21_06sc, R.string.art_21_dawn_1, "nope");
                             return;
-                        case "jujztkmtay":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_07sc);
-                            return;
-                        case "xsqebiqemi":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_08sc);
-                            return;
                         case "opdcplctlz":
                             stalkerRoulette();
                             textAndCoolDown(intent, 17, 300000, R.string.art_21_dang, R.string.art_21_09sc, R.string.art_21_dawn_1, "nope");
-                            return;
-                        case "fewbuvfgin":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_10sc);
                             return;
                         case "ktrewhbuhy":
                             stalkerRoulette();
@@ -858,18 +916,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             stalkerRoulette();
                             textAndCoolDown(intent, 20, 300000, R.string.art_21_dang, R.string.art_21_13sc, R.string.art_21_dawn_1, "nope");
                             return;
-                        case "duytiylzfg":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_14sc);
-                            return;
-                        case "hjplmdsekj":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_15sc);
-                            return;
-                        case "wnlaygkgex":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_16sc);
-                            return;
-                        case "doitupwwvc":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_17sc);
-                            return;
                         case "mzfcfvscco":
                             stalkerRoulette();
                             textAndCoolDown(intent, 21, 300000, R.string.art_21_dang, R.string.art_21_18sc, R.string.art_21_dawn_1, "nope");
@@ -878,30 +924,9 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             stalkerRoulette();
                             textAndCoolDown(intent, 22, 300000, R.string.art_21_dang, R.string.art_21_19sc, R.string.art_21_dawn_1, "nope");
                             return;
-                        case "yharsxnqll":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_20sc);
-                            return;
-                        case "zzoxwlkyzp":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_21sc);
-                            return;
                         case "maaerpdbrz":
                             stalkerRoulette();
                             textAndCoolDown(intent, 23, 300000, R.string.art_21_dang, R.string.art_21_22sc, R.string.art_21_dawn_1, "nope");
-                            return;
-                        case "theleeyyrw":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_23sc);
-                            return;
-                        case "cqrdpwrdpr":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_24sc);
-                            return;
-                        case "dxpdhslptg":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_25sc);
-                            return;
-                        case "uwnxmyrzew":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_26sc);
-                            return;
-                        case "tkeqcqlvlu":
-                            textOnArt(R.string.art_21_norm, R.string.art_21_27sc);
                             return;
                         case "pjvmppohse":
                             stalkerRoulette();
@@ -1106,8 +1131,8 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "a2":
                             check_point(new LatLng(64.429695d, 40.716239d), 10d, "ты пришел в нужную точку", "тут ничего нет");
                             return;
-                        default:
-                            barcodeValue.setText("иди своей дорогой, сталкер");
+                        /*default:
+                            barcodeValue.setText("иди своей дорогой, сталкер");*/
                     }
 
                     codesQRAndText.checkCode(barcode.displayValue, scienceQR);
@@ -1148,26 +1173,58 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
     // ищет в БД и делает доступной запись в соответствующих фрагментах
     private void makeAccessTrue(String table, String accessColumn, String accessKeyColumn, String barcodeText) {
-        DBHelper dbHelper;
         SQLiteDatabase database;
+        DBHelper dbHelper;
         ContentValues cv;
         dbHelper = new DBHelper(getActivity());
         database = dbHelper.open();
         cv = new ContentValues();
-        cv.put(accessColumn, "true");
-        database.update(table, cv, accessKeyColumn + "= ?", new String[]{barcodeText});
+        if (!table.equals(DBHelper.TABLE_ARTEFACT)) {
+            cv.put(accessColumn, "true");
+            database.update(table, cv, accessKeyColumn + "= ?", new String[]{barcodeText});
+        } else {
+            Cursor cursor = database.rawQuery("SELECT description, vzaimodeistvie FROM artefact WHERE access_key =?", new String[]{barcodeText});
+            cursor.moveToFirst();
+            int scienceIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__ARTEFACT);
+            int nonScienceIndex = cursor.getColumnIndex(DBHelper.KEY_VZAIMODEISTVIE__ARTEFACT);
+            String scienceText = cursor.getString(scienceIndex);
+            String nonScienceText = cursor.getString(nonScienceIndex);
+            if (scienceQR){
+                cv.put(accessColumn, "true");
+                database.update(table, cv, accessKeyColumn + "= ?", new String[]{barcodeText});
+                barcodeValue.setText(scienceText);
+            } else {
+                barcodeValue.setText(nonScienceText);
+            }
+            cursor.close();
+        }
+        if (table.equals(DBHelper.TABLE_MILESTONE)){
+            Cursor cursor = database.rawQuery("SELECT description FROM milestone WHERE access_key =?", new String[]{barcodeText});
+            cursor.moveToFirst();
+            int descriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__MILESTONE);
+            String description = cursor.getString(descriptionIndex);
+            barcodeValue.setText(description);
+            cursor.close();
+        }
+        database.close();
+    }
 
-        // проверяет количество записей в бестиарии: если больше 5, то открывает 2 квест в кредо
-        String creedString = "SELECT * FROM " +
-                "(SELECT l._id, l.access_status FROM locality AS l\n" +
-                "UNION ALL\n" +
-                "SELECT f._id, f.access_status FROM faction AS f)\n" +
-                "WHERE access_status =?";
-        Cursor cursor = database.rawQuery(creedString, new String[]{"true"});
-        if (cursor.getCount() > 4) {
-            cv = new ContentValues();
-            cv.put(DBHelper.KEY_STATUS__CREED_BRANCH, "true");
-            database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "= ?", new String[]{"1"});
+    // пок только для item
+    private void simpleTextFromDB(String barcodeText){
+        SQLiteDatabase database;
+        DBHelper dbHelper;
+        dbHelper = new DBHelper(getActivity());
+        database = dbHelper.open();
+        Cursor cursor = database.rawQuery("SELECT description, vzaimodeistvie FROM item WHERE access_key =?", new String[]{barcodeText});
+        cursor.moveToFirst();
+        int scienceIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__ITEM);
+        int nonScienceIndex = cursor.getColumnIndex(DBHelper.KEY_VZAIMODEISTVIE__ITEM);
+        String scienceText = cursor.getString(scienceIndex);
+        String nonScienceText = cursor.getString(nonScienceIndex);
+        if (scienceQR){
+            barcodeValue.setText(scienceText);
+        } else {
+            barcodeValue.setText(nonScienceText);
         }
         cursor.close();
         database.close();
@@ -1238,6 +1295,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
         compositionOfArts[firstArt] = true;
         compositionOfArts[secondArt] = true;
     }
+
 
     private void textOnArt(int nonScience, int science) {
         textOnArt(nonScience, science, R.string.empty_string);

@@ -1,16 +1,10 @@
 package com.example.myapplication2.fragments.childTabs;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +16,9 @@ import android.widget.TextView;
 import com.example.myapplication2.DBHelper;
 import com.example.myapplication2.R;
 
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.Marker;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 
 public class DatabaseChildFragment extends Fragment {
@@ -70,9 +65,17 @@ public class DatabaseChildFragment extends Fragment {
             // получаем курсор по элементам для конкретной группы
             int idColumn = groupCursor.getColumnIndex(DBHelper.KEY_ID_TABLE_OF_TABLES);
             String stringForCursor = "SELECT * FROM " +
-                    "(SELECT l._id, l.name, l.description, l.image_path, l.kostyl, l.access_status FROM locality AS l\n" +
+                    "(SELECT l._id, l.name, l.description, l.image, l.kostyl, l.access_status FROM locality AS l\n" +
                     "UNION\n" +
-                    "SELECT f._id, f.name, f.description, f.image_path, f.kostyl, f.access_status FROM faction AS f)\n" +
+                    "SELECT f._id, f.name, f.description, f.image, f.kostyl, f.access_status FROM faction AS f\n" +
+                    "UNION\n" +
+                    "SELECT p._id, p.name, p.description, p.image, p.kostyl, p.access_status FROM person AS p\n" +
+                    "UNION\n" +
+                    "SELECT m._id, m.name, m.description, m.image, m.kostyl, m.access_status FROM monster AS m\n" +
+                    "UNION\n" +
+                    "SELECT a._id, a.name, a.description, a.image, a.kostyl, a.access_status FROM artefact AS a\n" +
+                    "UNION\n" +
+                    "SELECT ms._id, ms.name, ms.description, ms.image, ms.kostyl, ms.access_status FROM milestone AS ms)\n" +
                     "WHERE kostyl = ? AND access_status =?";
             return database.rawQuery(stringForCursor, new String[]{String.valueOf(groupCursor.getInt(idColumn)), "true"});
         }

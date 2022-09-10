@@ -1,24 +1,33 @@
 package com.example.myapplication2.fragments.childTabs;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapplication2.AnomalyTypeDialog;
 import com.example.myapplication2.CodesQRAndText;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
-import com.example.myapplication2.fragments.ParentTab;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.util.Arrays;
+import java.util.regex.Pattern;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 public class ChatChildFragment extends Fragment {
 
@@ -38,6 +47,9 @@ public class ChatChildFragment extends Fragment {
         View inflate = layoutInflater.inflate(R.layout.fragment_chat_child, viewGroup, false);
         final EditText editText = inflate.findViewById(R.id.CommandLine);
         TextView txtView = inflate.findViewById(R.id.txtViewChat);
+
+        ImageView ivAddAnomaly = inflate.findViewById(R.id.ivAddAnomaly);
+        ImageView ivRemoveAnomaly = inflate.findViewById(R.id.ivRemoveAnomaly);
         // Inflate the layout for this fragment
         codesQRAndText = new CodesQRAndText(this, txtView, globals);
 
@@ -349,6 +361,55 @@ public class ChatChildFragment extends Fragment {
                     break;
             }
 
+        });
+
+        String[] textCodeSplitted = new String[6];
+        inflate.findViewById(R.id.btnAddAnomaly).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String addAnomaly = editText.getText().toString().trim();
+                String delAnomaly = "WTF";
+
+                try {
+                    Pattern pattern = Pattern.compile("[@]");
+                    String[] words = pattern.split(addAnomaly);
+                    int i = 0;
+                    for(String word:words){
+                        textCodeSplitted[i] = word;
+                        i++;
+                    }
+                    if (textCodeSplitted[0].equals("sc3")){
+                        textCodeSplitted[0] = "del";
+                        delAnomaly = Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", "");
+                        delAnomaly = delAnomaly.replaceAll(", ", "@");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+                MultiFormatWriter writer = new MultiFormatWriter();
+                try {
+                    BitMatrix matrix = writer.encode(addAnomaly, BarcodeFormat.QR_CODE, 350, 350);
+                    BarcodeEncoder encoder = new BarcodeEncoder();
+                    Bitmap bitmap = encoder.createBitmap(matrix);
+                    ivAddAnomaly.setImageBitmap(bitmap);
+                    InputMethodManager manager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    manager.hideSoftInputFromWindow(editText.getApplicationWindowToken(), 0);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    BitMatrix matrix = writer.encode(delAnomaly, BarcodeFormat.QR_CODE, 350, 350);
+                    BarcodeEncoder encoder = new BarcodeEncoder();
+                    Bitmap bitmap = encoder.createBitmap(matrix);
+                    ivRemoveAnomaly.setImageBitmap(bitmap);
+                    InputMethodManager manager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    manager.hideSoftInputFromWindow(editText.getApplicationWindowToken(), 0);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+            }
         });
 
         return inflate;

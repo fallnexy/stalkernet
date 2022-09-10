@@ -1,14 +1,6 @@
 package com.example.myapplication2;
 //https://habr.com/ru/post/349102/ В Андроид 8 (у меня) службы все равно убиваются
 // и с этим надо что то делать (ссылка). startForegroundService - запуск службы для андроид 8
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -26,12 +18,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 
-import com.example.myapplication2.fragments.ParentTab;
 import com.example.myapplication2.fragments.GeneralTab;
 import com.example.myapplication2.fragments.MapOSMTab;
+import com.example.myapplication2.fragments.ParentTab;
 import com.example.myapplication2.fragments.PointTab;
 import com.example.myapplication2.fragments.QRTab;
 import com.google.android.material.tabs.TabLayout;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 
 public class MainActivity extends AppCompatActivity implements AnomalyTypeInterface, QuestConfirmInterface{
 
@@ -88,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
             globals.ProtectionBioArr = split[17];
             globals.ProtectionPsyArr = split[18];
             globals.MaxProtectionAvailable.setText(getString(R.string.protectionsAmount) + split[19]);
+            globals.RadProtectionTot = split[20];
+            globals.BioProtectionTot = split[21];
+            globals.PsyProtectionTot = split[22];
             globals.UpdateStats();
         }
     };

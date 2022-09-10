@@ -1,7 +1,6 @@
 package com.example.myapplication2;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
@@ -10,14 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
@@ -28,8 +21,8 @@ public class Globals {
     public String Health, Rad, Bio, Psy, TotalProtectionRad, TotalProtectionBio, TotalProtectionPsy,
             CapacityProtectionRad, CapacityProtectionBio, CapacityProtectionPsy,
             MaxCapacityProtectionRad, MaxCapacityProtectionBio, MaxCapacityProtectionPsy,
-            ProtectionRadArr, ProtectionBioArr, ProtectionPsyArr
-            /*MaxProtectionAvailable*/;
+            ProtectionRadArr, ProtectionBioArr, ProtectionPsyArr,
+            RadProtectionTot, BioProtectionTot, PsyProtectionTot;
     public ProgressBar HealthBar, RadBar, BioBar, PsyBar;
     public String MaxHealth = "2000", MaxRad = "1000", MaxBio = "1000", MaxPsy = "1000";
     public TextView CO;
@@ -44,7 +37,7 @@ public class Globals {
   //  public int anomalyIndex;
    /* public CircleOptions circleOptions;*/
 
-    public int ScienceQR;          // не работает или работает?
+    public int ScienceQR;          // не работает или работает? - вроде как обновляет вместе с обновлением координат
 
     private LocationManager locationManager;
 
@@ -67,12 +60,13 @@ public class Globals {
     }
     // для всего остального
     private void updateBar(@NonNull ProgressBar barName, String stringMax, String stringName, TextView perCent, String capacity,
-                           String maxCapacity, TextView perCentCapacity, String protection, TextView perCentProtection, String totalProtection){
+                           String maxCapacity, TextView perCentCapacity, String protection, TextView perCentProtection, String totalProtection, String legendProtection){
         int parseDouble;
         double parseMaxCapacitySuit, parseMaxCapacityArt, parseMaxCapacityQuest;
         double parseCapacitySuit, parseCapacityArt, parseCapacityQuest;
         double parseProtectionSuit, parseProtectionArt, parseProtectionQuest;
         double parseTotalProtection;
+        int parseLegendProtection;
         barName.setMax(Integer.parseInt(stringMax));
         try {
             parseDouble = (int) Double.parseDouble(stringName);
@@ -86,6 +80,7 @@ public class Globals {
             parseProtectionArt = Double.parseDouble(protection.split(", ")[1]);
             parseProtectionQuest = Double.parseDouble(protection.split(", ")[2]);
             parseTotalProtection = Double.parseDouble(totalProtection);
+            parseLegendProtection = Integer.parseInt(legendProtection);
         } catch (Exception unused) {
             parseDouble = 0;
             parseCapacitySuit = 0;
@@ -98,6 +93,7 @@ public class Globals {
             parseProtectionArt = 0;
             parseProtectionQuest = 0;
             parseTotalProtection = 0;
+            parseLegendProtection = 0;
         }
         Log.d("capacity", capacity + " " + maxCapacity);
         barName.setProgress(parseDouble);
@@ -122,7 +118,13 @@ public class Globals {
         }
         perCentCapacity.setText(percentCapacity);
 
-        String percentProtection = String.format(Locale.US,"Защита: Бр %.2f; Арт %.2f; Кв %.2f; ∑ %.4f", parseProtectionSuit, parseProtectionArt, parseProtectionQuest, parseTotalProtection);
+        double newTotalProtection;
+        if (parseTotalProtection + parseLegendProtection >= 100){
+            newTotalProtection = 100;
+        } else {
+            newTotalProtection = parseTotalProtection + parseLegendProtection;
+        }
+        String percentProtection = String.format(Locale.US,"Защита: Бр %.2f; Арт %.2f; Кв %.2f; ∑ %.4f", parseProtectionSuit, parseProtectionArt, parseProtectionQuest, newTotalProtection);
         perCentProtection.setText(percentProtection);
 
     }
@@ -130,9 +132,9 @@ public class Globals {
     public void UpdateStats() {
 
         updateBar(HealthBar, MaxHealth, Health, HealthPercent);
-        updateBar(RadBar, MaxRad, Rad, RadPercent, CapacityProtectionRad, MaxCapacityProtectionRad, RadCapacityPercent, ProtectionRadArr, RadProtectionPercent, TotalProtectionRad);
-        updateBar(BioBar, MaxBio, Bio, BioPercent, CapacityProtectionBio, MaxCapacityProtectionBio, BioCapacityPercent, ProtectionBioArr, BioProtectionPercent, TotalProtectionBio);
-        updateBar(PsyBar, MaxPsy, Psy, PsyPercent, CapacityProtectionPsy, MaxCapacityProtectionPsy, PsyCapacityPercent, ProtectionPsyArr, PsyProtectionPercent, TotalProtectionPsy);
+        updateBar(RadBar, MaxRad, Rad, RadPercent, CapacityProtectionRad, MaxCapacityProtectionRad, RadCapacityPercent, ProtectionRadArr, RadProtectionPercent, TotalProtectionRad, RadProtectionTot);
+        updateBar(BioBar, MaxBio, Bio, BioPercent, CapacityProtectionBio, MaxCapacityProtectionBio, BioCapacityPercent, ProtectionBioArr, BioProtectionPercent, TotalProtectionBio, BioProtectionTot);
+        updateBar(PsyBar, MaxPsy, Psy, PsyPercent, CapacityProtectionPsy, MaxCapacityProtectionPsy, PsyCapacityPercent, ProtectionPsyArr, PsyProtectionPercent, TotalProtectionPsy, PsyProtectionTot);
 
         /*try {
             circleOptions = new CircleOptions().center(anomalyCenter).radius(anomalyRadius).strokeColor(Color.BLUE).strokeWidth(3).zIndex(Float.MAX_VALUE);

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 
@@ -35,7 +36,7 @@ public class CodesQRAndText {
     Cursor cursor;
     // переменные, необходимые для sc1 и sc2
     String textCode;
-    String[] textCodeSplitted = new String[4];
+    String[] textCodeSplitted = new String[6];
     String typeFirstProtection = "";
     String typeSecondProtection = "";
 
@@ -55,6 +56,13 @@ public class CodesQRAndText {
             code = textCode;
         }
 
+        //
+        // ввод кода на добавление аномалии
+        //
+        if (textCode.equals("sc3") | textCode.equals("del")){
+            code = textCode;
+        }
+
         label94: {
 
             intent = new Intent("Command");
@@ -62,15 +70,37 @@ public class CodesQRAndText {
                 case "пятнистый":
                     intent.putExtra("Command", "isMonolith");
                     fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    Log.d("аномалии", "kj");
                     var1 = -1;
                     break label94;
+                case "sc3": //sc3 и del
+                case "del":
+                    textView.setText(makeSCText(textCodeSplitted));
+                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                    fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    Log.d("аномалии", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                    var1 = -1;
+                    break label94;
+                case "lcycuibllm":
+                    textAndCoolDown(intent, 900000, R.string.rad_umenshit, R.string.empty, R.string.injectorRadDawn, "injectorRad85", code, scienceQR);
+                    var1 = -1;
+                    break label94;
+                case "cyavhqijyf":
+                    textAndCoolDown(intent, 960000, R.string.bio_umenshit, R.string.empty, R.string.injectorRadDawn, "injectorBio85", code, scienceQR);
+                    var1 = -1;
+                    break label94;
+                case "frpugjpqxu":
+                    textAndCoolDown(intent, 1020000, R.string.hp_uvelishit, R.string.empty, R.string.injectorRadDawn, "injectorHP50", code, scienceQR);
+                    var1 = -1;
+                    break label94;
+
             }
 
             switch(code.hashCode()) {
                 // полное воскрешение со сбросом всех параметров
                 case 1025788929: // гагры
                 case -1699798056: // nuyzi2sg7y3vq5
-                    if (code.equals("гагры") || code.equals("nuyzi2sg7y3vq5f")) {
+                    if (code.equals("приветбумеранг") || code.equals("nuyzi2sg7y3vq5f")) {
                         var1 = 0;
                         break label94;
                     }
@@ -90,7 +120,7 @@ public class CodesQRAndText {
                         break label94;
                     }
                 case 702574009: // простое оживление
-                    if (code.equals("приветбумеранг")) {
+                    if (code.equals("гагры")) {
                         var1 = 4;
                         break label94;
                     }
@@ -651,11 +681,28 @@ public class CodesQRAndText {
             if (textCodeSplitted[0].equals("sc1")) {
                 if (textCodeSplitted[2].equals("suit") && Double.parseDouble(textCodeSplitted[3]) > 80){
                     textCodeSplitted[3] = "80";
-                } else if (!textCodeSplitted[2].equals("suit") && Double.parseDouble(textCodeSplitted[3]) > 49.95){
+                } else if (!textCodeSplitted[2].equals("suit") && !textCodeSplitted[2].equals("tot") && Double.parseDouble(textCodeSplitted[3]) > 49.95){
                     textCodeSplitted[3] = "49.95";
                 }
                 if (Double.parseDouble(textCodeSplitted[3]) < 0){
                     textCodeSplitted[3] = "0";
+                }
+                if (textCodeSplitted[2].equals("tot") && Double.parseDouble(textCodeSplitted[3]) > 100){
+                    textCodeSplitted[3] = "100";
+                }
+            }
+            if (textCodeSplitted[0].equals("sc3")){
+                if (Integer.parseInt(textCodeSplitted[3]) > 5){
+                    textCodeSplitted[3] = "5";
+                }
+                if (Integer.parseInt(textCodeSplitted[4]) > 5){
+                    textCodeSplitted[3] = "5";
+                }
+                if ((Integer.parseInt(textCodeSplitted[3]) + Integer.parseInt(textCodeSplitted[4])) > 6){
+                    textCodeSplitted[4] = String.valueOf(6 - Integer.parseInt(textCodeSplitted[3]));
+                }
+                if (Integer.parseInt(textCodeSplitted[5]) > 5){
+                    textCodeSplitted[3] = "5";
                 }
             }
             textCode = textCodeSplitted[0];
@@ -730,6 +777,9 @@ public class CodesQRAndText {
                 case "quest":
                     textFinal += "квест: ";
                     break;
+                case "tot":
+                    textFinal += "легенда: ";
+                    break;
                 default:
                     textFinal += "ничто: ";
             }
@@ -753,6 +803,14 @@ public class CodesQRAndText {
             textFinal += text[2] + "%";
 
         }
+
+        if (text[0].equals("sc3")){
+            textFinal = "Установлена аномалия в слот № " + text[5] + " с силой " + text[3] + " и радиусом " + (150 + 20 * Integer.parseInt(text[4]) + "м");
+        }
+        if (text[0].equals("del")){
+            textFinal = "Удалена аномалия из слота № " + text[5];
+        }
+
         return textFinal;
     }
 }
