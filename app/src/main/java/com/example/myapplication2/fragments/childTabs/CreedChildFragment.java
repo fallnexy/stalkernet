@@ -7,11 +7,6 @@ import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +21,11 @@ import com.example.myapplication2.DBHelper;
 import com.example.myapplication2.QuestConfirmDialog;
 import com.example.myapplication2.R;
 
-import java.util.Calendar;
 import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 
 public class CreedChildFragment extends Fragment {
@@ -105,9 +103,9 @@ public class CreedChildFragment extends Fragment {
             imageView.setImageDrawable(imageDrawable(cursor, imageIndex));
 
 
-            long currentTimeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
-            long lastChooseTimeInSeconds = cursor.getLong(timeIndex);
-            long cooldownInSeconds = cursor.getLong(cooldownIndex) * 60;
+            //long currentTimeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
+            //long lastChooseTimeInSeconds = cursor.getLong(timeIndex);
+            //long cooldownInSeconds = cursor.getLong(cooldownIndex) * 60;
             /*btnChoose.setEnabled(cooldownInSeconds < (currentTimeInSeconds - lastChooseTimeInSeconds));
 
             btnChoose.setOnClickListener(new View.OnClickListener() {

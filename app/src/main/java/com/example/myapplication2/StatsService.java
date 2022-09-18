@@ -128,11 +128,6 @@ public class StatsService extends Service {
     public long[] coolDawn = new long[25];
 
 
-
-    // защита от аномалий у чистого неба
-    public boolean ClearSkyAnomalyProtection = false;
-    // защита от выброса у свободы
-    public boolean FreedomDischargeImmunity = false;
     // защита от пси у монолита
     boolean MonolithOk = false;
     //новый монолит
@@ -539,12 +534,12 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case -1357835385:
+                   /*case -1357835385:
                        if (var4.equals("clear4")) {
                            var3 = 39;
                            break label110;
                        }
-                       break;
+                       break;*/
                    /*case -1107434950:
                        if (var4.equals("health75")) {
                            var3 = 40;
@@ -731,18 +726,18 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case -1449685624: // этот и следующий - локальные защиты от выбросов
+                   /*case -1449685624: // этот и следующий - локальные защиты от выбросов
                        if (var4.equals("dolgDischargeImmunity")) {
                            var3 = 70;
                            break label110;
                        }
-                       break;
-                   case 1259972122: // сентябрь21 - чистое небо
+                       break;*/
+                   /*case 1259972122: // сентябрь21 - чистое небо
                        if (var4.equals("naemnikiDischargeImmunity")) {
                            var3 = 71;
                            break label110;
                        }
-                       break;
+                       break;*/
                    case -1658045336:
                        if (var4.equals("mechMinus60Rad")) {
                            var3 = 72;
@@ -1177,10 +1172,6 @@ public class StatsService extends Service {
                    setHealth(0);
                    break;
                case 39: // временная защита от ЧН аномалий
-                   boolean clearTemp = ClearSkyAnomalyProtection;
-                   ClearSkyAnomalyProtection = true;
-                   Handler handler = new Handler();
-                   handler.postDelayed(() -> ClearSkyAnomalyProtection = clearTemp, 14400000);
                    break;
                /*case 40:
                    Health = 0.75 * MaxHealth;
@@ -1283,10 +1274,8 @@ public class StatsService extends Service {
                    }
                    break;
                case 70: // этот защита от аномалий
-                   ClearSkyAnomalyProtection = true;
                    break;
-               case 71:// этот  локальные защиты от выбросов
-                   FreedomDischargeImmunity = true;
+               case 71:
                    break;
                case 72:
                    Rad -= Rad * (random.nextInt(30) + 61) / 100;
@@ -1580,6 +1569,9 @@ public class StatsService extends Service {
     public void setHealth(double d) {
         if (d > 0.0d) {
             Health = d;
+            if (Health > MaxHealth){
+                Health = MaxHealth;
+            }
             return;
         }
         Health = d;
@@ -1884,7 +1876,6 @@ public class StatsService extends Service {
         if (isMonolith && IS_ANOMALIES_AVAILABLE){
             double d = Health - 0.5;
             setHealth(d);
-            Log.d("maxHealh", String.valueOf(MaxHealth) + " " + String.valueOf(Health));
         }
     }
 
@@ -1897,15 +1888,13 @@ public class StatsService extends Service {
             long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
             // постоянные аномалии
             if (timeInSeconds > dayFirst) { // 6 сентября в 17:00
-                int ClSky;
-                if (ClearSkyAnomalyProtection){
-                     ClSky = 1;
-                } else if (MonolithOk){
-                    ClSky = 7;
+                int i1;
+                if (MonolithOk){
+                    i1 = 7;
                 } else{
-                    ClSky = 0;
+                    i1 = 0;
                 }
-                for (int i = ClSky; i < 18; i++) {//18
+                for (int i = i1; i < 18; i++) {//18
                     anomalies[i].Apply();
                 }
 
@@ -1972,15 +1961,13 @@ public class StatsService extends Service {
 
         if (IS_ANOMALIES_AVAILABLE && !isInSuperSaveZone) {
 
-            int ClSky;
-            if (ClearSkyAnomalyProtection){
-                ClSky = 1;
-            } else if (MonolithOk){
-                ClSky = 7;
+            int i1;
+            if (MonolithOk){
+                i1 = 7;
             }else{
-                ClSky = 0;
+                i1 = 0;
             }
-            for (int i = ClSky ; i < 18; i++) {//18
+            for (int i = i1 ; i < 18; i++) {//18
                 if (anomalies[i].IsInside) {
                     if (anomalies[i].toShow) {
                         contentValues = new ContentValues();
@@ -2091,9 +2078,6 @@ public class StatsService extends Service {
 
     public void CheckIfInAnySafezone() {
         int i = 0;
-        if (!FreedomDischargeImmunity){
-            i = 1;
-        }
         this.IsInsideSafeZone = Boolean.FALSE;
         while (i < NUMBER_OF_SAVE_ZONES) {
             this.SafeZones[i].Apply();
@@ -2181,8 +2165,6 @@ public class StatsService extends Service {
         this.IsUnlocked = Boolean.parseBoolean(defaultSharedPreferences.getString("Lock", "true"));
         this.IS_ANOMALIES_AVAILABLE = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("IS_ANOMALIES_AVAILABLE", "true")));
         this.MaxProtectionsAvailable = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("MaxProtectionsAvailable", "1")));
-        this.ClearSkyAnomalyProtection = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("DolgDischargeImmunity", "false")));
-        this.FreedomDischargeImmunity = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("NaemnikiDischargeImmunity", "false")));
         this.fastRadPurification = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("fastRadPurification", "false")));
         this.MonolithOk = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("MonolithOk", "false")));
         this.isMonolith = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("isMonolith", "false")));
@@ -2214,8 +2196,6 @@ public class StatsService extends Service {
         edit.putString("Lock", Boolean.toString(this.IsUnlocked));
         edit.putString("IS_ANOMALIES_AVAILABLE", Boolean.toString(this.IS_ANOMALIES_AVAILABLE));
         edit.putString("MaxProtectionsAvailable", Integer.toString(MaxProtectionsAvailable));
-        edit.putString("DolgDischargeImmunity", Boolean.toString(this.ClearSkyAnomalyProtection));
-        edit.putString("NaemnikiDischargeImmunity", Boolean.toString(this.FreedomDischargeImmunity));
         edit.putString("fastRadPurification", Boolean.toString(this.fastRadPurification));
         edit.putString("MonolithOk", Boolean.toString(this.MonolithOk));
         edit.putString("isMonolith", Boolean.toString(this.isMonolith));

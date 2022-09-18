@@ -62,7 +62,11 @@ public class MapOSMTab extends Fragment {
         public void onReceive(Context context, Intent intent) {
 
 
+            try {
                 drawCirceAnomaly();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
 
         }
@@ -119,7 +123,11 @@ public class MapOSMTab extends Fragment {
         mLocationOverlay.enableMyLocation();
         map.getOverlays().add(mLocationOverlay);
         // создаем круглые аномалии
-        createCircleAnomaly (getNumberOfAnomalies());
+        try {
+            createCircleAnomaly (getNumberOfAnomalies());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         CreateSafeZones();
         // Inflate the layout for this fragment
