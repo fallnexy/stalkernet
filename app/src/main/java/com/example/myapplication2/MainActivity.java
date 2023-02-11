@@ -25,6 +25,8 @@ import com.example.myapplication2.fragments.PointTab;
 import com.example.myapplication2.fragments.QRTab;
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.Objects;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -32,7 +34,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 
 
 public class MainActivity extends AppCompatActivity implements AnomalyTypeInterface, QuestConfirmInterface{
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
     private int Course_Location_RequestCode = 1;
     public Globals globals;
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+    private NonSwipeableViewPager mViewPager;
     public Boolean ServiceIsRunning;
     private LinearLayout mainLayout;
 
@@ -50,18 +51,17 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String[] split = intent.getStringExtra("Stats").split(":");
-            Log.d("main_split", String.valueOf(split[19]));
             if (Double.parseDouble(split[0]) <= 0.0d) {
-                globals.Health = "Вы умерли.";
+                //globals.Health = "Вы умерли.";
                 mainLayout.setBackgroundResource(R.drawable.death_0521);
             } else {
                 globals.Health = split[0];
-                mainLayout.setBackgroundResource(R.drawable.fon/*fon_0521*/);
+                mainLayout.setBackgroundResource(R.drawable.fon);
             }
             globals.Rad = split[1];
             globals.Bio = split[2];
             if (Double.parseDouble(split[3]) >= 1000.0d) {
-                globals.Health = "Вы умерли.";
+                //globals.Health = "Вы умерли.";
                 mainLayout.setBackgroundResource(R.drawable.death_0521);
             } else {
                 globals.Psy = split[3];
@@ -72,14 +72,6 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
             globals.TotalProtectionRad = split[7];
             globals.TotalProtectionBio = split[8];
             globals.TotalProtectionPsy = split[9];
-            /*try {
-                globals.anomalyCenter = new LatLng(Double.parseDouble(split[10]), Double.parseDouble(split[11]));
-                globals.anomalyRadius = Double.parseDouble(split[12]);
-            } catch (Exception e) {
-                globals.anomalyCenter = new LatLng(0, 0);
-                globals.anomalyRadius = 0d;
-            }
-            Log.d("аномалия", String.valueOf(globals.anomalyCenter));*/
             globals.CapacityProtectionRad = split[10];
             globals.MaxCapacityProtectionRad = split[11];
             globals.CapacityProtectionBio = split[12];
@@ -100,44 +92,19 @@ public class MainActivity extends AppCompatActivity implements AnomalyTypeInterf
 
     BroadcastReceiver broadcastReceiverMessages = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
-            byte var5;
-            label32: {
-                String var4 = intent.getStringExtra("Message");
-                int var3 = var4.hashCode();
-                if (var3 != 65) {
-                    if (var3 != 72) {
-                        if (var3 != 80) {
-                            if (var3 == 71 && var4.equals("G")) {
-                                var5 = 3;
-                                break label32;
-                            }
-                        } else if (var4.equals("P")){
-                            var5 = 1;
-                            break label32;
-                        }
-                    } else if (var4.equals("H")) {
-                        var5 = 0;
-                        break label32;
-                    }
-                } else if (var4.equals("A")) {
-                    var5 = 2;
-                    break label32;
-                }
 
-                var5 = -1;
-            }
-
-            switch(var5) {
-                case 0:
+            String causeOfDeath = intent.getStringExtra("Message");
+            switch(Objects.requireNonNull(causeOfDeath)) {
+                case "H":
                     globals.Messages.setText("Вы умерли, направляйтесь к мертвяку..");
                     break;
-                case 1:
+                case "P":
                     globals.Messages.setText("Вы умерли, следуйте к мертвяку в режиме зомби.");
                     break;
-                case 2:
+                case "A":
                     globals.Messages.setText("");
                     break;
-                case 3:
+                case "G":
                     globals.Messages.setText("Обнаружен Гештальт. Зафиксирована инверсия пси-поля, не покидайте границы безопасной зоны");
                     break;
             }

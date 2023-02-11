@@ -87,39 +87,15 @@ public class CreedChildFragment extends Fragment {
             TextView textName = convertView.findViewById(R.id.tVCreedName);
             TextView textDescription= convertView.findViewById(R.id.tVCreedDescription);
             ImageView imageView = convertView.findViewById(R.id.iVParentCreed);
-            /*Button btnChoose = convertView.findViewById(R.id.btnChooseCreed);
-            btnChoose.setFocusable(false);*/
 
             cursor.moveToPosition(groupPosition);
             int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME__CREED);
             int descriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__CREED);
             int imageIndex = cursor.getColumnIndex(DBHelper.KEY_IMAGE__CREED);
-            int isCurrentIndex = cursor.getColumnIndex(DBHelper.KEY_IS_CURRENT__CREED);
-            int timeIndex = cursor.getColumnIndex(DBHelper.KEY_TIME__CREED);
-            int cooldownIndex = cursor.getColumnIndex(DBHelper.KEY_COOLDOWN__CREED);
 
             textName.setText(cursor.getString(nameIndex));
             textDescription.setText(cursor.getString(descriptionIndex));
             imageView.setImageDrawable(imageDrawable(cursor, imageIndex));
-
-
-            //long currentTimeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
-            //long lastChooseTimeInSeconds = cursor.getLong(timeIndex);
-            //long cooldownInSeconds = cursor.getLong(cooldownIndex) * 60;
-            /*btnChoose.setEnabled(cooldownInSeconds < (currentTimeInSeconds - lastChooseTimeInSeconds));
-
-            btnChoose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                }
-            });*/
-
-            if (cursor.getString(isCurrentIndex).equals("true")){
-                textName.setTextColor(getResources().getColor(R.color.green));
-            } else {
-                textName.setTextColor(getResources().getColor(R.color.cardview_light_background));
-            }
 
             return convertView;
         }

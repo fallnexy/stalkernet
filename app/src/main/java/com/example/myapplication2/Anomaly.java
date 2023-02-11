@@ -74,7 +74,7 @@ public class Anomaly {
 // метод внутри apply()
     public void AnomalyResult(double distanceToAnomaly){
         double damage;
-        Service.LastTimeHitBy = Type;
+        Service.playerCharacter.setLastTimeHitBy(Type);
         IsInside = Boolean.TRUE;
         Service.TypeAnomalyIn = Type;
         damage = strenght * (1 - Math.pow(distanceToAnomaly / radius, 2));
@@ -107,13 +107,9 @@ public class Anomaly {
                     }
 
                     Service.Rad += damage * (1 - Service.TotalProtection(Service.RadProtectionArr) / 100d);
-                    Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.RadProtectionArr) / 100d));
+                    Service.playerCharacter.setHealth(Service.playerCharacter.getHealth() - damage * (1 - Service.TotalProtection(Service.RadProtectionArr) / 100d));
                     if (Service.Rad >= 1000.0d) {
-                        Service.setDead(Boolean.TRUE);
-                        Service.setHealth(0.0d);
-                        Intent intent2 = new Intent("StatsService.Message");
-                        intent2.putExtra("Message", "H");
-                        Service.sendBroadcast(intent2);
+                        Service.playerCharacter.setHealth(0);
                     }
                 }
                 return;
@@ -140,13 +136,9 @@ public class Anomaly {
                         Service.MaxBioProtectionCapacityArr[0] = result[2];
                     }
                     Service.Bio += damage * (1 - Service.TotalProtection(Service.BioProtectionArr) / 100d);
-                    Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.BioProtectionArr) / 100d));
+                    Service.playerCharacter.setHealth(Service.playerCharacter.getHealth() - damage * (1 - Service.TotalProtection(Service.BioProtectionArr) / 100d));
                     if (Service.Bio >= 1000.0d) {
-                        Service.setDead(Boolean.TRUE);
-                        Service.setHealth(0.0d);
-                        Intent intent2 = new Intent("StatsService.Message");
-                        intent2.putExtra("Message", "P");
-                        Service.sendBroadcast(intent2);
+                        Service.playerCharacter.setHealth(0.0d);
                     }
                 }
                 return;
@@ -173,26 +165,11 @@ public class Anomaly {
                         Service.MaxPsyProtectionCapacityArr[0] = result[2];
                     }
                     Service.Psy += damage * (1 - Service.TotalProtection(Service.PsyProtectionArr) / 100d);
-                    Service.setHealth(Service.Health - damage * (1 - Service.TotalProtection(Service.PsyProtectionArr) / 100d));
+                    Service.playerCharacter.setHealth(Service.playerCharacter.getHealth() - damage * (1 - Service.TotalProtection(Service.PsyProtectionArr) / 100d));
                     if (Service.Psy >= 1000.0d) {
-                        Service.setDead(Boolean.TRUE);
-                        Service.setHealth(0.0d);
-                        Intent intent2 = new Intent("StatsService.Message");
-                        intent2.putExtra("Message", "P");
-                        Service.sendBroadcast(intent2);
+                        Service.playerCharacter.setHealth(0.0d);
                     }
                 }
-                return;
-            case "ClS":
-                if (distanceToAnomaly > 30){
-                    if (distanceToAnomaly < 55){
-                        Service.setHealth(Service.Health - 100);
-                    } else if (distanceToAnomaly < 65){
-                        Service.setHealth(Service.Health - 10);
-                    }
-
-                }
-
                 return;
         }
     }
@@ -209,15 +186,12 @@ public class Anomaly {
                 if (damage <= minstrenght) {
                     damage = minstrenght;
                 }
-                if (Service.Health > (Service.MaxHealth / 3)) {
-                    Service.setHealth(Service.Health - damage);
+                if (Service.playerCharacter.getHealth() > (Service.playerCharacter.getMaxHealth() / 3)) {
+                    Service.playerCharacter.setHealth(Service.playerCharacter.getHealth() - damage);
                 }
                 if (Service.Health <= 0.0d) {
-                    Service.setDead(Boolean.TRUE);
-                    Service.setHealth(0.0d);
-                    Intent intent2 = new Intent("StatsService.Message");
-                    intent2.putExtra("Message", "H");
-                    Service.sendBroadcast(intent2);
+                    Service.playerCharacter.setDead(true);
+                    Service.playerCharacter.setHealth(0.0d);
                 }
                 this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                 this.Service.EM.StopActions();
@@ -254,11 +228,11 @@ public class Anomaly {
             if (!Service.isMonolith) {
                 AnomalyResult(valueOf);
             } else {
-                Service.setHealth(Service.MaxHealth);
+                Service.playerCharacter.setHealth(Service.playerCharacter.getMaxHealth());
             }
             this.Service.LastTimeChanged = Calendar.getInstance().getTime();
             this.Service.EM.StopActions();
-            if (!this.Service.IsDead) {
+            if (!this.Service.playerCharacter.isDead()) {
                 this.Service.EM.PlaySound(this.Type, this.strenght);
                 if (this.Service.Vibrate) {
                     this.Service.EM.VibrateInPattern();
@@ -291,7 +265,7 @@ public class Anomaly {
                 if (!Service.isMonolith) {
                     AnomalyResult(distanceToAnomaly);
                 } else if (Type.equals("Psy")) {
-                    Service.setHealth(Service.MaxHealth);
+                    Service.playerCharacter.setHealth(Service.playerCharacter.getMaxHealth());
                 }
                 if (Service.isMonolith){
                     IsInside = Boolean.TRUE;
@@ -299,7 +273,7 @@ public class Anomaly {
 
                 if (Type.equals("Oas")){
                     IsInside = Boolean.TRUE;
-                    Service.setHealth(Service.Health + 0.1);
+                    Service.playerCharacter.setHealth(Service.playerCharacter.getHealth() + 0.1);
                 }
                 /*int round;
                 if (this.Type.equals("Rad")) {
@@ -322,7 +296,7 @@ public class Anomaly {
                     }*/
                     this.Service.LastTimeChanged = Calendar.getInstance().getTime();
                     this.Service.EM.StopActions();
-                    if (!this.Service.IsDead) {
+                    if (!this.Service.playerCharacter.isDead()) {
                         if (!Service.isMonolith) {
                             this.Service.EM.PlaySound(this.Type, this.strenght);
                         }

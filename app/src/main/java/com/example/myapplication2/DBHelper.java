@@ -62,15 +62,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     // таблица locality
-    public static final String KEY_ID_LOCALITY = "_id";
-    public static final String KEY_NAME_LOCALITY = "name";
-    public static final String KEY_DESCRIPTION_LOCALITY = "description";
-    public static final String KEY_LATITUDE_LOCALITY = "latitude";
-    public static final String KEY_LONGITUDE_LOCALITY = "longitude";
-    public static final String KEY_ACCESS_STATUS_LOCALITY = "access_status";
-    public static final String KEY_ACCESS_KEY_LOCALITY = "access_key";
-    public static final String KEY_IMAGE_LOCALITY = "image";
-    public static final String KEY_KOSTYL_LOCALITY = "kostyl";
+    public static final String KEY_ID__LOCALITY = "_id";
+    public static final String KEY_NAME__LOCALITY = "name";
+    public static final String KEY_DESCRIPTION__LOCALITY = "description";
+    public static final String KEY_LATITUDE__LOCALITY = "latitude";
+    public static final String KEY_LONGITUDE__LOCALITY = "longitude";
+    public static final String KEY_ACCESS_STATUS__LOCALITY = "access_status";
+    public static final String KEY_ACCESS_KEY__LOCALITY = "access_key";
+    public static final String KEY_IMAGE__LOCALITY = "image";
+    public static final String KEY_KOSTYL__LOCALITY = "kostyl";
 
 
     // таблица faction
@@ -160,10 +160,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ID__CREED = "_id";
     public static final String KEY_NAME__CREED = "name";
     public static final String KEY_DESCRIPTION__CREED = "description";
-    public static final String KEY_IS_CURRENT__CREED = "is_current";
     public static final String KEY_IMAGE__CREED = "image";
-    public static final String KEY_TIME__CREED = "time";
-    public static final String KEY_COOLDOWN__CREED = "cooldown";
 
     // таблица creed_branch
     public static final String KEY_ID__CREED_BRANCH = "_id";

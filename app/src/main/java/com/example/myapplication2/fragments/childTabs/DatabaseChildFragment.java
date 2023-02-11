@@ -18,6 +18,7 @@ import com.example.myapplication2.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 
@@ -130,6 +131,23 @@ public class DatabaseChildFragment extends Fragment {
             description.setText(localCursor.getString(DESCRIPTION_INDEX));
             imageView.setImageDrawable(imageDrawable(localCursor, IMAGE_INDEX));
 
+
+            /*
+            * позволяет увеличивать картинки в бестиарии
+            * */
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    LayoutInflater inflater = getActivity().getLayoutInflater();
+                    View dialogView = inflater.inflate(R.layout.expanded_image, null);
+                    builder.setView(dialogView);
+                    ImageView expandedImageView = dialogView.findViewById(R.id.expanded_image_view);
+                    expandedImageView.setImageDrawable(imageView.getDrawable());
+                    builder.show();
+                }
+            });
+
             /*Button button = (Button)convertView.findViewById(R.id.buttonChild);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -161,7 +179,7 @@ public class DatabaseChildFragment extends Fragment {
         String[] groupFrom = { DBHelper.KEY_NAME_TABLE_OF_TABLES};
         int[] groupTo = { android.R.id.text1 };
         // элементы группы
-        String[] childFrom = { DBHelper.KEY_NAME_LOCALITY/*,  DBHelper.KEY_NAME_FACTION*/};
+        String[] childFrom = { DBHelper.KEY_NAME__LOCALITY/*,  DBHelper.KEY_NAME_FACTION*/};
         int[] childTo = { android.R.id.text1 };
         // адаптер
         LocalityAdapter sctAdapter = new LocalityAdapter(getActivity(), cursor,

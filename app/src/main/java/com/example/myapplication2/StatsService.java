@@ -49,16 +49,13 @@ import androidx.core.content.ContextCompat;
 import static android.app.NotificationManager.IMPORTANCE_HIGH;
 
 public class StatsService extends Service {
+    // создает экземпляр персонажа игрока
+    public PlayerCharacter playerCharacter;
+
     private static final int ID_SERVICE = 101;
     public int NUMBER_OF_ANOMALIES = 0; // задается в onCreate
     private static final int NUMBER_OF_GESTALT_ANOMALIES = 2;
     private static final int NUMBER_OF_SAVE_ZONES = 5;
-    public static final int SUIT_PROTECTION = 80; //ЗАЩИТА ОТ КОСТЮМА
-    public static final int SUIT_PROTECTION_50 = 50; //ЗАЩИТА ОТ КОСТЮМА
-    public static final int SUIT_PROTECTION_25 = 25; //ЗАЩИТА ОТ КОСТЮМА
-    public static final double SUIT_PROTECTION_CAPACITY = 100000; //ЗАЩИТА ОТ КОСТЮМА
-    public static final double ART_PROTECTION_CAPACITY = 2000; //ЗАЩИТА ОТ КОСТЮМА
-    public static final double QUEST_PROTECTION_CAPACITY = 2000; //ЗАЩИТА ОТ КОСТЮМА
     private boolean IS_ANOMALIES_AVAILABLE = true;
     public Anomaly[] anomalies;
     public SafeZone[] SafeZones;
@@ -134,9 +131,6 @@ public class StatsService extends Service {
     boolean isMonolith = false;
 
     public boolean fastRadPurification = false;
-
-    public LatLng latLngAnomaly;
-    public Double radiusAnomaly;
 
     long checkTime_in = 1620988200;  // 14 мая 13:30 // 1620988200
     long checkTime_out = 1621167600;  // 16 мая 15:20  // 1621167600
@@ -293,7 +287,7 @@ public class StatsService extends Service {
                        var3 = -1;
                        break label110;
                    case "injectorHP50":
-                       setHealth(Health + 0.5 * MaxHealth);
+                       playerCharacter.setHealth(playerCharacter.getHealth() + 0.5 * playerCharacter.getMaxHealth());
                        var3 = -1;
                        break label110;
                }
@@ -301,60 +295,6 @@ public class StatsService extends Service {
                    case 305958064:
                        if (var4.equals("ResetStats")) {
                            var3 = 0;
-                           break label110;
-                       }
-                       break;
-                   case 1952950435:
-                       if (var4.equals("SetPsyProtection0")) {
-                           var3 = 1;
-                           break label110;
-                       }
-                       break;
-                   case 411921544:
-                       if (var4.equals("SetPsyProtection50")) {
-                           var3 = 2;
-                           break label110;
-                       }
-                       break;
-                   case -115337820:
-                       if (var4.equals("SetPsyProtection100")) {
-                           var3 = 3;
-                           break label110;
-                       }
-                       break;
-                   case -782617084:
-                       if (var4.equals("SetRadProtection0")) {
-                           var3 = 4;
-                           break label110;
-                       }
-                       break;
-                   case 1508674375:
-                       if (var4.equals("SetRadProtection50")) {
-                           var3 = 5;
-                           break label110;
-                       }
-                       break;
-                   case -475738427:
-                       if (var4.equals("SetRadProtection100")) {
-                           var3 = 6;
-                           break label110;
-                       }
-                       break;
-                   case 2084039473:
-                       if (var4.equals("SetBioProtection0")) {
-                           var3 = 7;
-                           break label110;
-                       }
-                       break;
-                   case 180714426:
-                       if (var4.equals("SetBioProtection50")) {
-                           var3 = 8;
-                           break label110;
-                       }
-                       break;
-                   case 1307176114:
-                       if (var4.equals("SetBioProtection100")) {
-                           var3 = 9;
                            break label110;
                        }
                        break;
@@ -726,18 +666,6 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   /*case -1449685624: // этот и следующий - локальные защиты от выбросов
-                       if (var4.equals("dolgDischargeImmunity")) {
-                           var3 = 70;
-                           break label110;
-                       }
-                       break;*/
-                   /*case 1259972122: // сентябрь21 - чистое небо
-                       if (var4.equals("naemnikiDischargeImmunity")) {
-                           var3 = 71;
-                           break label110;
-                       }
-                       break;*/
                    case -1658045336:
                        if (var4.equals("mechMinus60Rad")) {
                            var3 = 72;
@@ -780,12 +708,6 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case 1265750414:
-                       if (var4.equals("ifLess50healthSet70RadProt")) {
-                           var3 = 79;
-                           break label110;
-                       }
-                       break;
                    case -1523616740:
                        if (var4.equals("plus10Rad")) {
                            var3 = 80;
@@ -798,21 +720,9 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case 189785345:
-                       if (var4.equals("ifLess50healthSet70BioProt")) {
-                           var3 = 82;
-                           break label110;
-                       }
-                       break;
                    case 1784281556:
                        if (var4.equals("minus15Bio")) {
                            var3 = 83;
-                           break label110;
-                       }
-                       break;
-                   case -1576308282:
-                       if (var4.equals("ifLess50healthPlus25Health")) {
-                           var3 = 84;
                            break label110;
                        }
                        break;
@@ -928,6 +838,7 @@ public class StatsService extends Service {
            int j;
            switch(var3) {
                case 0:
+                   playerCharacter.setHealth(playerCharacter.getMaxHealth());
                    Health = 2000.0D;
                    MaxHealth = 2000.0D;
                    Rad = 0.0D;
@@ -948,76 +859,13 @@ public class StatsService extends Service {
                        anomalies[i].gesStatus = 1;
                    }   // 1 - гештальт закрыт
                    DischargeImmunity = false;
-                   IsDead = false;
+                   playerCharacter.setDead(false);
                    intent1 = new Intent("StatsService.HealthUpdate");
                    intent1.putExtra("Health", "2000");
                    sendBroadcast(intent1);
                    intent1 = new Intent("StatsService.Message");
                    intent1.putExtra("Message", "A");
                    sendBroadcast(intent1);
-                   break;
-               case 1: //191000 монолит на 2021
-                    if (DischargeImmunity){
-                        MonolithOk = true;
-                        MaxProtectionsAvailable = 3;
-                        RadProtectionArr[0] = 50;
-                        RadProtectionCapacityArr[0] = 0;
-                        MaxRadProtectionCapacityArr[0] = SUIT_PROTECTION_CAPACITY;
-                        BioProtectionArr[0] = 50;
-                        BioProtectionCapacityArr[0] = 0;
-                        MaxBioProtectionCapacityArr[0] = SUIT_PROTECTION_CAPACITY;
-                        PsyProtectionArr[0] = 50;
-                        PsyProtectionCapacityArr[0] = 0;
-                        MaxPsyProtectionCapacityArr[0] = SUIT_PROTECTION_CAPACITY;
-                    } else {
-                        if (MaxProtectionsAvailable < 3){
-                            MaxProtectionsAvailable++;
-                        }
-                    }
-                   break;
-               case 2: //191050
-                   /*ProtectionChanger("Psy");
-                   j = 1;
-                   PsyProtectionCapacityArr[j] = 0;
-                   PsyProtectionArr[j] = 50;
-                   MaxPsyProtectionCapacityArr[j] = 100;
-                   break;
-               case 3:
-                   PsyQuestProtection = 100;*/
-                   break;
-               case 4: //171000
-                   /*ProtectionChanger("Rad");
-                   Arrays.fill(RadProtectionCapacityArr, 0);
-                   RadProtectionArr[0] = 30;
-                   RadProtectionArr[1] = 40;
-                   RadProtectionArr[2] = 50;
-
-                   MaxRadProtectionCapacityArr[0] = 300;
-                   MaxRadProtectionCapacityArr[1] = 300;
-                   MaxRadProtectionCapacityArr[2] = 300;*/
-                   break;
-               case 5: //171050
-                   //RadTotalProtection = 90;
-                   //MaxRadProtectionCapacityArr[2] = 50000;
-                   break;
-               case 6: // используется не только цифровым кодом, но и qr
-                   //RadTotalProtection = 99;
-                   //MaxRadProtectionCapacityArr[2] = 50000;
-                   break;
-               case 7: //181000
-                   /*ProtectionChanger("Bio");
-                   j = 0;
-                   BioProtectionCapacityArr[j] = 0;
-                   BioProtectionArr[j] = 80;
-                   MaxBioProtectionCapacityArr[j] = 100;*/
-                   break;
-               case 8:
-                   //BioQuestProtection = 50;
-                   break;
-               case 9: // используется не только цифровым кодом, но и qr
-                   /*if (BioProtectionChangeability) {
-                       BioQuestProtection = 90;
-                   }*/
                    break;
                case 10: // вкл выкл иммунитет от выбросов
                    DischargeImmunity = !DischargeImmunity;
@@ -1028,16 +876,17 @@ public class StatsService extends Service {
                case 12:
                    MaxHealth = 2000.0D;
                    intent1 = new Intent("StatsService.HealthUpdate");
-                   intent1.putExtra("Health", "200");
+                   intent1.putExtra("Health", "2000");
                    sendBroadcast(intent1);
                    break;
                case 13:
                    MaxHealth = 3000.0D;
                    intent1 = new Intent("StatsService.HealthUpdate");
-                   intent1.putExtra("Health", "300");
+                   intent1.putExtra("Health", "3000");
                    sendBroadcast(intent1);
                    break;
                case 14:  //MakeAlive
+                   playerCharacter.setHealth(playerCharacter.getMaxHealth());
                    Health = MaxHealth;
                    Rad = 0.0D;
                    Bio = 0.0D;
@@ -1057,7 +906,7 @@ public class StatsService extends Service {
                    Arrays.fill(RadProtectionCapacityArr, 0);
                    Arrays.fill(BioProtectionCapacityArr, 0);
                    Arrays.fill(PsyProtectionCapacityArr, 0);
-                   IsDead = false;
+                   playerCharacter.setDead(false);
                    break;
                case 15: //ComboResetProtections
                    Arrays.fill(RadProtectionArr, 0);
@@ -1112,6 +961,14 @@ public class StatsService extends Service {
                    break;
                case 25:
                    int g = 0;
+
+                   database = dbHelper.open();
+                   ContentValues contentValues;
+                   contentValues = new ContentValues();
+                   contentValues.put(DBHelper.KEY_GESTALT_STATUS, "1");
+                   database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID_ANOMALY + "=?", new String[]{String.valueOf(g + 1)});
+                   database.close();
+
                    anomalies[g].gesStatus = 1;
                    gesLockoutList[g] = 1;
                    GestaltLockout(g);
@@ -1169,7 +1026,7 @@ public class StatsService extends Service {
                     IS_COMPASS = true;
                    break;
                case 38:
-                   setHealth(0);
+                   playerCharacter.setHealth(0);
                    break;
                case 39: // временная защита от ЧН аномалий
                    break;
@@ -1273,10 +1130,6 @@ public class StatsService extends Service {
                        Bio = 0.8 * MaxBio;
                    }
                    break;
-               case 70: // этот защита от аномалий
-                   break;
-               case 71:
-                   break;
                case 72:
                    Rad -= Rad * (random.nextInt(30) + 61) / 100;
                    break;
@@ -1300,46 +1153,22 @@ public class StatsService extends Service {
                case 78:
                    Rad -= 0.15 * Rad;
                    break;
-               case 79:
-                   /*if (Health >= MaxHealth * 0.5){
-                       Health -= 0.15 * Health;
-                   }else {
-                       SetTemporaryAnomalyProtection ("Rad", 69, 1, 1200000);
-                   }*/
-                   break;
                case 80:
                    Rad += 0.1 * MaxRad;
                    if (Rad >= MaxRad){
-                       setDead(Boolean.TRUE);
-                       setHealth(0);
+                       playerCharacter.setDead(true);
+                       playerCharacter.setHealth(0);
                    }
                    break;
                case 81:
                    Bio += 0.1 * MaxBio;
                    if (Bio >= MaxBio){
-                       setDead(Boolean.TRUE);
-                       setHealth(0);
+                       playerCharacter.setDead(true);
+                       playerCharacter.setHealth(0);
                    }
-                   break;
-               case 82:
-                   /*if (Health >= MaxHealth * 0.5){
-                       Health -= 0.15 * Health;
-                   }else {
-                       SetTemporaryAnomalyProtection ("Bio", 69, 1, 1200000);
-                   }*/
                    break;
                case 83:
                    Bio -= 0.15 * Bio;
-                   break;
-               case 84:
-                   if (Health >= MaxHealth * 0.5){
-                       Health -= 0.15 * Health;
-                   }else {
-                       Health += 0.25 * MaxHealth;
-                       if (Health >= MaxHealth){
-                           Health = MaxHealth;
-                       }
-                   }
                    break;
                case 85: //sc1 код по типу sc1@rad@suit@80@
                    try {
@@ -1409,8 +1238,8 @@ public class StatsService extends Service {
                                Rad = 0;
                            }
                            if (Rad >= MaxRad){
-                               setDead(true);
-                               setHealth(0);
+                               playerCharacter.setDead(true);
+                               playerCharacter.setHealth(0);
                            }
                        } catch (Exception e) {
                            e.printStackTrace();
@@ -1423,8 +1252,8 @@ public class StatsService extends Service {
                                Bio = 0;
                            }
                            if (Bio >= MaxBio){
-                               setDead(true);
-                               setHealth(0);
+                               playerCharacter.setDead(true);
+                               playerCharacter.setHealth(0);
                            }
                        } catch (Exception e) {
                            e.printStackTrace();
@@ -1437,7 +1266,7 @@ public class StatsService extends Service {
                                Health = MaxHealth;
                            }
                            if (Health <= 0){
-                               setDead(true);
+                               playerCharacter.setDead(true);
                            }
                        } catch (Exception e) {
                            e.printStackTrace();
@@ -1562,91 +1391,6 @@ public class StatsService extends Service {
         }
     }
 
-    public void setProtectionCapacity(double c){
-
-    }
-
-    public void setHealth(double d) {
-        if (d > 0.0d) {
-            Health = d;
-            if (Health > MaxHealth){
-                Health = MaxHealth;
-            }
-            return;
-        }
-        Health = d;
-        setDead(Boolean.TRUE);
-    }
-
-    public void setDead(Boolean var1) {
-        byte var2 = 0;
-        var1 = false;
-        if (var1) {
-            this.IsDead = var1;
-        } else {
-            label39: {
-                this.IsDead = var1;
-                String var4 = this.LastTimeHitBy;
-                int var3 = var4.hashCode();
-                if (var3 != 66792) {
-                    if (var3 != 68718) {
-                        if (var3 != 80566) {
-                            if (var3 == 81909 && var4.equals("Rad")) {
-                                break label39;
-                            }
-                        } else if (var4.equals("Psy")) {
-                            var2 = 1;
-                            break label39;
-                        }
-                    } else if (var4.equals("Dis")) {
-                        var2 = 3;
-                        break label39;
-                    }
-                } else if (var4.equals("Bio")) {
-                    var2 = 2;
-                    break label39;
-                }
-
-                var2 = -1;
-            }
-
-            Intent var5;
-            switch(var2) {
-                case 0:
-                    Toast.makeText(this.getApplicationContext(), "Вы умерли от Радиации", Toast.LENGTH_LONG).show();
-                    var5 = new Intent("StatsService.Message");
-                    var5.putExtra("Message", "H");
-                    this.sendBroadcast(var5);
-                    break;
-                case 1:
-                    Toast.makeText(this.getApplicationContext(), "Вы умерли от Пси", Toast.LENGTH_LONG).show();
-                    var5 = new Intent("StatsService.Message");
-                    var5.putExtra("Message", "P");
-                    this.sendBroadcast(var5);
-                    break;
-                case 2:
-                    Toast.makeText(this.getApplicationContext(), "Вы умерли от Био", Toast.LENGTH_LONG).show();
-                    var5 = new Intent("StatsService.Message");
-                    var5.putExtra("Message", "H");
-                    this.sendBroadcast(var5);
-                    break;
-                case 3:
-                    Toast.makeText(this.getApplicationContext(), "Вы умерли от Выброса°", Toast.LENGTH_LONG).show();
-                    var5 = new Intent("StatsService.Message");
-                    var5.putExtra("Message", "H");
-                    this.sendBroadcast(var5);
-                    break;
-                case -1:
-                    Toast.makeText(this.getApplicationContext(), "Вы умерли", Toast.LENGTH_LONG).show();
-                    var5 = new Intent("StatsService.Message");
-                    var5.putExtra("Message", "H");
-                    this.sendBroadcast(var5);
-            }
-        }
-
-    }
-
-
     private WifiManager wifiManager;
     private List<ScanResult> wifiList;
 
@@ -1667,10 +1411,6 @@ public class StatsService extends Service {
                     IsInsideAnomaly = Boolean.TRUE;
                     anomalies[NUMBER_OF_ANOMALIES + 2].Apply();
                 }
-                if (ssid.equals("sin")){
-                    IsInsideAnomaly = Boolean.TRUE;
-                    anomalies[NUMBER_OF_ANOMALIES + 2].Apply();
-                }
                 if (ssid.equals("chimera")){
                     IsInsideAnomaly = Boolean.TRUE;
                     anomalies[NUMBER_OF_ANOMALIES + 1].Apply();
@@ -1684,12 +1424,14 @@ public class StatsService extends Service {
 
     public void onCreate() {
         super.onCreate();
-        latLngAnomaly = new LatLng(0, 0);
         this.wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(1, "STALKERNET:My_Partial_Wake_Lock");
         this.wl.acquire(10*60*1000L /*10 minutes*/);   //timeout заставила студия поставить, не знаю как это работает
         this.EM = new EffectManager(this);
         dbHelper = new DBHelper(getApplicationContext());
         dbHelper.create_db();
+
+        playerCharacter = new PlayerCharacter(this);
+
         NUMBER_OF_ANOMALIES = getNumberOfAnomalies();
 
         GetAnomalies();
@@ -1697,6 +1439,7 @@ public class StatsService extends Service {
         CreateSafeZones();
 
         LoadStats();
+        playerCharacter.loadStats(getApplicationContext());
 
 
 
@@ -1707,6 +1450,8 @@ public class StatsService extends Service {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                     "Channel human readable title",
                     IMPORTANCE_HIGH);
+            channel.setImportance(IMPORTANCE_HIGH);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
@@ -1754,6 +1499,7 @@ public class StatsService extends Service {
         unregisterReceiver(this.broadcastReceiver);
         unregisterReceiver(this.broadcastReceiverQR);
         SaveStats();
+        playerCharacter.saveStats(getApplicationContext());
         this.wl.release();
     }
 
@@ -1852,8 +1598,6 @@ public class StatsService extends Service {
     public LatLng moving_anomalies(LatLng start_LatLng, LatLng finish_latLng){
         double dLat = (start_LatLng.latitude - finish_latLng.latitude) / 60;
         double dLng = (start_LatLng.longitude - finish_latLng.longitude) / 60;
-        //Log.d("minutes", String.valueOf(new LatLng(start_LatLng.latitude + (dLat * (double) Minutes), start_LatLng.longitude + (dLng * (double) Minutes))));
-        //return start_LatLng;
         return new LatLng(start_LatLng.latitude - (dLat * (double) Minutes), start_LatLng.longitude - (dLng * (double) Minutes));
     }
     public void getMovingAnomalies(){
@@ -1874,8 +1618,8 @@ public class StatsService extends Service {
 
     public void CheckPsyForMonolith(){
         if (isMonolith && IS_ANOMALIES_AVAILABLE){
-            double d = Health - 0.5;
-            setHealth(d);
+            double d = playerCharacter.getHealth() - 0.5;
+            playerCharacter.setHealth(d);
         }
     }
 
@@ -1991,6 +1735,10 @@ public class StatsService extends Service {
                                 contentValues.put(DBHelper.KEY_COMMENT, "Обнаружен Гештальт");
                                 database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
 
+                                database = dbHelper.open();
+                                contentValues = new ContentValues();
+                                contentValues.put(DBHelper.KEY_GESTALT_STATUS, "2");
+                                database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID_ANOMALY + "=?", new String[]{String.valueOf(i+1)});
                             }
                         }
                     }
@@ -2096,7 +1844,7 @@ public class StatsService extends Service {
             EM.PlayBuzzer();
             if (!(IsInsideSafeZone || DischargeImmunity)) {
                 LastTimeHitBy = "Dis";
-                setDead(Boolean.TRUE);
+                playerCharacter.setDead(true);
                 Health = 0.0d;
                 Intent intent = new Intent("StatsService.Message");
                 intent.putExtra("Message", "H");
@@ -2134,6 +1882,43 @@ public class StatsService extends Service {
 
         database.close();
     }
+    /*
+    * Проверяет находится ли игрок в радиусе 30 метров, если находится, то ставит локации
+    * access_status значению true
+    * */
+    public void checkLocality(){
+        database = dbHelper.open();
+        cursor = database.query(DBHelper.TABLE_LOCALITY, new String[]{"_id", "latitude", "longitude", "access_status", "access_key"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__LOCALITY);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__LOCALITY);
+            int accessStatusIndex = cursor.getColumnIndex(DBHelper.KEY_ACCESS_STATUS__LOCALITY);
+            int accessKeyIndex = cursor.getColumnIndex(DBHelper.KEY_ACCESS_KEY__LOCALITY);
+
+            do {
+                if (cursor.getString(accessStatusIndex).equals("false")) {
+                    Location location = new Location("");
+                    location.setLatitude(cursor.getDouble(latIndex));
+                    location.setLongitude(cursor.getDouble(lonIndex));
+                    double distanceToLocality = location.distanceTo(MyCurrentLocation);
+                    if (distanceToLocality < 30){
+                        ContentValues contentValues = new ContentValues();
+                        database.beginTransaction();
+                        try {
+                            contentValues.put(DBHelper.KEY_ACCESS_STATUS__LOCALITY, "true");
+                            database.update(DBHelper.TABLE_LOCALITY, contentValues,DBHelper.KEY_ID__LOCALITY + "=" + cursor.getInt(idIndex),null);
+                            database.setTransactionSuccessful();
+                        } finally {
+                            database.endTransaction();
+                        }
+                    }
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        dbHelper.close();
+    }
 
 
     // Нужно чтобы загружать из памяти массивы, которые из double были переведены в string
@@ -2144,7 +1929,7 @@ public class StatsService extends Service {
     SharedPreferences defaultSharedPreferences;
     public void LoadStats() {
         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        this.MaxHealth = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("MaxHealth", "2000")));
+        MaxHealth = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("MaxHealth", "2000")));
         this.Health = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Health", "2000")));
         this.Rad = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Rad", "0")));
         this.Bio = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Bio", "0")));

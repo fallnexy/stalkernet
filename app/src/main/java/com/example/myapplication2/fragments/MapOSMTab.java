@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +46,7 @@ public class MapOSMTab extends Fragment {
     RotationGestureOverlay mRotationGestureOverlay = null;
 
     Polygon[] circleAnomaly = null;
+    Marker[] localityMarker = null;
 
     DBHelper dbHelper;
     SQLiteDatabase database;
@@ -61,14 +61,12 @@ public class MapOSMTab extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-
             try {
                 drawCirceAnomaly();
+                checkLocality();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
         }
     };
 
@@ -87,7 +85,10 @@ public class MapOSMTab extends Fragment {
         // начальные координаты и зум
         IMapController mapController = map.getController();
         mapController.setZoom(14.65);
-        GeoPoint startPoint = new GeoPoint(64.35342867d, 40.7328d);
+        // майдан точка
+        //GeoPoint startPoint = new GeoPoint(64.35342867d, 40.7328d);
+        // арх центр
+        GeoPoint startPoint = new GeoPoint(64.544608, 40.546129);
         mapController.setCenter(startPoint);
         // вращение карты
         mRotationGestureOverlay = new RotationGestureOverlay(map);
@@ -102,14 +103,18 @@ public class MapOSMTab extends Fragment {
         // карта около Адмиралтейской
         //Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.mapadm6);
         // карта МАйдан
-        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_2022);
+        //Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_2022);
+        // карта Архангельск
+        Bitmap currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.maparkh);
         GroundOverlay overlay = new GroundOverlay();
         overlay.setTransparency(0f);
         overlay.setImage(currentMap);
         // адмиралтейская
         //overlay.setPosition(new GeoPoint(64.574154d, 40.518798d), new GeoPoint( 64.573228d, 40.514540d));
         // майдан
-        overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.347312, 40.75284205));
+        //overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.347312, 40.75284205));
+        // арх
+        overlay.setPosition(new GeoPoint(64.556753, 40.493319), new GeoPoint( 64.529705, 40.593033));
         map.getOverlayManager().add(overlay);
 
         // возможность ставить маркеры на карту
@@ -124,7 +129,8 @@ public class MapOSMTab extends Fragment {
         map.getOverlays().add(mLocationOverlay);
         // создаем круглые аномалии
         try {
-            createCircleAnomaly (getNumberOfAnomalies());
+            createCircleAnomaly (getNumberOfRows(DBHelper.TABLE_ANOMALY));
+            createLocalityMarker(getNumberOfRows(DBHelper.TABLE_LOCALITY));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,7 +179,8 @@ public class MapOSMTab extends Fragment {
         // создаем круглые аномалии
 
         try {
-            createCircleAnomaly (getNumberOfAnomalies());
+            createCircleAnomaly (getNumberOfRows(DBHelper.TABLE_ANOMALY));
+            createLocalityMarker(getNumberOfRows(DBHelper.TABLE_LOCALITY));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -275,7 +282,7 @@ public class MapOSMTab extends Fragment {
             int boolShowOnMap = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOW_ON_MAP);
 
             do {
-                Log.d("аномалия_bool", String.valueOf(cursor.getString(boolShowOnMap)));
+                //Log.d("аномалия_bool", String.valueOf(cursor.getString(boolShowOnMap)));
                 if (cursor.getString(boolShowOnMap).equals("true") && !circleAnomaly[cursor.getInt(idIndex) - 1].isVisible()) {
                     circleAnomaly[cursor.getInt(idIndex) - 1].setVisible(true);
                 } else if(cursor.getString(boolShowOnMap).equals("false")){
@@ -287,18 +294,42 @@ public class MapOSMTab extends Fragment {
         cursor.close();
         dbHelper.close();
     }
-    // высчитывание количества круглых аномалий
-    private int getNumberOfAnomalies(){
-        int numberOfAnomalies = 0;
+    /*
+    * Вызывается в broadcastReceiverCircle и, в зависимости от DBHelper.KEY_ACCESS_STATUS_LOCALITY в DBHelper.TABLE_LOCALITY,
+    * выставляет иконку локации
+    * */
+    private void checkLocality(){
         database = dbHelper.open();
-        cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{"COUNT(_id)"}, null, null, null, null, null);
+        cursor = database.query(DBHelper.TABLE_LOCALITY, new String[]{"_id", "access_status"}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
-            numberOfAnomalies = cursor.getInt(0);
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
+            int accessStatus = cursor.getColumnIndex(DBHelper.KEY_ACCESS_STATUS__LOCALITY);
+
+            do {
+                //Log.d("аномалия_bool", String.valueOf(cursor.getString(accessStatus)));
+                if (cursor.getString(accessStatus).equals("true")) {
+                    localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                } else if(cursor.getString(accessStatus).equals("false")){
+                    localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_empty_loc));
+                }
+
+            } while (cursor.moveToNext());
         }
         cursor.close();
         dbHelper.close();
-        Log.d("аномалия", String.valueOf(numberOfAnomalies));
-        return numberOfAnomalies;
+    }
+    // высчитывание количества круглых аномалий, а точнее не толькно аномалий, а количество строк в таблице
+    private int getNumberOfRows(String table){
+        int numberOfRows = 0;
+        database = dbHelper.open();
+        cursor = database.query(table, new String[]{"COUNT(_id)"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            numberOfRows = cursor.getInt(0);
+        }
+        cursor.close();
+        dbHelper.close();
+        //Log.d("аномалия", String.valueOf(numberOfRows));
+        return numberOfRows;
     }
     /*
     * В onCreate все аномалии добавляются на карту, но с параметром setVisible(false).
@@ -349,6 +380,40 @@ public class MapOSMTab extends Fragment {
                 //circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1EFFE70E")); //set fill color
                 map.getOverlayManager().add(circleAnomaly[cursor.getInt(idIndex) - 1]);
                 circleAnomaly[cursor.getInt(idIndex) - 1].setVisible(false);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        dbHelper.close();
+
+    }
+    /*
+    * В onCreate и onResume создает маркеры для локаций.
+    * Иконка локации зависит от DBHelper.KEY_ACCESS_STATUS_LOCALITY в DBHelper.TABLE_LOCALITY
+    * */
+    private void createLocalityMarker(int numberOfLocalities){
+        localityMarker = new Marker[numberOfLocalities];
+        database = dbHelper.open();
+        cursor = database.query(DBHelper.TABLE_LOCALITY, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
+            int name = cursor.getColumnIndex(DBHelper.KEY_NAME__LOCALITY);
+            int description = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__LOCALITY);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__LOCALITY);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__LOCALITY);
+            int accessStatus = cursor.getColumnIndex(DBHelper.KEY_ACCESS_STATUS__LOCALITY);
+            do {
+                localityMarker[cursor.getInt(idIndex) - 1] = new Marker(map);
+
+                localityMarker[cursor.getInt(idIndex) - 1].setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
+                localityMarker[cursor.getInt(idIndex) - 1].setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                if (cursor.getString(accessStatus).equals("true")) {
+                    localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                } else {
+                    localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_empty_loc));
+                }
+                localityMarker[cursor.getInt(idIndex) - 1].setTitle(cursor.getString(name));
+                map.getOverlays().add(localityMarker[cursor.getInt(idIndex) - 1]);
 
             } while (cursor.moveToNext());
         }

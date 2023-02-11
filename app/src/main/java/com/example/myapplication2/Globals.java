@@ -2,14 +2,8 @@ package com.example.myapplication2;
 
 import android.content.Context;
 import android.location.Location;
-import android.location.LocationManager;
-import android.util.Log;
-import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Locale;
 
@@ -17,7 +11,7 @@ import androidx.annotation.NonNull;
 
 public class Globals {
     Context mContext;
-    public ArrayAdapter<MarkerOptions> Adapter;
+    //public ArrayAdapter<MarkerOptions> Adapter;
     public String Health, Rad, Bio, Psy, TotalProtectionRad, TotalProtectionBio, TotalProtectionPsy,
             CapacityProtectionRad, CapacityProtectionBio, CapacityProtectionPsy,
             MaxCapacityProtectionRad, MaxCapacityProtectionBio, MaxCapacityProtectionPsy,
@@ -31,15 +25,11 @@ public class Globals {
             RadProtectionPercent, BioProtectionPercent, PsyProtectionPercent,
             RadCapacityPercent, BioCapacityPercent, PsyCapacityPercent;
     public Location location = new Location("GPS");
-    public GoogleMap map;
-    /*public LatLng anomalyCenter = new LatLng(0, 0);
-    public Double anomalyRadius =0d;*/
-  //  public int anomalyIndex;
-   /* public CircleOptions circleOptions;*/
+    //public GoogleMap map;
 
     public int ScienceQR;          // не работает или работает? - вроде как обновляет вместе с обновлением координат
 
-    private LocationManager locationManager;
+    //private LocationManager locationManager;
 
     public Globals(Context mContext) {
         this.mContext = mContext;
@@ -95,7 +85,6 @@ public class Globals {
             parseTotalProtection = 0;
             parseLegendProtection = 0;
         }
-        Log.d("capacity", capacity + " " + maxCapacity);
         barName.setProgress(parseDouble);
         String percent = 100 * parseDouble / Double.parseDouble(stringMax) +"%";
         perCent.setText(percent);
@@ -136,12 +125,6 @@ public class Globals {
         updateBar(BioBar, MaxBio, Bio, BioPercent, CapacityProtectionBio, MaxCapacityProtectionBio, BioCapacityPercent, ProtectionBioArr, BioProtectionPercent, TotalProtectionBio, BioProtectionTot);
         updateBar(PsyBar, MaxPsy, Psy, PsyPercent, CapacityProtectionPsy, MaxCapacityProtectionPsy, PsyCapacityPercent, ProtectionPsyArr, PsyProtectionPercent, TotalProtectionPsy, PsyProtectionTot);
 
-        /*try {
-            circleOptions = new CircleOptions().center(anomalyCenter).radius(anomalyRadius).strokeColor(Color.BLUE).strokeWidth(3).zIndex(Float.MAX_VALUE);
-        } catch (Exception e) {
-            circleOptions = new CircleOptions().center(new LatLng(0, 0)).radius(0).strokeColor(Color.GREEN).strokeWidth(3).zIndex(Float.MAX_VALUE);
-        }
-        Log.d("координаты", String.valueOf(circleOptions.getCenter().latitude));*/
         // GPS
         TextView textView = CO;
         String stringBuilder = location.getLatitude() +

@@ -67,24 +67,6 @@ public class ChatChildFragment extends Fragment {
                 intent = new Intent("Command");
                 switch(code.hashCode()) {
                     // старые коды
-                    case 1456976519: // пси
-                        if (code.equals("191000")) {
-                            var3 = 1;
-                            break label94;
-                        }
-                        break;
-                    case 1456976674:
-                        if (code.equals("191050")) {
-                            var3 = 2;
-                            break label94;
-                        }
-                        break;
-                    case 1456977480:
-                        if (code.equals("191100")) {
-                            var3 = 3;
-                            break label94;
-                        }
-                        break;
                     case 1455129477: //рад
                         if (code.equals("171000")) {
                             var3 = 4;
@@ -226,16 +208,6 @@ public class ChatChildFragment extends Fragment {
                             var3 = 30;
                             break label94;
                         }
-                    case -1113320671: //
-                        if (code.equals("чнзнает")) {
-                            var3 = 31;
-                            break label94;
-                        }
-                    case -1792935999: //
-                        if (code.equals("gloriamonolithhaereticorummors")) {
-                            var3 = 32;
-                            break label94;
-                        }
                     case -1759609022: //
                         if (code.equals("наукада")) {
                             var3 = 33;
@@ -252,25 +224,6 @@ public class ChatChildFragment extends Fragment {
             }
 
             switch(var3) {
-                case 0:
-                    intent.putExtra("Command", "ResetStats");
-                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                    break;
-                case 1:
-                    argsDialog.putString("type", "Psy");
-                    dialog.setArguments(argsDialog);
-                    dialog.show(requireActivity().getSupportFragmentManager(), "custom");
-                    intent.putExtra("Command", "SetPsyProtection00");
-                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                    break;
-                case 2:
-                    intent.putExtra("Command", "SetPsyProtection50");
-                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                    break;
-                case 3:
-                    intent.putExtra("Command", "SetPsyProtection100");
-                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                    break;
                 case 4:
                     intent.putExtra("Command", "SetRadProtection0");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -295,7 +248,6 @@ public class ChatChildFragment extends Fragment {
                     intent.putExtra("Command", "SetBioProtection100");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
-
                 case 12:
                     intent.putExtra("Command", "SetMaxHealth100");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -304,8 +256,6 @@ public class ChatChildFragment extends Fragment {
                     intent.putExtra("Command", "SetMaxHealth200");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
-
-
                 case 16:
                     intent.putExtra("Command", "Monolith");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -326,8 +276,6 @@ public class ChatChildFragment extends Fragment {
                     intent.putExtra("Command", "SetGesProtectionOFF");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
-
-
                 case 28:
                     intent.putExtra("Command", "sc1, rad, suit, 80");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -340,15 +288,6 @@ public class ChatChildFragment extends Fragment {
                     break;
                 case 30:
                     intent.putExtra("Command", "discharge10BD");
-                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                    break;
-                case 31:
-                    intent.putExtra("Command", "dolgDischargeImmunity");
-                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                    break;
-                case 32:
-                    txtView.setText("Если у тебя нет жетона Монолита, то ты становишься адептом Монолита. Выйди на связь с бойцами Монолита, чтобы получить задание. Задача по умолчанию: не допустить уничтожение Монолита.\nКоличество разрешенных защит увеличено на 1\n\nЕсли у тебя есть жетон, то с возвращением в семью, брат!");
-                    intent.putExtra("Command", "SetPsyProtection0");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
                 case 33:

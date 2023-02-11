@@ -44,15 +44,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/admin_active_0521" />
-
-<!--        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabItem6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:icon="@drawable/map_active_0521" />-->
     </com.google.android.material.tabs.TabLayout>
 
-    <androidx.viewpager.widget.ViewPager
+    <com.example.myapplication2.NonSwipeableViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

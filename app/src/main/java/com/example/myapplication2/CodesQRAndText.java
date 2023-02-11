@@ -70,7 +70,6 @@ public class CodesQRAndText {
                 case "пятнистый":
                     intent.putExtra("Command", "isMonolith");
                     fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
-                    Log.d("аномалии", "kj");
                     var1 = -1;
                     break label94;
                 case "sc3": //sc3 и del
@@ -93,154 +92,84 @@ public class CodesQRAndText {
                     textAndCoolDown(intent, 1020000, R.string.hp_uvelishit, R.string.empty, R.string.injectorRadDawn, "injectorHP50", code, scienceQR);
                     var1 = -1;
                     break label94;
+                case "приветбумеранг":
+                case "nuyzi2sg7y3vq5f":
+                    database = dbHelper.getWritableDatabase();
+                    database.delete(DBHelper.TABLE_COOLDOWNS, null, null);
+                    dbHelper.close();
+                    simpleSendMessageAndText(intent, R.string.beginNewGame, "ResetStats");
+                    var1 = -1;
+                    break label94;
+                case "гагры":
+                    simpleSendMessageAndText(intent, R.string.beginNewGame, "MakeAlive");
+                    var1 = -1;
+                    break label94;
+                case "mpjvqlzkws":
+                    textAndCoolDown(intent, 90000, R.string.injectorRad, R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad", code, scienceQR);
+                    var1 = -1;
+                    break label94;
+                case "xrjoqykant":
+                    textAndCoolDown(intent, 90000, R.string.injectorBio, R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio", code, scienceQR);
+                    var1 = -1;
+                    break label94;
+                case "pjiscyunaf":
+                    textAndCoolDown(intent, 90000, R.string.injectorHP, R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP", code, scienceQR);
+                    var1 = -1;
+                    break label94;
+                case "разреш1тип":
+                    simpleSendMessageAndText(intent, R.string.setOneProtectionAvailable, "setOneProtAv");
+                    var1 = -1;
+                    break label94;
+                case "разреш2тип":
+                    simpleSendMessageAndText(intent, R.string.setTwoProtectionsAvailable, "setTwoProtAv");
+                    var1 = -1;
+                    break label94;
+                case "разреш3тип":
+                    simpleSendMessageAndText(intent, R.string.setThreeProtectionsAvailable, "setThreeProtAv");
+                    var1 = -1;
+                    break label94;
+                case "sc1":
+                    textView.setText(makeSCText(textCodeSplitted));
+                    try {
+                        anomalyTypeChecker(textCodeSplitted[1]);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                    fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
 
+                    var1 = -1;
+                    break label94;
+                case "sc2":
+                    textView.setText(makeSCText(textCodeSplitted));
+                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                    fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    var1 = -1;
+                    break label94;
+                case "зона5звезд":
+                    simpleSendMessageAndText(intent, R.string.setDischargeImmunityTrue, "SetDischargeImmunityTrue");
+                    var1 = -1;
+                    break label94;
+                case "доставщик":
+                    simpleSendMessageAndText(intent, R.string.setDischargeImmunityFalse, "SetDischargeImmunityFalse");
+                    var1 = -1;
+                    break label94;
+                case "505050":
+                    simpleSendMessageAndText(intent, R.string.resetAllProtections, "ComboResetProtections");
+                    var1 = -1;
+                    break label94;
+                case "выходигрока":
+                    simpleSendMessageAndText(intent, R.string.setNewBeginImmunity, "15minutesGod");
+                    var1 = -1;
+                    break label94;
+                case "снятьнеуяз":
+                    simpleSendMessageAndText(intent, R.string.dropNewBeginImmunity, "noMoreGod");
+                    var1 = -1;
+                    break label94;
             }
 
             switch(code.hashCode()) {
-                // полное воскрешение со сбросом всех параметров
-                case 1025788929: // гагры
-                case -1699798056: // nuyzi2sg7y3vq5
-                    if (code.equals("приветбумеранг") || code.equals("nuyzi2sg7y3vq5f")) {
-                        var1 = 0;
-                        break label94;
-                    }
-                case 227556695: // этот и следующие два - шприца от рад, био и для хп
-                    if (code.equals("mpjvqlzkws")) {
-                        var1 = 1;
-                        break label94;
-                    }
-                case 1134924355:
-                    if (code.equals("xrjoqykant")) {
-                        var1 = 2;
-                        break label94;
-                    }
-                case 1393505176:
-                    if (code.equals("pjiscyunaf")) {
-                        var1 = 3;
-                        break label94;
-                    }
-                case 702574009: // простое оживление
-                    if (code.equals("гагры")) {
-                        var1 = 4;
-                        break label94;
-                    }
-                case 697322052: // установить допустимое количество типов защит
-                    if (code.equals("разреш1тип")) {
-                        var1 = 5;
-                        break label94;
-                    }
-                case 697351843: //
-                    if (code.equals("разреш2тип")) {
-                        var1 = 6;
-                        break label94;
-                    }
-                case 697381634: //
-                    if (code.equals("разреш3тип")) {
-                        var1 = 7;
-                        break label94;
-                    }
-                case 113633: // умный код 1
-                    if (code.equals("sc1")) {
-                        var1 = 8;
-                        break label94;
-                    }
-                case 113634: // умный код 2
-                    if (code.equals("sc2")) {
-                        var1 = 9;
-                        break label94;
-                    }
-                case -48468164: // защита от выброса
-                    if (code.equals("зона5звезд")) {
-                        var1 = 10;
-                        break label94;
-                    }
-                case 1698598526: // снять защиту от выброса
-                    if (code.equals("доставщик")) {
-                        var1 = 11;
-                        break label94;
-                    }
-                case 1563300753: // снять все защиты
-                    if (code.equals("505050")) {
-                        var1 = 12;
-                        break label94;
-                    }
-                case -604537487: // защита на час после выхода из мертвяка
-                    if (code.equals("выходигрока")) {
-                        var1 = 13;
-                        break label94;
-                    }
-                case -189541994: // снять защиту после выхода
-                    if (code.equals("снятьнеуяз")) {
-                        var1 = 14;
-                        break label94;
-                    }
-
-                /*case 1456976519: // пси
-                    if (code.equals("191000")) {
-                        var3 = 1;
-                        break label94;
-                    }
-                    break;
-                case 1456976674:
-                    if (code.equals("191050")) {
-                        var3 = 2;
-                        break label94;
-                    }
-                    break;
-                case 1456977480:
-                    if (code.equals("191100")) {
-                        var3 = 3;
-                        break label94;
-                    }
-                    break;
-                case 1455129477: //рад
-                    if (code.equals("171000")) {
-                        var3 = 4;
-                        break label94;
-                    }
-                    break;
-                case 1455129632:
-                    if (code.equals("171050")) {
-                        var3 = 5;
-                        break label94;
-                    }
-                    break;
-                case 1455130438:
-                    if (code.equals("171100")) {
-                        var3 = 6;
-                        break label94;
-                    }
-                    break;
-                case 1456052998: // био
-                    if (code.equals("181000")) {
-                        var3 = 7;
-                        break label94;
-                    }
-                    break;
-                case 1456053153:
-                    if (code.equals("181050")) {
-                        var3 = 8;
-                        break label94;
-                    }
-                    break;
-                case 1456053959:
-                    if (code.equals("181100")) {
-                        var3 = 9;
-                        break label94;
-                    }
-                    break;
-                case -48468164:
-                    if (code.equals("зона5звезд")) {
-                        var3 = 10;
-                        break label94;
-                    }
-                    break;
-                case 1698598526:
-                    if (code.equals("доставщик")) {
-                        var3 = 11;
-                        break label94;
-                    }
-                    break;
+                /*
                 case -1945318196:
                     if (code.equals("шпагат")) {
                         var3 = 12;
@@ -250,12 +179,6 @@ public class CodesQRAndText {
                 case 1572782670:
                     if (code.equals("поперечный")) {
                         var3 = 13;
-                        break label94;
-                    }
-                    break;
-                case 702574009: // простое оживление
-                    if (code.equals("приветбумеранг")) {
-                        var3 = 14;
                         break label94;
                     }
                     break;
@@ -291,31 +214,6 @@ public class CodesQRAndText {
                 case 1974805046: //гештальт защита снята
                     if (code.equals("теперьоткрыт")) {
                         var3 = 20;
-                        break label94;
-                    }
-                case 113633: // умный код 1
-                    if (code.equals("sc1")) {
-                        var3 = 21;
-                        break label94;
-                    }
-                case 113634: // умный код 2
-                    if (code.equals("sc2")) {
-                        var3 = 22;
-                        break label94;
-                    }
-                case 697322052: //
-                    if (code.equals("разреш1тип")) {
-                        var3 = 23;
-                        break label94;
-                    }
-                case 697351843: //
-                    if (code.equals("разреш2тип")) {
-                        var3 = 24;
-                        break label94;
-                    }
-                case 697381634: //
-                    if (code.equals("разреш3тип")) {
-                        var3 = 25;
                         break label94;
                     }
                 case -604537487: //
@@ -389,16 +287,6 @@ public class CodesQRAndText {
                         var3 = 30;
                         break label94;
                     }
-                case -1113320671: //
-                    if (code.equals("чнзнает")) {
-                        var3 = 31;
-                        break label94;
-                    }
-                case -1792935999: //
-                    if (code.equals("gloriamonolithhaereticorummors")) {
-                        var3 = 32;
-                        break label94;
-                    }
                 case -1759609022: //
                     if (code.equals("наукада")) {
                         var3 = 33;
@@ -415,102 +303,10 @@ public class CodesQRAndText {
         }
 
         switch(var1) {
-            case 0:
-                database = dbHelper.getWritableDatabase();
-                database.delete(DBHelper.TABLE_COOLDOWNS, null, null);
-                dbHelper.close();
-                simpleSendMessageAndText(intent, R.string.beginNewGame, "ResetStats");
-                break;
-            case 1:
-                textAndCoolDown(intent, 90000, R.string.injectorRad, R.string.injectorRadSc, R.string.injectorRadDawn, "injectorRad", code, scienceQR);
-                break;
-            case 2:
-                textAndCoolDown(intent, 90000, R.string.injectorBio, R.string.injectorBioSc, R.string.injectorBioDawn, "injectorBio", code, scienceQR);
-                break;
-            case 3:
-                textAndCoolDown(intent, 90000, R.string.injectorHP, R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP", code, scienceQR);
-                break;
-            case 4:
-                simpleSendMessageAndText(intent, R.string.beginNewGame, "MakeAlive");
-                break;
-            case 5:
-                simpleSendMessageAndText(intent, R.string.setOneProtectionAvailable, "setOneProtAv");
-                break;
-            case 6:
-                simpleSendMessageAndText(intent, R.string.setTwoProtectionsAvailable, "setTwoProtAv");
-                break;
-            case 7:
-                simpleSendMessageAndText(intent, R.string.setThreeProtectionsAvailable, "setThreeProtAv");
-                break;
-            case 8: //sc1
-                textView.setText(makeSCText(textCodeSplitted));
-                try {
-                    anomalyTypeChecker(textCodeSplitted[1]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
-                fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 9: //sc2
-                textView.setText(makeSCText(textCodeSplitted));
-                intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
-                fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 10:
-                simpleSendMessageAndText(intent, R.string.setDischargeImmunityTrue, "SetDischargeImmunityTrue");
-                break;
-            case 11:
-                simpleSendMessageAndText(intent, R.string.setDischargeImmunityFalse, "SetDischargeImmunityFalse");
-                break;
-            case 12:
-                simpleSendMessageAndText(intent, R.string.resetAllProtections, "ComboResetProtections");
-                break;
-            case 13:
-                simpleSendMessageAndText(intent, R.string.setNewBeginImmunity, "15minutesGod");
-                break;
-            case 14:
-                simpleSendMessageAndText(intent, R.string.dropNewBeginImmunity, "noMoreGod");
-                break;
-            /*case 1:
-                argsDialog.putString("type", "Psy");
-                dialog.setArguments(argsDialog);
-                dialog.show(requireActivity().getSupportFragmentManager(), "custom");
-                intent.putExtra("Command", "SetPsyProtection00");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 2:
-                intent.putExtra("Command", "SetPsyProtection50");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 3:
-                intent.putExtra("Command", "SetPsyProtection100");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 4:
-                intent.putExtra("Command", "SetRadProtection0");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 5:
-                intent.putExtra("Command", "SetRadProtection50");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 6:
-                intent.putExtra("Command", "SetRadProtection100");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 7:
-                intent.putExtra("Command", "SetBioProtection0");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 8:
-                intent.putExtra("Command", "SetBioProtection50");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 9:
-                intent.putExtra("Command", "SetBioProtection100");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
+
+
+
+            /*
             case 10:
                 intent.putExtra("Command", "SetDischargeImmunityTrue");
                 ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -602,11 +398,6 @@ public class CodesQRAndText {
                 break;
             case 31:
                 intent.putExtra("Command", "dolgDischargeImmunity");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 32:
-                txtView.setText("Если у тебя нет жетона Монолита, то ты становишься адептом Монолита. Выйди на связь с бойцами Монолита, чтобы получить задание. Задача по умолчанию: не допустить уничтожение Монолита.\nКоличество разрешенных защит увеличено на 1\n\nЕсли у тебя есть жетон, то с возвращением в семью, брат!");
-                intent.putExtra("Command", "SetPsyProtection0");
                 ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                 break;
             case 33:

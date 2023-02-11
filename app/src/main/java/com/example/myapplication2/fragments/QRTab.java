@@ -160,7 +160,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
                     // обновляет БД: ставит статус true в access
                     makeAccessTrue(DBHelper.TABLE_QUEST, DBHelper.KEY_ACCESS_QUEST, DBHelper.KEY_ACCESS_KEY_QUEST, barcode.displayValue);
-                    makeAccessTrue(DBHelper.TABLE_LOCALITY, DBHelper.KEY_ACCESS_STATUS_LOCALITY, DBHelper.KEY_ACCESS_KEY_LOCALITY, barcode.displayValue);
+                    makeAccessTrue(DBHelper.TABLE_LOCALITY, DBHelper.KEY_ACCESS_STATUS__LOCALITY, DBHelper.KEY_ACCESS_KEY__LOCALITY, barcode.displayValue);
                     makeAccessTrue(DBHelper.TABLE_FACTION, DBHelper.KEY_ACCESS_STATUS_FACTION, DBHelper.KEY_ACCESS_KEY_FACTION, barcode.displayValue);
                     makeAccessTrue(DBHelper.TABLE_QUEST_STEP, DBHelper.KEY_STATUS_QUEST_STEP, DBHelper.KEY_ACCESS_KEY_QUEST_STEP, barcode.displayValue);
                     try {
@@ -252,12 +252,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                         case "чекинвыброс":
                             barcodeValue.setText("Пользователь защищён от выброса на 10 минут.");
                             intent.putExtra("Command", "discharge10BD");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-
-                        case "чнзнает":
-                            barcodeValue.setText("Чистое Небо знает путь");
-                            intent.putExtra("Command", "dolgDischargeImmunity");
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                         case "aperfjbasj":
@@ -535,14 +529,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                                 compositeFails();
                             }
                             return;
-                        case "qe56n9tvvl":
-                            textOnArt (R.string.saveArt, R.string.art_a5t322faqf);
-                            if ((compositionOfArts[13] & compositionOfArts[12]) & compositeTimeCheck()){
-                            compositeFinalPart (8, composites[5], "ifLess50healthSet70RadProt");
-                            }else{
-                                compositeFails();
-                            }
-                            return;
                         case "8nk3owbpzt":
                             textOnArt (R.string.saveArt, R.string.art_Sc_8nk3owbpzt);
                             if ((compositionOfArts[0] & compositionOfArts[1]) & compositeTimeCheck()) {
@@ -559,14 +545,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                                 compositeArt(3, 4);
                             }else if ((compositionOfArts[9] & compositionOfArts[10]) & compositeTimeCheck()){
                                 compositeFinalPart (10, composites[7], "minus15Bio");
-                            }else{
-                                compositeFails();
-                            }
-                            return;
-                        case "wq4qc5pbr4":
-                            textOnArt (R.string.saveArt, R.string.art_Sc_wq4qc5pbr4);
-                            if ((compositionOfArts[15] & compositionOfArts[16]) & compositeTimeCheck()){
-                                compositeFinalPart (11, composites[8], "ifLess50healthSet70BioProt");
                             }else{
                                 compositeFails();
                             }
@@ -599,23 +577,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             if (compositionOfArts[18] & compositeTimeCheck()){
                                 compositeArt(18, 19);
                             }else{
-                                compositeFails();
-                            }
-                            return;
-                        case "3z5awliwar":
-                            textOnArt (R.string.saveArt, R.string.art_Sc_3z5awliwar);
-                            if ((compositionOfArts[18] & compositionOfArts[19]) & compositeTimeCheck()) {
-                                if (compositeTimeCheck_2(13)) {
-                                    barcodeValue.setText("Зафиксировано кратковременное локальное искажение пространства. ОШИБКА: Сбой оборудования. Проверьте состояние пользователя для фиксации эффекта.");
-                                    intent.putExtra("Command", "ifLess50healthPlus25Health");
-                                    Objects.requireNonNull(QRTab.this.getActivity()).getApplicationContext().sendBroadcast(intent);
-                                    Arrays.fill(compositionOfArts, false);
-                                    cooldown_time[13] = Calendar.getInstance().getTimeInMillis();
-                                } else {
-                                    barcodeValue.setText(R.string.composite_cooldown);
-                                    Arrays.fill(compositionOfArts, false);
-                                }
-                            }else {
                                 compositeFails();
                             }
                             return;*/
@@ -1148,12 +1109,12 @@ public class QRTab extends Fragment implements View.OnClickListener{
                     String str7 = "300";               // "всегдазакрыт" -1925203169       // "radProt10030"  -1800724366   // "BDminus21HealthRandom"  5747468       // "setBio15"  1388454378  //  plus10BioProtection  -301504184
                                               //  "SetGesProtection" 317294316     // "radProt10060" -1800724273   // "BDprotectionBio6025"  1323666026      // "setBio0"  1984451498
                                               //  "теперьоткрыт" 1974805046        // "radProt10090" -1800724180   // "BDprotectionBio6035"  1323666057  // "minus15Rad"  1784296673
-                                              //  "SetGesProtectionOFF" -707972381  // "bioProt10030" 1071529183   // "BDprotectionRad6025"  -1895336201  // "ifLess50healthSet70RadProt"  1265750414
+                                              //  "SetGesProtectionOFF" -707972381  // "bioProt10030" 1071529183   // "BDprotectionRad6025"  -1895336201  //
                                               // "TwoHoursRadProtection" 1543390539 // "bioProt10060" 1071529276   // "BDprotectionRad6035"  -1895336170  //  "plus10Rad"  -1523616740
                                               // "15minutesGod" -1151237055         // "bioProt10090" 1071529369   // "BDprotectionPsy6025"  1159342392  //  "plus10Bio"  -1523631857
-                                              // "minus50Rad" 1787841802            // "psyProt10030" 123907793    // "BDprotectionBio120"  735430818   // "ifLess50healthSet70BioProt"  189785345
+                                              // "minus50Rad" 1787841802            // "psyProt10030" 123907793    // "BDprotectionBio120"  735430818   //
                                               // "minus50Bio" 1787826685            // "psyProt10060" 123907886    // "BDprotectionRad120"  1185781365  // "minus15Bio"  1784281556
-                                              // "minus25Rad" 1785220194            // "psyProt10090" 123907979    // "BDprotectionPsy120"  1145772052  // "ifLess50healthPlus25Health"  -1576308282
+                                              // "minus25Rad" 1785220194            // "psyProt10090" 123907979    // "BDprotectionPsy120"  1145772052  //
                                               // "minus25Bio" 1785205077            // discharge10Sc  -1975691119  // "setRadOn80Percent"   -1167097637  // "anomalyFreedomOn"   551741458
                                               // "plus40Health" -201032814          // discharge10BD   -1975691677  // "setBioOn80Percent"  1699558920  // "anomalyFreedomOff"  -75884132
                                               // "plus20Health" 608313812           // discharge45    1271685827    // "discharge10OA"   -1975691277    // "art_oasis" 283987183

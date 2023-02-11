@@ -45,9 +45,8 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
             this.MyCurrentLocation.setProvider(location.getProvider());
             this.MyCurrentLocation.setBearing(location.getBearing());
             this.MyCurrentLocation.setAccuracy(location.getAccuracy());
-           // Log.d("локация____до", String.valueOf(MyCurrentLocation.getLongitude()));
             locationChanged(MyCurrentLocation);
-            if (!this.ServiceReference.IsDead && this.ServiceReference.IsUnlocked) {
+            if (!ServiceReference.playerCharacter.isDead() && this.ServiceReference.IsUnlocked) {
                 GetTime();
                 TimeToDischarge();
                 try {
@@ -60,16 +59,17 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
                 ServiceReference.getMovingAnomalies();
                 ServiceReference.CheckAnomalies();
                 ServiceReference.CheckIfInAnyAnomaly();
+                ServiceReference.checkLocality();
                 ServiceReference.CheckPsyForMonolith();
                 ServiceReference.GetTime();
                 ServiceReference.checkQuest();
 
             }
-            if (this.ServiceReference.Health <= 0.0d) {
-                this.ServiceReference.IsDead = Boolean.TRUE;
-            }
+            /*if (this.ServiceReference.playerCharacter.getHealth() <= 0.0d) {
+                this.ServiceReference.playerCharacter.setDead(true);
+            }*/
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(this.ServiceReference.Health); //0
+            stringBuilder.append(this.ServiceReference.playerCharacter.getHealth()); //0
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.Rad); //1
             stringBuilder.append(":");
@@ -116,10 +116,6 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
             stringBuilder.append(ServiceReference.PsyProtectionTot); //22
             Log.d("гагарин", String.valueOf("гагарин".hashCode()));
             Log.d("выброс", String.valueOf("выброс".hashCode()));
-            Log.d("координаты", String.valueOf(ServiceReference.latLngAnomaly.longitude));
-           // stringBuilder.append(":");
-            //stringBuilder.append(ServiceReference.anomalyIndex);
-            //Log.d("qwerty1", String.valueOf(ServiceReference.anomalyIndex));
             String stringBuilder2 = stringBuilder.toString();
             Intent intent = new Intent("StatsService.Update");
             intent.putExtra("Stats", stringBuilder2);
