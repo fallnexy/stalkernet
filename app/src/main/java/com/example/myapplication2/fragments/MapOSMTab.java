@@ -9,15 +9,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication2.DBHelper;
+import com.example.myapplication2.Discharge;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
+import com.example.myapplication2.anomaly.Anomaly;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.events.MapEventsReceiver;
@@ -35,23 +36,33 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.util.HashMap;
+import java.util.Locale;
+
 import androidx.fragment.app.Fragment;
 
 public class MapOSMTab extends Fragment {
 
     private Globals globals;
+    private Discharge discharge;
+    private Anomaly anomaly;
+
     private MapView map = null;
-    MapEventsOverlay mapEventsOverlay = null;
-    CompassOverlay mCompassOverlay = null;
-    RotationGestureOverlay mRotationGestureOverlay = null;
+    private MapEventsOverlay mapEventsOverlay = null;
+    private CompassOverlay mCompassOverlay = null;
+    private RotationGestureOverlay mRotationGestureOverlay = null;
+    private HashMap<String, String> anomalyFillPaintMap;
+    private HashMap<String, String> anomalyOutlinePaintMap;
 
-    Polygon[] circleAnomaly = null;
-    Marker[] localityMarker = null;
+    private Polygon[] circleAnomaly = null;
+    private Marker[] localityMarker = null;
 
-    DBHelper dbHelper;
-    SQLiteDatabase database;
-    Cursor cursor;
+    private DBHelper dbHelper;
+    private SQLiteDatabase database;
+    private SQLiteDatabase databasePoint;
+    private Cursor cursor;
 
+    //TODO зачем тут глобалс?
     public MapOSMTab(Globals globals) {
         this.globals = globals;
     }
@@ -60,9 +71,8 @@ public class MapOSMTab extends Fragment {
     BroadcastReceiver broadcastReceiverCircle = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             try {
-                drawCirceAnomaly();
+                anomaly.setAnomalyVisible(circleAnomaly);
                 checkLocality();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -75,7 +85,9 @@ public class MapOSMTab extends Fragment {
                              Bundle savedInstanceState) {
         View inflate = inflater.inflate(R.layout.fragment_map_osm, container, false);
         dbHelper = new DBHelper(getActivity());
-
+        database = dbHelper.open();
+        discharge = new Discharge(database, cursor);
+        anomaly = new Anomaly(database, cursor);
         map = inflate.findViewById(R.id.mapOSM);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.ALWAYS);
@@ -127,65 +139,32 @@ public class MapOSMTab extends Fragment {
         MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),map);
         mLocationOverlay.enableMyLocation();
         map.getOverlays().add(mLocationOverlay);
-        // создаем круглые аномалии
+        // создаем круглые аномалии и всякое другое
+        //createThingsForMap();
         try {
-            createCircleAnomaly (getNumberOfRows(DBHelper.TABLE_ANOMALY));
-            createLocalityMarker(getNumberOfRows(DBHelper.TABLE_LOCALITY));
+            circleAnomaly = anomaly.createCircleAnomaly (map);
+            createLocalityMarker(/*getNumberOfRows(DBHelper.TABLE_LOCALITY)*/);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        CreateSafeZones();
+        discharge.createSafeZones(map);
         // Inflate the layout for this fragment
         return inflate;
     }
 
-    public Polygon[] SafeZones;
-    public void CreateSafeZones() {
-        Polygon[] safeZoneArr = new Polygon[5];
-        safeZoneArr[0] = new Polygon();
-        safeZoneArr[0].getOutlinePaint().setStrokeWidth(2);
-        safeZoneArr[0].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.351080d, 40.736224d), 50.0d));//свобода
-        safeZoneArr[0].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
-        map.getOverlayManager().add(safeZoneArr[0]);
-        safeZoneArr[1] = new Polygon();
-        safeZoneArr[1].getOutlinePaint().setStrokeWidth(2);
-        safeZoneArr[1].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.357220d, 40.721517d), 100.0d));//денисовичи
-        safeZoneArr[1].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
-        map.getOverlayManager().add(safeZoneArr[1]);
-        safeZoneArr[2] = new Polygon();
-        safeZoneArr[2].getOutlinePaint().setStrokeWidth(2);
-        safeZoneArr[2].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.351663d, 40.727578d), 40.0d));//гараж
-        safeZoneArr[2].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
-        map.getOverlayManager().add(safeZoneArr[2]);
-        safeZoneArr[3] = new Polygon();
-        safeZoneArr[3].getOutlinePaint().setStrokeWidth(2);
-        safeZoneArr[3].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.349906d, 40.725957d), 40.0d));// у озера
-        safeZoneArr[3].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
-        map.getOverlayManager().add(safeZoneArr[3]);
-        safeZoneArr[4] = new Polygon();
-        safeZoneArr[4].getOutlinePaint().setStrokeWidth(2);
-        safeZoneArr[4].setPoints(Polygon.pointsAsCircle(new GeoPoint(64.358117d, 40.722426d), 40.0d));// опять денисовичи
-        safeZoneArr[4].getOutlinePaint().setColor(Color.parseColor("#ffffff"));
-        map.getOverlayManager().add(safeZoneArr[4]);
-        this.SafeZones = safeZoneArr;
-    }
-
-
-
     @Override
     public void onResume() {
         super.onResume();
+        database = dbHelper.open();
         // создаем круглые аномалии
-
         try {
-            createCircleAnomaly (getNumberOfRows(DBHelper.TABLE_ANOMALY));
-            createLocalityMarker(getNumberOfRows(DBHelper.TABLE_LOCALITY));
+            circleAnomaly = anomaly.createCircleAnomaly (map);
+            createLocalityMarker(/*getNumberOfRows(DBHelper.TABLE_LOCALITY)*/);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
+        //createThingsForMap();
         getActivity().registerReceiver(broadcastReceiverCircle, new IntentFilter("MapTab.Circle"));
         map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
     }
@@ -194,7 +173,22 @@ public class MapOSMTab extends Fragment {
     public void onPause() {
         super.onPause();
         requireActivity().unregisterReceiver(broadcastReceiverCircle);
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        if (database != null && database.isOpen()) {
+            database.close();
+        }
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
+    }
+
+    private void createThingsForMap(){
+        if (circleAnomaly == null){
+            circleAnomaly = anomaly.createCircleAnomaly (map);
+        }
+        if (localityMarker == null){
+            createLocalityMarker(/*getNumberOfRows(DBHelper.TABLE_LOCALITY)*/);
+        }
     }
     // обработчик нажатий на карту, долгое - добавление маркер
     MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
@@ -210,53 +204,53 @@ public class MapOSMTab extends Fragment {
         }
     };
     // записывает маркеры в БД и рисует последний
-    private void writeMarkerToDB(GeoPoint p){
+    private void writeMarkerToDB(GeoPoint geoPoint){
         /*
          * try/finally призвана для безопасности и быстроты
          * */
-        database = dbHelper.getWritableDatabase();
+        databasePoint = dbHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        database.beginTransaction();
+        databasePoint.beginTransaction();
         try {
-            contentValues.put(DBHelper.KEY_NAME, "name");
-            contentValues.put(DBHelper.KEY_ICON, "icon");
-            contentValues.put(DBHelper.KEY_LATITUDE, p.getLatitude()); //если написать здесь format для округления о 6 знаков после запятой, то всё ломается
-            contentValues.put(DBHelper.KEY_LONGITUDE, p.getLongitude());
-            contentValues.put(DBHelper.KEY_COMMENT, "comment");
-            database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
-            database.setTransactionSuccessful();
+            contentValues.put(DBHelper.KEY_NAME__MARKER, "name");
+            contentValues.put(DBHelper.KEY_ICON__MARKER, "icon");
+            contentValues.put(DBHelper.KEY_LATITUDE__MARKER, String.format(Locale.US, "%.6f", geoPoint.getLatitude()));
+            contentValues.put(DBHelper.KEY_LONGITUDE__MARKER, String.format(Locale.US, "%.6f", geoPoint.getLongitude()));
+            contentValues.put(DBHelper.KEY_COMMENT__MARKER, "comment");
+            databasePoint.insert(DBHelper.TABLE_MARKERS, null, contentValues);
+            databasePoint.setTransactionSuccessful();
         } finally {
-            database.endTransaction();
+            databasePoint.endTransaction();
         }
         // рисование последнего маркера
-        cursor = database.query(DBHelper.TABLE_MARKERS, null, null, null, null, null, null);
+        cursor = databasePoint.query(DBHelper.TABLE_MARKERS, null, null, null, null, null, null);
         cursor.moveToLast();
-        int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
-        int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME);
-        int iconIndex = cursor.getColumnIndex(DBHelper.KEY_ICON);
-        int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE);
-        int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE);
-        int commentIndex = cursor.getColumnIndex(DBHelper.KEY_COMMENT);
+        int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MARKER);
+        int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME__MARKER);
+        int iconIndex = cursor.getColumnIndex(DBHelper.KEY_ICON__MARKER);
+        int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__MARKER);
+        int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__MARKER);
+        int commentIndex = cursor.getColumnIndex(DBHelper.KEY_COMMENT__MARKER);
         Marker startMarker = new Marker(map);
         startMarker.setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
         startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        //startMarker.setIcon(getResources().getDrawable(R.drawable.ic_launcher));
+        //startMarker.setIcon(getResources().getDrawable(R.drawable.location_active));
         startMarker.setTitle(cursor.getString(idIndex));
         map.getOverlays().add(startMarker);
         cursor.close();
-        dbHelper.close();
+        databasePoint.close();
     }
     // рисует маркеры на карте
     private void drawMarkers(){
-        database = dbHelper.getWritableDatabase();
-        cursor = database.query(DBHelper.TABLE_MARKERS, null, null, null, null, null, null);
+        databasePoint = dbHelper.getWritableDatabase();
+        cursor = databasePoint.query(DBHelper.TABLE_MARKERS, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
-            int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME);
-            int iconIndex = cursor.getColumnIndex(DBHelper.KEY_ICON);
-            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE);
-            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE);
-            int commentIndex = cursor.getColumnIndex(DBHelper.KEY_COMMENT);
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MARKER);
+            int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME__MARKER);
+            int iconIndex = cursor.getColumnIndex(DBHelper.KEY_ICON__MARKER);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__MARKER);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__MARKER);
+            int commentIndex = cursor.getColumnIndex(DBHelper.KEY_COMMENT__MARKER);
             do {
                 Marker startMarker = new Marker(map);
                 startMarker.setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
@@ -267,19 +261,18 @@ public class MapOSMTab extends Fragment {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        dbHelper.close();
+        databasePoint.close();
     }
     /*
-    * Когда координата меняется, то происходит цепочка вызовов, которая приводит к drawCirceAnomaly().
+    * Когда координата меняется, то происходит цепочка вызовов, которая приводит к setAnomalyVisible().
     * Этот метод проверяет в таблице DBHelper.TABLE_ANOMALY значение строки DBHelper.KEY_BOOL_SHOW_ON_MAP:
     * если "true", то показываем круг на карте setVisible(true), "false" то скрываем setVisible(false)
     */
-    private void drawCirceAnomaly(){
-        database = dbHelper.open();
+    /*private void setAnomalyVisible(){
         cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{"_id", "bool_show_on_map"}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID_ANOMALY);
-            int boolShowOnMap = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOW_ON_MAP);
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__ANOMALY);
+            int boolShowOnMap = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOW_ON_MAP__ANOMALY);
 
             do {
                 //Log.d("аномалия_bool", String.valueOf(cursor.getString(boolShowOnMap)));
@@ -292,14 +285,12 @@ public class MapOSMTab extends Fragment {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        dbHelper.close();
-    }
+    }*/
     /*
     * Вызывается в broadcastReceiverCircle и, в зависимости от DBHelper.KEY_ACCESS_STATUS_LOCALITY в DBHelper.TABLE_LOCALITY,
     * выставляет иконку локации
     * */
     private void checkLocality(){
-        database = dbHelper.open();
         cursor = database.query(DBHelper.TABLE_LOCALITY, new String[]{"_id", "access_status"}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
@@ -316,85 +307,102 @@ public class MapOSMTab extends Fragment {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        dbHelper.close();
     }
-    // высчитывание количества круглых аномалий, а точнее не толькно аномалий, а количество строк в таблице
-    private int getNumberOfRows(String table){
+    /*
+    * высчитывание количества круглых аномалий, а точнее не толькно аномалий, а количество строк в таблице
+    * */
+    /*private int getNumberOfRows(String table){
         int numberOfRows = 0;
-        database = dbHelper.open();
         cursor = database.query(table, new String[]{"COUNT(_id)"}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             numberOfRows = cursor.getInt(0);
         }
         cursor.close();
-        dbHelper.close();
-        //Log.d("аномалия", String.valueOf(numberOfRows));
         return numberOfRows;
-    }
+    }*/
+    /*
+    * создает карты для выбора цвета окружности и внутренности аномалий
+    * */
+    /*private void setAnomalyPaintMap(){
+        anomalyFillPaintMap = new HashMap<>();
+        anomalyOutlinePaintMap = new HashMap<>();
+        anomalyFillPaintMap.put(RAD, "#1Efca800");
+        anomalyFillPaintMap.put(BIO, "#1E00ff2b");
+        anomalyFillPaintMap.put(PSY, "#1E0011ff");
+        anomalyFillPaintMap.put(GESTALT, "#1E58585c");
+        anomalyFillPaintMap.put(OASIS, "#1Ef227e1");
+        anomalyOutlinePaintMap.put(RAD, "#fca800");
+        anomalyOutlinePaintMap.put(BIO, "#00ff2b");
+        anomalyOutlinePaintMap.put(PSY, "#0011ff");
+        anomalyOutlinePaintMap.put(GESTALT, "#58585c");
+        anomalyOutlinePaintMap.put(OASIS, "#f227e1");
+    }*/
     /*
     * В onCreate все аномалии добавляются на карту, но с параметром setVisible(false).
-    * Когда координата меняется, то происходит цепочка вызовов, в результате которой вызывается drawCirceAnomaly().
+    * Когда координата меняется, то происходит цепочка вызовов, в результате которой вызывается setAnomalyVisible().
     * Метод drawCirceAnomaly() проверяет следующее: если в таблице DBHelper.TABLE_ANOMALY
     * строка DBHelper.KEY_BOOL_SHOW_ON_MAP равна "true", то для аномалии ставится setVisible(true)
     */
-    private void createCircleAnomaly(int numberOfAnomalies){
+    /*private void createCircleAnomaly(int numberOfAnomalies){
+        setAnomalyPaintMap();
         circleAnomaly = new Polygon[numberOfAnomalies];
-        database = dbHelper.open();
         cursor = database.query(DBHelper.TABLE_ANOMALY, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID_ANOMALY);
-            int type = cursor.getColumnIndex(DBHelper.KEY_TYPE);
-            int radius = cursor.getColumnIndex(DBHelper.KEY_RADIUS);
-            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE_ANOMALY);
-            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE_ANOMALY);
-            int boolShowOnMap = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOW_ON_MAP);
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__ANOMALY);
+            int type = cursor.getColumnIndex(DBHelper.KEY_TYPE__ANOMALY);
+            int radius = cursor.getColumnIndex(DBHelper.KEY_RADIUS__ANOMALY);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__ANOMALY);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__ANOMALY);
             do {
                 circleAnomaly[cursor.getInt(idIndex) - 1] = new Polygon();
-                switch (cursor.getString(type)){
-                    case "Rad":
+                try {
+                    circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor(anomalyFillPaintMap.get(cursor.getString(type)))); // цвет заливки
+                    circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor(anomalyOutlinePaintMap.get(cursor.getString(type)))); // цвет окружности
+                }catch (Exception e){
+                    circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1EFFE70E")); //set fill color
+                }
+                *//*switch (cursor.getString(type)){
+                    case RAD:
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1Efca800")); // цвет заливки
                         circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#fca800")); // цвет окружности
                         break;
-                    case "Bio":
+                    case BIO:
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1E00ff2b")); //set fill color
                         circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#00ff2b"));
                         break;
-                    case "Psy":
+                    case PSY:
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1E0011ff")); //set fill color
                         circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#0011ff"));
                         break;
-                    case "Ges":
+                    case GESTALT:
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1E58585c")); //set fill color
                         circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#58585c"));
                         break;
-                    case "Oas":
+                    case OASIS:
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1Ef227e1")); //set fill color
                         circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setColor(Color.parseColor("#f227e1"));
                         break;
                     default:
                         circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1EFFE70E")); //set fill color
                         break;
-                }
+                }*//*
                 circleAnomaly[cursor.getInt(idIndex) - 1].getOutlinePaint().setStrokeWidth(3); // толщина окружности
                 circleAnomaly[cursor.getInt(idIndex) - 1].setPoints(Polygon.pointsAsCircle(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), cursor.getDouble(radius)));
-                //circleAnomaly[cursor.getInt(idIndex) - 1].getFillPaint().setColor(Color.parseColor("#1EFFE70E")); //set fill color
                 map.getOverlayManager().add(circleAnomaly[cursor.getInt(idIndex) - 1]);
                 circleAnomaly[cursor.getInt(idIndex) - 1].setVisible(false);
 
             } while (cursor.moveToNext());
         }
         cursor.close();
-        dbHelper.close();
-
-    }
+    }*/
     /*
     * В onCreate и onResume создает маркеры для локаций.
     * Иконка локации зависит от DBHelper.KEY_ACCESS_STATUS_LOCALITY в DBHelper.TABLE_LOCALITY
     * */
-    private void createLocalityMarker(int numberOfLocalities){
-        localityMarker = new Marker[numberOfLocalities];
-        database = dbHelper.open();
+    private void createLocalityMarker(/*int numberOfLocalities*/){
+
         cursor = database.query(DBHelper.TABLE_LOCALITY, null, null, null, null, null, null);
+        localityMarker = new Marker[cursor.getCount()];
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
             int name = cursor.getColumnIndex(DBHelper.KEY_NAME__LOCALITY);
@@ -418,8 +426,6 @@ public class MapOSMTab extends Fragment {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        dbHelper.close();
-
     }
 
 }

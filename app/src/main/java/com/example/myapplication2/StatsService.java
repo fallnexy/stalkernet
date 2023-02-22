@@ -1,7 +1,4 @@
 package com.example.myapplication2;
-// необходимо задавать число аномалий и зон безопасности
-
-//необходимо сохранять gesstatus
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -17,56 +14,94 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.myapplication2.anomaly.Anomaly;
+import com.example.myapplication2.anomaly.GestaltAnomaly;
+import com.example.myapplication2.anomaly.OasisAnomaly;
+import com.example.myapplication2.anomaly.QRAnomaly;
+import com.example.myapplication2.anomaly.WifiAnomaly;
+import com.example.myapplication2.playerCharacter.MonolithCharacter;
+import com.example.myapplication2.playerCharacter.PlayerCharacter;
+import com.example.myapplication2.playerCharacter.StalkerCharacter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 
 import static android.app.NotificationManager.IMPORTANCE_HIGH;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.BIO_PROTECTION_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.CONTAMINATION_2D_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.DEAD_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.FACTION_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.FACTION_POSITION_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.GESTALT_PROTECTION_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.HEALTH_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.LAST_TIME_HIT_BY_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.MAX_HEALTH_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.NAME_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.PREFERENCE_NAME;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.PSY_PROTECTION_KEY;
+import static com.example.myapplication2.playerCharacter.PlayerCharacter.RAD_PROTECTION_KEY;
+import static com.example.myapplication2.anomaly.Anomaly.BIO;
+import static com.example.myapplication2.anomaly.Anomaly.GESTALT;
+import static com.example.myapplication2.anomaly.Anomaly.OASIS;
+import static com.example.myapplication2.anomaly.Anomaly.PSY;
+import static com.example.myapplication2.anomaly.Anomaly.RAD;
+import static com.example.myapplication2.anomaly.GestaltAnomaly.GESTALT_OPEN;
+import static com.example.myapplication2.anomaly.WifiAnomaly.CHIMERA_WIFI;
+import static com.example.myapplication2.anomaly.WifiAnomaly.CONTROL_WIFI;
 
 public class StatsService extends Service {
-    // создает экземпляр персонажа игрока
-    public PlayerCharacter playerCharacter;
+    //TODO сделать коды переключения между персонажами
+    public static final double MAX_CONTAMINATION = 1000;
+    public static final double MAX_CONTAMINATION_LEGEND = 1500;
+    public static final String GESTALT_ID = "1";
+    // создает экземпляр персонажа игрока и аномалии
+    private int current = 1;
+    public PlayerCharacter[] playerCharacter;
+    public Anomaly[] anomaly;
+    public QRAnomaly qrAnomaly;
+    public WifiAnomaly wifiAnomaly;
+    public Discharge discharge;
+    public EffectManager effectManager;
 
-    private static final int ID_SERVICE = 101;
+    // нужные переменные
+    private boolean isInsideAnomaly = false;
+    private HashMap<String, Integer> anomalyMap = new HashMap<>();
+    private  ContentValues contentValues;
+    DBHelper dbHelper;
+    SQLiteDatabase database;
+    Cursor cursor;
+    //нужность переменных неизвестна
+    //private static final int ID_SERVICE = 101;
     public int NUMBER_OF_ANOMALIES = 0; // задается в onCreate
-    private static final int NUMBER_OF_GESTALT_ANOMALIES = 2;
-    private static final int NUMBER_OF_SAVE_ZONES = 5;
     private boolean IS_ANOMALIES_AVAILABLE = true;
-    public Anomaly[] anomalies;
-    public SafeZone[] SafeZones;
-    public EffectManager EM;
+
+
     public double Health = 2000.0d, MaxHealth = 2000.0d;
-    public double Bio = 0.0d, Psy = 0.0d, Rad = 0.0d;
+    public double Bio = 0.0d, Rad = 0.0d;
     public int MaxRad = 1000, MaxBio = 1000;
 
     public int MaxProtectionsAvailable = 1;
-
-    public double[] ProtectionCapacity = {100000, 2000, 2000};
 
     public double[] RadProtectionArr = {0, 0, 0};
     public double[] BioProtectionArr = {0, 0, 0};
@@ -76,38 +111,16 @@ public class StatsService extends Service {
     public double[] BioProtectionCapacityArr = {0, 0, 0};
     public double[] PsyProtectionCapacityArr = {0, 0, 0};
 
-    public double[] MaxRadProtectionCapacityArr = {0, 0, 0};
-    public double[] MaxBioProtectionCapacityArr = {0, 0, 0};
-    public double[] MaxPsyProtectionCapacityArr = {0, 0, 0};
-
-    HashMap<String, double[]> protectionMap = new HashMap<>();
-    HashMap<String, double[]> protectionCapacityMap = new HashMap<>();
-    HashMap<String, double[]> protectionCapacityMaxMap = new HashMap<>();
-
-    int RadProtectionTot = 0, BioProtectionTot = 0, PsyProtectionTot = 0;
 
     public boolean DischargeImmunity = false;
-    public Boolean IsDead = Boolean.FALSE;
-    public Boolean IsDischarging = Boolean.FALSE;
-    public Boolean IsInsideAnomaly = Boolean.FALSE;
-    public Boolean IsInsideSafeZone = Boolean.TRUE;
-    public Boolean IsUnlocked = Boolean.TRUE;
-    public Date LastTimeChanged;
-    public String LastTimeHitBy = "";
+
+    public boolean IsUnlocked = true;
     private MyLocationCallback LocationCallback;
     private boolean LocationUpdatesStarted = false;
-    public Location MyCurrentLocation = new Location("GPS");
-    public String TypeAnomalyIn = "";
-    public Boolean Vibrate = Boolean.TRUE;
-    public Boolean Sound = Boolean.TRUE;
+    public Location myCurrentLocation = new Location("GPS");
+    public boolean vibrate = true;
+    public boolean Sound = true;
     public int ScienceQR = 0;// не работает
-
-    public int gesStatus;
-    public int[] gesLockoutList = {0, 0, 0, 0, 0, 0};
-    public boolean GestaltProtection = false;
-    DBHelper dbHelper;
-    SQLiteDatabase database;
-    Cursor cursor;
 
     private Calendar cal = Calendar.getInstance();
     private int Hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -116,40 +129,11 @@ public class StatsService extends Service {
 
     private Random random = new Random();
 
-    long dayFirst = 1662991200; //1662991200// с 12 сентября в 17:00
-    long daySecond = 1663058160; //1663058160 // c 13 сентября в 11:36
-    long dayThird = 1663158000; //1663158000 //c 14 сентября в 15:20
-    long dayFourth = 1663230000; //1663230000 //c 15 сентября в 11:20
-
-
-    public long[] coolDawn = new long[25];
-
-
-    // защита от пси у монолита
-    boolean MonolithOk = false;
     //новый монолит
     boolean isMonolith = false;
 
-    public boolean fastRadPurification = false;
-
-    long checkTime_in = 1620988200;  // 14 мая 13:30 // 1620988200
-    long checkTime_out = 1621167600;  // 16 мая 15:20  // 1621167600
-
     private FusedLocationProviderClient mFusedLocationProvider;
     private PowerManager.WakeLock wl;
-    
-    public double TotalProtection(double[] protectionType){
-        double i = 1;
-        if (protectionType[1] > 47 || protectionType[2] > 47){
-            if (protectionType[0] == 80) {
-                i = 1.8;
-            } else {
-                i = 1.9;
-            }
-        }
-        double suitPlusArt = (protectionType[0] + protectionType[1] * i) / (1 + (protectionType[0] * protectionType[1] * i) / 10000);
-        return (suitPlusArt + protectionType[2] * i) / (1 + (suitPlusArt * protectionType[2] * i) / 10000);
-    }
 
     // для умных команд вида sc1@rad@suit@20
     public String textCode;
@@ -175,694 +159,634 @@ public class StatsService extends Service {
         public void onReceive(Context context, Intent intent) {
             String var4 = intent.getStringExtra("StRoulette");
             // значение изменений увеличены для теста, кроме последних трех
-            switch (var4){
-                case "RadPlusOne":
-                    anomalies[NUMBER_OF_ANOMALIES].Apply();
-                    break;
-                case "BioPlusOne":
-                    anomalies[NUMBER_OF_ANOMALIES + 1].Apply();
-                    break;
-                case "PsyPlusOne":
-                    anomalies[NUMBER_OF_ANOMALIES + 2].Apply();
-                    break;
-                case "HpPlusFive":
-                    Health += 100;
-                    if (Health > MaxHealth){
-                        Health = MaxHealth;
-                    }
-                    break;
-                case "HpPlusSeven":
-                    Health += 200;
-                    if (Health > MaxHealth){
-                        Health = MaxHealth;
-                    }
-                    break;
-                case "HpMinus25perCent":
-                    Health -= 0.25 * Health;
-                    if(Health < 1){
-                        Health = 1;
-                    }
-                    break;
-                case "HpMinus20perCent":
-                    Health -= 0.2 * Health;
-                    if(Health < 1){
-                        Health = 1;
-                    }
-                    break;
-                case "HpMinus10perCent":
-                    Health -= 0.1 * Health;
-                    if(Health < 1){
-                        Health = 1;
-                    }
-                    break;
+            if (var4 != null) {
+                switch (var4){
+                    case "RadPlusOne":
+                        playerCharacter[current].applyProtection(qrAnomaly.getDamage(RAD));
+                        break;
+                    case "BioPlusOne":
+                        playerCharacter[current].applyProtection(qrAnomaly.getDamage(BIO));
+                        break;
+                    case "PsyPlusOne":
+                        playerCharacter[current].applyProtection(qrAnomaly.getDamage(PSY));
+                        break;
+                    case "HpPlusFive":
+                        playerCharacter[current].setHealth(100);
+                        break;
+                    case "HpPlusSeven":
+                        playerCharacter[current].setHealth(200);
+                        break;
+                    case "HpMinus25perCent":
+                        playerCharacter[current].increaseHealthPercent(-15);
+                        break;
+                    case "HpMinus20perCent":
+                        playerCharacter[current].increaseHealthPercent(-10);
+                        break;
+                    case "HpMinus10perCent":
+                        playerCharacter[current].increaseHealthPercent(-5);
+                        break;
+                }
+            }
+            String type = intent.getStringExtra("protection");
+            if (type != null){
+                ((StalkerCharacter) playerCharacter[1]).nullifyThirdProtection(type);
             }
         }
     };
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
        public void onReceive(android.content.Context context, Intent intent) {
 //принимает команды command
-           int var3;
-           HashMap<String, String> protectionRewhriteMap = new HashMap<>();
+           int shit;
            HashMap<String, Integer> protectionSuitRewhriteMap = new HashMap<>();
-           protectionRewhriteMap.put("rad", "Rad");
-           protectionRewhriteMap.put("bio", "Bio");
-           protectionRewhriteMap.put("psy", "Psy");
-           protectionSuitRewhriteMap.put("suit", 0);
+           protectionSuitRewhriteMap.put("suit", 2);
            protectionSuitRewhriteMap.put("art", 1);
-           protectionSuitRewhriteMap.put("quest", 2);
+           protectionSuitRewhriteMap.put("quest", 0);
            label110: {
-               String var4 = intent.getStringExtra("Command");
-               MakeSplit(var4);
-               Log.d("wtf_textCode", var4);
+               String fromCommand = intent.getStringExtra("Command");
+               MakeSplit(fromCommand);
+               //Log.d("wtf_textCode", fromCommand);
                if (textCode.equals("sc1") | textCode.equals("sc2") | textCode.equals("sc3") | textCode.equals("del")) {
-                   var4 = textCode;
+                   fromCommand = textCode;
                }
-               Log.d("wtf_textCode", var4);
-               Toast.makeText(StatsService.this.getApplicationContext(), var4, Toast.LENGTH_LONG).show();
+               //Log.d("wtf_textCode", fromCommand);
+               Toast.makeText(StatsService.this.getApplicationContext(), fromCommand, Toast.LENGTH_LONG).show();
                ContentValues contentValues;
                int id;
-               switch (var4){
+               switch (fromCommand){
                    case "isMonolith":
                        isMonolith = true;
                        DischargeImmunity = true;
-                       var3 = -1;
+                       shit = -1;
                        break label110;
-                   case "sc3":
+                   case "sc1":  //sc1 код по типу sc1@rad@suit@80@
+                                //                 0   1   2   3
+                       try {
+                           playerCharacter[current].setProtection(textCodeSplitted[1],textCodeSplitted[2],Double.parseDouble(textCodeSplitted[3]));
+                       } catch (Exception e) {
+                           e.printStackTrace();
+                       }
+                       shit = -1;
+                       break label110;
+                   case "sc2": // sc2@rad@25
+                       //          0   1   2
+                       // TODO переделать, чтобы было без if
+                       if (textCodeSplitted[1].equals("rad") || textCodeSplitted[1].equals("bio")){
+                           try {
+                               playerCharacter[current].increaseContaminationUnitByPercent(textCodeSplitted[1], Double.parseDouble(textCodeSplitted[2]));
+                           } catch (Exception e) {
+                               e.printStackTrace();
+                           }
+                       }
+                       if (textCodeSplitted[1].equals("hp")){
+                           try {
+                               playerCharacter[current].setHealth(playerCharacter[current].getHealth() + Float.parseFloat(textCodeSplitted[2]) * playerCharacter[current].getMaxHealth() / 100);
+                           } catch (Exception e) {
+                               e.printStackTrace();
+                           }
+                       }
+                       shit = -1;
+                       break label110;
+                   case "sc3": //TODO этот код и следующий связан с монолитом - переделать нафиг
                        int dRadius = 150 + 20 * Integer.parseInt(textCodeSplitted[4]);
                        int dPower = 1 + 2 * Integer.parseInt(textCodeSplitted[3]);
                        id = Integer.parseInt(textCodeSplitted[5]);
 
-                       database = dbHelper.open();
                        contentValues = new ContentValues();
 
-                       contentValues.put(DBHelper.KEY_LATITUDE_ANOMALY, textCodeSplitted[1]);
-                       contentValues.put(DBHelper.KEY_LONGITUDE_ANOMALY, textCodeSplitted[2]);
-                       contentValues.put(DBHelper.KEY_POWER, String.valueOf(dPower));
-                       contentValues.put(DBHelper.KEY_RADIUS, String.valueOf(dRadius));
+                       contentValues.put(DBHelper.KEY_LATITUDE__ANOMALY, textCodeSplitted[1]);
+                       contentValues.put(DBHelper.KEY_LONGITUDE__ANOMALY, textCodeSplitted[2]);
+                       contentValues.put(DBHelper.KEY_POWER__ANOMALY, String.valueOf(dPower));
+                       contentValues.put(DBHelper.KEY_RADIUS__ANOMALY, String.valueOf(dRadius));
                        int slot = NUMBER_OF_ANOMALIES - 5 + id;
                        Log.d("аномалии", String.valueOf(slot));
-                       database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID_ANOMALY + "=?", new String[]{String.valueOf(slot)});
+                       database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID__ANOMALY + "=?", new String[]{String.valueOf(slot)});
 
-
-                       dbHelper.close();
-
-                       var3 = -1;
+                       shit = -1;
                        break label110;
                    case "del":
-                       database = dbHelper.open();
                        id = Integer.parseInt(textCodeSplitted[5]);
                        contentValues = new ContentValues();
-                       contentValues.put(DBHelper.KEY_LATITUDE_ANOMALY, 0);
-                       contentValues.put(DBHelper.KEY_LONGITUDE_ANOMALY, 0);
-                       database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID_ANOMALY + "=" + (NUMBER_OF_ANOMALIES - 5 + id), null);
-                       dbHelper.close();
-                       var3 = -1;
+                       contentValues.put(DBHelper.KEY_LATITUDE__ANOMALY, 0);
+                       contentValues.put(DBHelper.KEY_LONGITUDE__ANOMALY, 0);
+                       database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID__ANOMALY + "=" + (NUMBER_OF_ANOMALIES - 5 + id), null);
+
+                       shit = -1;
                        break label110;
                    case "injectorRad85":
                        Rad -= 0.85 * Rad;
-                       var3 = -1;
+                       shit = -1;
                        break label110;
                    case "injectorBio85":
                        Bio -= 0.85 * Bio;
-                       var3 = -1;
+                       shit = -1;
                        break label110;
                    case "injectorHP50":
-                       playerCharacter.setHealth(playerCharacter.getHealth() + 0.5 * playerCharacter.getMaxHealth());
-                       var3 = -1;
+                       playerCharacter[current].setHealth(playerCharacter[current].getHealth() + 0.5 * playerCharacter[current].getMaxHealth());
+                       shit = -1;
+                       break label110;
+                   case "gestalt_closed": //TODO добавить в систему смарт кодов так, чтобы гештальт ид из полученного сообщения добывался
+                       ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).setProtected(GESTALT_ID);
+                       shit = -1;
                        break label110;
                }
-               switch(var4.hashCode()) {
+               switch(fromCommand.hashCode()) {
                    case 305958064:
-                       if (var4.equals("ResetStats")) {
-                           var3 = 0;
+                       if (fromCommand.equals("ResetStats")) {
+                           shit = 0;
                            break label110;
                        }
                        break;
                    case 1796409274:
-                       if (var4.equals("SetDischargeImmunityTrue")) {
-                           var3 = 10;
+                       if (fromCommand.equals("SetDischargeImmunityTrue")) {
+                           shit = 10;
                            break label110;
                        }
                        break;
                    case -159331209:
-                       if (var4.equals("SetDischargeImmunityFalse")) {
-                           var3 = 11;
+                       if (fromCommand.equals("SetDischargeImmunityFalse")) {
+                           shit = 11;
                            break label110;
                        }
                        break;
                    case 146202227:
-                       if (var4.equals("SetMaxHealth100")) {
-                           var3 = 12;
+                       if (fromCommand.equals("SetMaxHealth100")) {
+                           shit = 12;
                            break label110;
                        }
                        break;
                    case 146203188:
-                       if (var4.equals("SetMaxHealth200")) {
-                           var3 = 13;
+                       if (fromCommand.equals("SetMaxHealth200")) {
+                           shit = 13;
                            break label110;
                        }
                        break;
                    case -1052620961:
-                       if (var4.equals("MakeAlive")) {
-                           var3 = 14;
+                       if (fromCommand.equals("MakeAlive")) {
+                           shit = 14;
                            break label110;
                        }
                        break;
                    case -2120901255:
-                       if (var4.equals("ComboResetProtections")) {
-                           var3 = 15;
+                       if (fromCommand.equals("ComboResetProtections")) {
+                           shit = 15;
                            break label110;
                        }
                        break;
                    case -258857420:
-                       if (var4.equals("Monolith")) {
-                           var3 = 16;
+                       if (fromCommand.equals("Monolith")) {
+                           shit = 16;
                            break label110;
                        }
                        break;
                    case 71772:
-                       if (var4.equals("God")) {
-                           var3 = 17;
+                       if (fromCommand.equals("God")) {
+                           shit = 17;
                            break label110;
                        }
                        break;
                    case -1756574876:
-                       if (var4.equals("Unlock")) {
-                           var3 = 18;
+                       if (fromCommand.equals("Unlock")) {
+                           shit = 18;
                            break label110;
                        }
                        break;
                    case 565354622:
-                       if (var4.equals("Monolith2")) {
-                           var3 = 19;
+                       if (fromCommand.equals("Monolith2")) {
+                           shit = 19;
                            break label110;
                        }
                        break;
                    case 76321168:
-                       if (var4.equals("OnVib")) {
-                           var3 = 20;
+                       if (fromCommand.equals("OnVib")) {
+                           shit = 20;
                            break label110;
                        }
                        break;
                    case -219690867:
-                       if (var4.equals("StopVib")) {
-                           var3 = 21;
+                       if (fromCommand.equals("StopVib")) {
+                           shit = 21;
                            break label110;
                        }
                        break;
                    case 1875682466:
-                       if (var4.equals("Discharge")) {
-                           var3 = 22;
+                       if (fromCommand.equals("Discharge")) {
+                           shit = 22;
                            break label110;
                        }
                        break;
                        // новые коды далее
                    case -1555514523:
-                       if (var4.equals("ScienceQR")) {
-                           var3 = 23;
+                       if (fromCommand.equals("ScienceQR")) {
+                           shit = 23;
                            break label110;
                        }
                        break;
                    case -1930888214:
-                       if (var4.equals("ScienceQRoff")) {
-                           var3 = 24;
-                           break label110;
-                       }
-                       break;
-                   case 1704779201:
-                       if (var4.equals("gestalt_closed")) {
-                           var3 = 25;
-                           break label110;
-                       }
-                       break;
-                   case 1910275380:
-                       if (var4.equals("gestalt_closed_2")) {
-                           var3 = 26;
+                       if (fromCommand.equals("ScienceQRoff")) {
+                           shit = 24;
                            break label110;
                        }
                        break;
                    case 317294316:
-                       if (var4.equals("SetGesProtection")) {
-                           var3 = 27;
+                       if (fromCommand.equals("SetGesProtection")) {
+                           shit = 27;
                            break label110;
                        }
                        break;
                    case -707972381:
-                       if (var4.equals("SetGesProtectionOFF")) {
-                           var3 = 28;
+                       if (fromCommand.equals("SetGesProtectionOFF")) {
+                           shit = 28;
                            break label110;
                        }
                        break;
                    case 1831428070: // снять неуяз к аномалиям и выбросу
-                       if (var4.equals("noMoreGod")) {
-                           var3 = 29;
+                       if (fromCommand.equals("noMoreGod")) {
+                           shit = 29;
                            break label110;
                        }
                        break;
                    case -1151237055:
-                       if (var4.equals("15minutesGod")) {
-                           var3 = 30;
+                       if (fromCommand.equals("15minutesGod")) {
+                           shit = 30;
                            break label110;
                        }
                        break;
                    case -1428886463:
                        // этот и следующие 2 - шприцы от рад и био и хп
-                       if (var4.equals("injectorRad")) {
-                           var3 = 31;
+                       if (fromCommand.equals("injectorrad")) {
+                           shit = 31;
                            break label110;
                        }
                        break;
                    case -1428901580:
-                       if (var4.equals("injectorBio")) {
-                           var3 = 32;
+                       if (fromCommand.equals("injectorBio")) {
+                           shit = 32;
                            break label110;
                        }
                        break;
                    case 2032116540:
-                       if (var4.equals("injectorHP")) {
-                           var3 = 33;
+                       if (fromCommand.equals("injectorHP")) {
+                           shit = 33;
                            break label110;
                        }
                        break;
                    case -1745372224:
-                       if (var4.equals("nullifyRad")) {
-                           var3 = 34;
+                       if (fromCommand.equals("nullifyRad")) {
+                           shit = 34;
                            break label110;
                        }
                        break;
                    case -1745387341:
-                       if (var4.equals("nullifyBio")) {
-                           var3 = 35;
+                       if (fromCommand.equals("nullifyBio")) {
+                           shit = 35;
                            break label110;
                        }
                        break;
                    case -1745373567:
-                       if (var4.equals("nullifyPsy")) {
-                           var3 = 36;
+                       if (fromCommand.equals("nullifyPsy")) {
+                           shit = 36;
                            break label110;
                        }
                        break;
                    case 1144354095:
-                       if (var4.equals("artCompass")) {
-                           var3 = 37;
+                       if (fromCommand.equals("artCompass")) {
+                           shit = 37;
                            break label110;
                        }
                        break;
                    case 1045731098:
-                       if (var4.equals("штраф")) {
-                           var3 = 38;
+                       if (fromCommand.equals("штраф")) {
+                           shit = 38;
                            break label110;
                        }
                        break;
-                   /*case -1357835385:
-                       if (var4.equals("clear4")) {
-                           var3 = 39;
-                           break label110;
-                       }
-                       break;*/
-                   /*case -1107434950:
-                       if (var4.equals("health75")) {
-                           var3 = 40;
-                           break label110;
-                       }
-                       break;
-                   case 29249045:
-                       if (var4.equals("health100")) {
-                           var3 = 41;
-                           break label110;
-                       }
-                       break;*/
                    case -1241360960: // этот и следующие 2 - количество разешенных защит
-                       if (var4.equals("setOneProtAv")) {
-                           var3 = 42;
+                       if (fromCommand.equals("setOneProtAv")) {
+                           shit = 42;
                            break label110;
                        }
                        break;
                    case 1396794662:
-                       if (var4.equals("setTwoProtAv")) {
-                           var3 = 43;
+                       if (fromCommand.equals("setTwoProtAv")) {
+                           shit = 43;
                            break label110;
                        }
                        break;
                    case -1781101704:
-                       if (var4.equals("setThreeProtAv")) {
-                           var3 = 44;
+                       if (fromCommand.equals("setThreeProtAv")) {
+                           shit = 44;
                            break label110;
                        }
                        break;
                    case 1071529183:
-                       if (var4.equals("bioProt10030")) {
-                           var3 = 45;
+                       if (fromCommand.equals("bioProt10030")) {
+                           shit = 45;
                            break label110;
                        }
                        break;
                    case 1071529276:
-                       if (var4.equals("bioProt10060")) {
-                           var3 = 46;
+                       if (fromCommand.equals("bioProt10060")) {
+                           shit = 46;
                            break label110;
                        }
                        break;
                    case 1071529369:
-                       if (var4.equals("bioProt10090")) {
-                           var3 = 47;
+                       if (fromCommand.equals("bioProt10090")) {
+                           shit = 47;
                            break label110;
                        }
                        break;
                    case 123907793:
-                       if (var4.equals("psyProt10030")) {
-                           var3 = 48;
+                       if (fromCommand.equals("psyProt10030")) {
+                           shit = 48;
                            break label110;
                        }
                        break;
                    case 123907886:
-                       if (var4.equals("psyProt10060")) {
-                           var3 = 49;
+                       if (fromCommand.equals("psyProt10060")) {
+                           shit = 49;
                            break label110;
                        }
                        break;
                    case 123907979:
-                       if (var4.equals("psyProt10090")) {
-                           var3 = 50;
+                       if (fromCommand.equals("psyProt10090")) {
+                           shit = 50;
                            break label110;
                        }
                        break;
                    case -1975691119:
-                       if (var4.equals("discharge10Sc")) {
-                           var3 = 51;
+                       if (fromCommand.equals("discharge10Sc")) {
+                           shit = 51;
                            break label110;
                        }
                        break;
                    case -1975691677: // защита от выброса на10 минут
-                       if (var4.equals("discharge10BD")) {
-                           var3 = 51;
+                       if (fromCommand.equals("discharge10BD")) {
+                           shit = 51;
                            break label110;
                        }
                        break;
                    case 1271685827:
-                       if (var4.equals("discharge45")) {
-                           var3 = 52;
+                       if (fromCommand.equals("discharge45")) {
+                           shit = 52;
                            break label110;
                        }
                        break;
                    case -16716590: // плюс жизни от болотного доктора
-                       if (var4.equals("BDplus2Health")) {
-                           var3 = 53;
+                       if (fromCommand.equals("BDplus2Health")) {
+                           shit = 53;
                            break label110;
                        }
                        break;
                    case -1649172843:
-                       if (var4.equals("BDplus5Health")) {
-                           var3 = 54;
+                       if (fromCommand.equals("BDplus5Health")) {
+                           shit = 54;
                            break label110;
                        }
                        break;
                    case 1381804599:
-                       if (var4.equals("BDplus10Health")) {
-                           var3 = 55;
+                       if (fromCommand.equals("BDplus10Health")) {
+                           shit = 55;
                            break label110;
                        }
                        break;
                    case 1036792636:
-                       if (var4.equals("BDplus45HealthRandom")) {
-                           var3 = 56;
+                       if (fromCommand.equals("BDplus45HealthRandom")) {
+                           shit = 56;
                            break label110;
                        }
                        break;
                    case -944954941:
-                       if (var4.equals("BDminus5Health")) {
-                           var3 = 57;
+                       if (fromCommand.equals("BDminus5Health")) {
+                           shit = 57;
                            break label110;
                        }
                        break;
                    case 804709100:
-                       if (var4.equals("BDminus10HealthRandom")) {
-                           var3 = 58;
+                       if (fromCommand.equals("BDminus10HealthRandom")) {
+                           shit = 58;
                            break label110;
                        }
                        break;
                    case 5747468:
-                       if (var4.equals("BDminus21HealthRandom")) {
-                           var3 = 59;
+                       if (fromCommand.equals("BDminus21HealthRandom")) {
+                           shit = 59;
                            break label110;
                        }
                        break;
                    case 1323666026:
-                       if (var4.equals("BDprotectionBio6025")) {
-                           var3 = 60;
+                       if (fromCommand.equals("BDprotectionBio6025")) {
+                           shit = 60;
                            break label110;
                        }
                        break;
                    case 1323666057:
-                       if (var4.equals("BDprotectionBio6035")) {
-                           var3 = 61;
+                       if (fromCommand.equals("BDprotectionBio6035")) {
+                           shit = 61;
                            break label110;
                        }
                        break;
                    case -1895336201:
-                       if (var4.equals("BDprotectionRad6025")) {
-                           var3 = 62;
+                       if (fromCommand.equals("BDprotectionRad6025")) {
+                           shit = 62;
                            break label110;
                        }
                        break;
                    case -1895336170:
-                       if (var4.equals("BDprotectionRad6035")) {
-                           var3 = 63;
+                       if (fromCommand.equals("BDprotectionRad6035")) {
+                           shit = 63;
                            break label110;
                        }
                        break;
                    case 1159342392:
-                       if (var4.equals("BDprotectionPsy6025")) {
-                           var3 = 64;
+                       if (fromCommand.equals("BDprotectionPsy6025")) {
+                           shit = 64;
                            break label110;
                        }
                        break;
                    case 735430818:
-                       if (var4.equals("BDprotectionBio120")) {
-                           var3 = 65;
+                       if (fromCommand.equals("BDprotectionBio120")) {
+                           shit = 65;
                            break label110;
                        }
                        break;
                    case 1185781365:
-                       if (var4.equals("BDprotectionRad120")) {
-                           var3 = 66;
+                       if (fromCommand.equals("BDprotectionRad120")) {
+                           shit = 66;
                            break label110;
                        }
                        break;
                    case 1145772052:
-                       if (var4.equals("BDprotectionPsy120")) {
-                           var3 = 67;
+                       if (fromCommand.equals("BDprotectionPsy120")) {
+                           shit = 67;
                            break label110;
                        }
                        break;
                    case -1167097637:
-                       if (var4.equals("setRadOn80Percent")) {
-                           var3 = 68;
+                       if (fromCommand.equals("setRadOn80Percent")) {
+                           shit = 68;
                            break label110;
                        }
                        break;
                    case 1699558920:
-                       if (var4.equals("setBioOn80Percent")) {
-                           var3 = 69;
+                       if (fromCommand.equals("setBioOn80Percent")) {
+                           shit = 69;
                            break label110;
                        }
                        break;
                    case -1658045336:
-                       if (var4.equals("mechMinus60Rad")) {
-                           var3 = 72;
+                       if (fromCommand.equals("mechMinus60Rad")) {
+                           shit = 72;
                            break label110;
                        }
                        break;
                    case -1658060453:
-                       if (var4.equals("mechMinus60Bio")) {
-                           var3 = 73;
+                       if (fromCommand.equals("mechMinus60Bio")) {
+                           shit = 73;
                            break label110;
                        }
                        break;
                    case -232827188:
-                       if (var4.equals("mechPlus70Health")) {
-                           var3 = 74;
+                       if (fromCommand.equals("mechPlus70Health")) {
+                           shit = 74;
                            break label110;
                        }
                        break;
                    case 1984920125:
-                       if (var4.equals("setRad0")) {
-                           var3 = 75;
+                       if (fromCommand.equals("setRad0")) {
+                           shit = 75;
                            break label110;
                        }
                        break;
                    case 1388454378:
-                       if (var4.equals("setBio15")) {
-                           var3 = 76;
+                       if (fromCommand.equals("setBio15")) {
+                           shit = 76;
                            break label110;
                        }
                        break;
                    case 1984451498:
-                       if (var4.equals("setBio0")) {
-                           var3 = 77;
+                       if (fromCommand.equals("setBio0")) {
+                           shit = 77;
                            break label110;
                        }
                        break;
                    case 1784296673:
-                       if (var4.equals("minus15Rad")) {
-                           var3 = 78;
+                       if (fromCommand.equals("minus15Rad")) {
+                           shit = 78;
                            break label110;
                        }
                        break;
                    case -1523616740:
-                       if (var4.equals("plus10Rad")) {
-                           var3 = 80;
+                       if (fromCommand.equals("plus10Rad")) {
+                           shit = 80;
                            break label110;
                        }
                        break;
                    case -1523631857:
-                       if (var4.equals("plus10Bio")) {
-                           var3 = 81;
+                       if (fromCommand.equals("plus10Bio")) {
+                           shit = 81;
                            break label110;
                        }
                        break;
                    case 1784281556:
-                       if (var4.equals("minus15Bio")) {
-                           var3 = 83;
-                           break label110;
-                       }
-                       break;
-                   case 113633: //sc1
-                       if (var4.equals("sc1")) {
-                           var3 = 85;
-                           break label110;
-                       }
-                       break;
-                   case 113634: //sc2
-                       if (var4.equals("sc2")) {
-                           var3 = 86;
+                       if (fromCommand.equals("minus15Bio")) {
+                           shit = 83;
                            break label110;
                        }
                        break;
                    case 1910275381:
-                       if (var4.equals("gestalt_closed_3")) {
-                           var3 = 87;
-                           break label110;
-                       }
-                       break;
-                   case 1910275382:
-                       if (var4.equals("gestalt_closed_4")) {
-                           var3 = 88;
-                           break label110;
-                       }
-                       break;
-                   case 283987183:
-                       if (var4.equals("art_oasis")) {
-                           var3 = 89;
-                           break label110;
-                       }
-                       break;
                        //здесь и далее глеб
                    case -982210431:
-                       if (var4.equals("radiation")) {
-                           var3 = 90;
+                       if (fromCommand.equals("radiation")) {
+                           shit = 90;
                            break label110;
                        }
                        break;
                    case -383752240:
-                       if (var4.equals("radiation1")) {
-                           var3 = 91;
+                       if (fromCommand.equals("radiation1")) {
+                           shit = 91;
                            break label110;
                        }
                        break;
                    case -383752239:
-                       if (var4.equals("radiation2")) {
-                           var3 = 92;
+                       if (fromCommand.equals("radiation2")) {
+                           shit = 92;
                            break label110;
                        }
                        break;
                    case -383752238:
-                       if (var4.equals("radiation3")) {
-                           var3 = 93;
+                       if (fromCommand.equals("radiation3")) {
+                           shit = 93;
                            break label110;
                        }
                        break;
                    case 74018586:
-                       if (var4.equals("biohazard")) {
-                           var3 = 94;
+                       if (fromCommand.equals("biohazard")) {
+                           shit = 94;
                            break label110;
                        }
                        break;
                    case -2000391081:
-                       if (var4.equals("biohazard1")) {
-                           var3 = 95;
+                       if (fromCommand.equals("biohazard1")) {
+                           shit = 95;
                            break label110;
                        }
                        break;
                    case -2000391080:
-                       if (var4.equals("biohazard2")) {
-                           var3 = 96;
+                       if (fromCommand.equals("biohazard2")) {
+                           shit = 96;
                            break label110;
                        }
                        break;
                    case -2000391079:
-                       if (var4.equals("biohazard3")) {
-                           var3 = 97;
+                       if (fromCommand.equals("biohazard3")) {
+                           shit = 97;
                            break label110;
                        }
                        break;
                    case -1221262756:
-                       if (var4.equals("health")) {
-                           var3 = 98;
+                       if (fromCommand.equals("health")) {
+                           shit = 98;
                            break label110;
                        }
                        break;
                    case 795560277:
-                       if (var4.equals("health1")) {
-                           var3 = 99;
+                       if (fromCommand.equals("health1")) {
+                           shit = 99;
                            break label110;
                        }
                        break;
                    case 795560278:
-                       if (var4.equals("health2")) {
-                           var3 = 100;
+                       if (fromCommand.equals("health2")) {
+                           shit = 100;
                            break label110;
                        }
                        break;
                    case 795560279:
-                       if (var4.equals("health3")) {
-                           var3 = 101;
+                       if (fromCommand.equals("health3")) {
+                           shit = 101;
                            break label110;
                        }
                        break;
                }
 
-               var3 = -1;
+               shit = -1;
            }
 
            Intent intent1;
            int j;
-           switch(var3) {
+           switch(shit) {
                case 0:
-                   playerCharacter.setHealth(playerCharacter.getMaxHealth());
-                   Health = 2000.0D;
-                   MaxHealth = 2000.0D;
-                   Rad = 0.0D;
-                   Bio = 0.0D;
-                   Psy = 0.0D;
-                   Arrays.fill(RadProtectionArr, 0);
-                   Arrays.fill(BioProtectionArr, 0);
-                   Arrays.fill(PsyProtectionArr, 0);
-                   Arrays.fill(RadProtectionCapacityArr, 0);
-                   Arrays.fill(BioProtectionCapacityArr, 0);
-                   Arrays.fill(PsyProtectionCapacityArr, 0);
-                   Arrays.fill(MaxRadProtectionCapacityArr, 0);
-                   Arrays.fill(MaxBioProtectionCapacityArr, 0);
-                   Arrays.fill(MaxPsyProtectionCapacityArr, 0);
+                   playerCharacter[current].setDead(false);
+                   playerCharacter[current].setHealth(playerCharacter[current].getMaxHealth());
+                   playerCharacter[current].setMaxHealth(2000);
+                   playerCharacter[current].setContamination(new double[]{0, 0, 0});
+                   playerCharacter[current].setRadProtection(new double[][]{{0, 0, 0}, {0, 0, 0}});
+                   ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).setProtected(GESTALT_ID);
+
                    ScienceQR = 0; // больше не ученый
-                   GestaltProtection = false;
-                   for (int i = 0; i < NUMBER_OF_GESTALT_ANOMALIES; i++){
-                       anomalies[i].gesStatus = 1;
-                   }   // 1 - гештальт закрыт
                    DischargeImmunity = false;
-                   playerCharacter.setDead(false);
-                   intent1 = new Intent("StatsService.HealthUpdate");
-                   intent1.putExtra("Health", "2000");
-                   sendBroadcast(intent1);
+
                    intent1 = new Intent("StatsService.Message");
                    intent1.putExtra("Message", "A");
                    sendBroadcast(intent1);
@@ -874,57 +798,24 @@ public class StatsService extends Service {
                    DischargeImmunity = false;
                    break;
                case 12:
-                   MaxHealth = 2000.0D;
-                   intent1 = new Intent("StatsService.HealthUpdate");
-                   intent1.putExtra("Health", "2000");
-                   sendBroadcast(intent1);
+                   playerCharacter[current].setMaxHealth(2000);
                    break;
                case 13:
-                   MaxHealth = 3000.0D;
-                   intent1 = new Intent("StatsService.HealthUpdate");
-                   intent1.putExtra("Health", "3000");
-                   sendBroadcast(intent1);
+                   playerCharacter[current].setMaxHealth(3000);
                    break;
                case 14:  //MakeAlive
-                   playerCharacter.setHealth(playerCharacter.getMaxHealth());
-                   Health = MaxHealth;
-                   Rad = 0.0D;
-                   Bio = 0.0D;
-                   Psy = 0.0D;
-                   RadProtectionArr[1] = 0;
-                   RadProtectionArr[2] = 0;
-                   BioProtectionArr[1] = 0;
-                   BioProtectionArr[2] = 0;
-                   PsyProtectionArr[1] = 0;
-                   PsyProtectionArr[2] = 0;
-                   MaxRadProtectionCapacityArr[1] = 0;
-                   MaxRadProtectionCapacityArr[2] = 0;
-                   MaxBioProtectionCapacityArr[1] = 0;
-                   MaxBioProtectionCapacityArr[2] = 0;
-                   MaxPsyProtectionCapacityArr[1] = 0;
-                   MaxPsyProtectionCapacityArr[2] = 0;
-                   Arrays.fill(RadProtectionCapacityArr, 0);
-                   Arrays.fill(BioProtectionCapacityArr, 0);
-                   Arrays.fill(PsyProtectionCapacityArr, 0);
-                   playerCharacter.setDead(false);
+                   playerCharacter[current].setDead(false);
+                   playerCharacter[current].setHealth(playerCharacter[current].getMaxHealth());
+                   playerCharacter[current].setContamination(new double[]{0, 0, 0});
+
                    break;
                case 15: //ComboResetProtections
                    Arrays.fill(RadProtectionArr, 0);
                    Arrays.fill(BioProtectionArr, 0);
                    Arrays.fill(PsyProtectionArr, 0);
-                   Arrays.fill(MaxRadProtectionCapacityArr, 0);
-                   Arrays.fill(MaxBioProtectionCapacityArr, 0);
-                   Arrays.fill(MaxPsyProtectionCapacityArr, 0);
                    Arrays.fill(RadProtectionCapacityArr, 0);
                    Arrays.fill(BioProtectionCapacityArr, 0);
                    Arrays.fill(PsyProtectionCapacityArr, 0);
-                   break;
-               case 16: //monolith
-                   /*DischargeImmunity = true;
-                   //RadTotalProtection = 50;
-                   BioQuestProtection = 50;
-                   PsyQuestProtection = 100;
-                   GestaltProtection = true;*/
                    break;
                case 17: //god
                    DischargeImmunity = true;
@@ -933,24 +824,14 @@ public class StatsService extends Service {
                case 18:
                    IsUnlocked = true;
                    break;
-               case 19://Monolith2 - аномалия, которая лечит, но только монолит, точнее тех, у кого иммунитет к выбросам
-                   if (DischargeImmunity) {
-                       Health = 2000.0D;
-                       Bio = 0.0D;
-                       Rad = 0.0D;
-                       Arrays.fill(RadProtectionCapacityArr, 0);
-                       Arrays.fill(BioProtectionCapacityArr, 0);
-                       Arrays.fill(PsyProtectionCapacityArr, 0);
-                   }
-                   break;
                case 20:
-                   Vibrate = true;
+                   vibrate = true;
                    break;
                case 21:
-                   Vibrate = false;
+                   vibrate = false;
                    break;
                case 22:
-                   Discharge();
+                   playerCharacter[current].responseDischarge();
                    break;
                    //новые коды
                case 23:
@@ -958,32 +839,6 @@ public class StatsService extends Service {
                    break;
                case 24:
                    ScienceQR = 0;
-                   break;
-               case 25:
-                   int g = 0;
-
-                   database = dbHelper.open();
-                   ContentValues contentValues;
-                   contentValues = new ContentValues();
-                   contentValues.put(DBHelper.KEY_GESTALT_STATUS, "1");
-                   database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID_ANOMALY + "=?", new String[]{String.valueOf(g + 1)});
-                   database.close();
-
-                   anomalies[g].gesStatus = 1;
-                   gesLockoutList[g] = 1;
-                   GestaltLockout(g);
-                   break;
-               case 26:
-                   int g1 = 1;
-                   anomalies[g1].gesStatus = 1;
-                   gesLockoutList[g1] = 1;
-                   GestaltLockout(g1);
-                   break;
-               case 27:
-                   GestaltProtection = true;
-                   break;
-               case 28:
-                   GestaltProtection = false;
                    break;
                case 29:
                    IS_ANOMALIES_AVAILABLE = true;
@@ -998,44 +853,33 @@ public class StatsService extends Service {
                    handler2.postDelayed(() -> {
                        IS_ANOMALIES_AVAILABLE = iaaTemp;
                        DischargeImmunity = DI;
-                       EM.PlaySound("Start", 1);
+                       effectManager.PlaySound("Start", 1);
                    }, 3600000);
                    break;
                case 31: // этот и следующие 2 - шприцы от рад и био
-                   setHealthBy_BD("Rad", -75, true, 9);
+                   setHealthBy_BD("rad", -75, true, 9);
                    break;
                case 32:
-                   setHealthBy_BD("Bio", -75, true, 9);
+                   setHealthBy_BD("bio", -75, true, 9);
                    break;
                case 33:
                    setHealthBy_BD("Health", 40, false, 0);
                    break;
                case 34: // этот и два следующих - обнуление защит
                    Arrays.fill(RadProtectionArr, 0);
-                   Arrays.fill(MaxRadProtectionCapacityArr, 0);
                    break;
                case 35:
                    Arrays.fill(BioProtectionArr, 0);
-                   Arrays.fill(MaxBioProtectionCapacityArr, 0);
                    break;
                case 36:
                    Arrays.fill(PsyProtectionArr, 0);
-                   Arrays.fill(MaxPsyProtectionCapacityArr, 0);
                    break;
                case 37:// артос компас
                     IS_COMPASS = true;
                    break;
                case 38:
-                   playerCharacter.setHealth(0);
+                   playerCharacter[current].setHealth(0);
                    break;
-               case 39: // временная защита от ЧН аномалий
-                   break;
-               /*case 40:
-                   Health = 0.75 * MaxHealth;
-                   break;
-               case 41:
-                   Health = MaxHealth;
-                   break;*/
                case 42: // макс одна защита
                    MaxProtectionsAvailable = 1;
                    break;
@@ -1045,24 +889,6 @@ public class StatsService extends Service {
                case 44: // макс три защиты
                    MaxProtectionsAvailable = 3;
                    break;
-               /*case 45: // био защита на 30минут
-                   SetTemporaryAnomalyProtection("Bio", 99, 1, 1800000);
-                   break;
-               case 46: // био защита на 60инут
-                   SetTemporaryAnomalyProtection("Bio", 99, 1, 3600000);
-                   break;
-               case 47: // био защита на 90минут
-                   SetTemporaryAnomalyProtection("Bio", 99, 1, 5400000);
-                   break;
-               case 48: // пси защита на 30минут
-                   SetTemporaryAnomalyProtection("Psy", 99, 1, 1800000);
-                   break;
-               case 49: // psy защита на 60минут
-                   SetTemporaryAnomalyProtection("Psy", 99, 1, 3600000);
-                   break;
-               case 50: // psy защита на 90минут
-                   SetTemporaryAnomalyProtection("Psy", 99, 1, 5400000);
-                   break;*/
                case 51: // защита от выброса на 10 минут
                    boolean DischargeImmunityTemp = DischargeImmunity;
                    DischargeImmunity = true;
@@ -1075,51 +901,6 @@ public class StatsService extends Service {
                    Handler handler13 = new Handler();
                    handler13.postDelayed(() -> DischargeImmunity = DischargeImmunityTemp_1, 2700000);
                    break;
-               /*case 53:  //коды болотного доктора на жизни
-                   setHealthBy_BD(2, false, 0);
-                   break;
-               case 54:
-                   setHealthBy_BD(5, false, 0);
-                   break;
-               case 55:
-                   setHealthBy_BD(10, false, 0);
-                   break;
-               case 56:
-                   setHealthBy_BD(45, true, 15);
-                   break;
-               case 57:
-                   setHealthBy_BD(-5, false, 0);
-                   break;
-               case 58:
-                   setHealthBy_BD(-10, true, 10);
-                   break;
-               case 59:
-                   setHealthBy_BD(-21, true, 14);
-                   break;*/
-               /*case 60:
-                   SetTemporaryAnomalyProtection("Bio", 60, 15, 1500000);
-                   break;
-               case 61:
-                   SetTemporaryAnomalyProtection("Bio", 60, 15, 2100000);
-                   break;
-               case 62:
-                   SetTemporaryAnomalyProtection("Rad", 60, 15, 1500000);
-                   break;
-               case 63:
-                   SetTemporaryAnomalyProtection("Rad", 60, 15, 2100000);
-                   break;
-               case 64:
-                   SetTemporaryAnomalyProtection("Psy", 60, 15, 1500000);
-                   break;
-               case 65:
-                   SetTemporaryAnomalyProtection("Bio", 0, 1, 1200000);
-                   break;
-               case 66:
-                   SetTemporaryAnomalyProtection("Rad", 0, 1, 1200000);
-                   break;
-               case 67:
-                   SetTemporaryAnomalyProtection("Psy", 0, 1, 1200000);
-                   break;*/
                case 68:
                    if (Rad < 0.8 * MaxRad){
                        Rad = 0.8 * MaxRad;
@@ -1136,9 +917,6 @@ public class StatsService extends Service {
                case 73:
                    Bio -= Bio * (random.nextInt(30) + 61) / 100;
                    break;
-              /* case 74:
-                   setHealthBy_BD (70, true, 10);
-                   break;*/
                case 75:
                    Rad = 0;
                    break;
@@ -1156,158 +934,38 @@ public class StatsService extends Service {
                case 80:
                    Rad += 0.1 * MaxRad;
                    if (Rad >= MaxRad){
-                       playerCharacter.setDead(true);
-                       playerCharacter.setHealth(0);
+                       playerCharacter[current].setHealth(0);
                    }
                    break;
                case 81:
                    Bio += 0.1 * MaxBio;
                    if (Bio >= MaxBio){
-                       playerCharacter.setDead(true);
-                       playerCharacter.setHealth(0);
+                       playerCharacter[current].setHealth(0);
                    }
                    break;
                case 83:
                    Bio -= 0.15 * Bio;
                    break;
-               case 85: //sc1 код по типу sc1@rad@suit@80@
-                   try {
-                       ProtectionChanger(protectionRewhriteMap.get(textCodeSplitted[1]));
-                   } catch (Exception e) {
-                       e.printStackTrace();
-                   }
-
-                   if (textCodeSplitted[1].equals("rad")){
-                       try {
-                           if (!textCodeSplitted[2].equals("tot")) {
-                               RadProtectionArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = Double.parseDouble(textCodeSplitted[3]);
-                               RadProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = 0;
-                               if (textCodeSplitted[3].equals("0")){
-                                   MaxRadProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = 0;
-                               } else {
-                                   MaxRadProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = ProtectionCapacity[protectionSuitRewhriteMap.get(textCodeSplitted[2])];
-                               }
-                           } else {
-                               RadProtectionTot = Integer.parseInt(textCodeSplitted[3]);
-                           }
-                       } catch (NullPointerException e) {
-                           e.printStackTrace();
-                       }
-                   }
-
-                   if (textCodeSplitted[1].equals("bio")){
-                       try {
-                           if (!textCodeSplitted[2].equals("tot")) {
-                               BioProtectionArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = Double.parseDouble(textCodeSplitted[3]);
-                               BioProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = 0;
-                               if (textCodeSplitted[3].equals("0")){
-                                   MaxRadProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = 0;
-                               }else {
-                                   MaxBioProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = ProtectionCapacity[protectionSuitRewhriteMap.get(textCodeSplitted[2])];
-                               }
-                           } else {
-                               BioProtectionTot = Integer.parseInt(textCodeSplitted[3]);
-                           }
-                       } catch (NullPointerException e) {
-                           e.printStackTrace();
-                       }
-                   }
-                   if (textCodeSplitted[1].equals("psy")){
-                       try {
-                           if (!textCodeSplitted[2].equals("tot")) {
-                               PsyProtectionArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = Double.parseDouble(textCodeSplitted[3]);
-                               BioProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = 0;
-                               if (textCodeSplitted[3].equals("0")){
-                                   MaxRadProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = 0;
-                               } else {
-                                   MaxPsyProtectionCapacityArr[protectionSuitRewhriteMap.get(textCodeSplitted[2])] = ProtectionCapacity[protectionSuitRewhriteMap.get(textCodeSplitted[2])];
-                               }
-                           } else {
-                               PsyProtectionTot = Integer.parseInt(textCodeSplitted[3]);
-                           }
-                       } catch (NullPointerException e) {
-                           e.printStackTrace();
-                       }
-                   }
-                   break;
-               case 86: //sc2 код по типу sc2@hp@+1@
-                   if (textCodeSplitted[1].equals("rad")){
-                       try {
-                           Rad += Double.parseDouble(textCodeSplitted[2]) * MaxRad / 100;
-                           if (Rad < 0){
-                               Rad = 0;
-                           }
-                           if (Rad >= MaxRad){
-                               playerCharacter.setDead(true);
-                               playerCharacter.setHealth(0);
-                           }
-                       } catch (Exception e) {
-                           e.printStackTrace();
-                       }
-                   }
-                   if (textCodeSplitted[1].equals("bio")){
-                       try {
-                           Bio += Double.parseDouble(textCodeSplitted[2]) * MaxBio / 100;
-                           if (Bio < 0) {
-                               Bio = 0;
-                           }
-                           if (Bio >= MaxBio){
-                               playerCharacter.setDead(true);
-                               playerCharacter.setHealth(0);
-                           }
-                       } catch (Exception e) {
-                           e.printStackTrace();
-                       }
-                   }
-                   if (textCodeSplitted[1].equals("hp")){
-                       try {
-                           Health += Double.parseDouble(textCodeSplitted[2]) * MaxHealth / 100;
-                           if (Health > MaxHealth){
-                               Health = MaxHealth;
-                           }
-                           if (Health <= 0){
-                               playerCharacter.setDead(true);
-                           }
-                       } catch (Exception e) {
-                           e.printStackTrace();
-                       }
-                   }
-                   break;
-               case 87:
-                   int g2 = 4;
-                   anomalies[g2].gesStatus = 1;
-                   gesLockoutList[g2] = 1;
-                   GestaltLockout(g2);
-                   break;
-               case 88:
-                   int g3 = 5;
-                   anomalies[g3].gesStatus = 1;
-                   gesLockoutList[g3] = 1;
-                   GestaltLockout(g3);
-                   break;
-               case 89:
-                   fastRadPurification = true;
-                   break;
                case 90: //Здесь и далее глеб
-                   setHealthBy_BD("Rad", -65, true, 9);
+                   setHealthBy_BD("rad", -65, true, 9);
                    break;
                case 91:
-                   setHealthBy_BD("Rad", -75, true, 9);
+                   setHealthBy_BD("rad", -75, true, 9);
                    break;
                case 92:
-                   setHealthBy_BD("Rad", -85, true, 9);
+                   setHealthBy_BD("rad", -85, true, 9);
                    break;
                case 93:
                    Rad = 0;
                    break;
                case 94:
-                   setHealthBy_BD("Bio", -65, true, 9);
+                   setHealthBy_BD("bio", -65, true, 9);
                    break;
                case 95:
-                   setHealthBy_BD("Bio", -75, true, 9);
+                   setHealthBy_BD("bio", -75, true, 9);
                    break;
                case 96:
-                   setHealthBy_BD("Bio", -85, true, 9);
+                   setHealthBy_BD("bio", -85, true, 9);
                    break;
                case 97:
                    Bio = 0;
@@ -1346,14 +1004,14 @@ public class StatsService extends Service {
                     Health = MaxHealth;
                 }
                 break;
-            case "Rad":
+            case "rad":
                 if(isRandom){
                     Rad += (quantity + Math.signum(quantity) * (random.nextInt(rangeOfRandom) + 1)) * Rad  / 100;
                 } else {
                     Rad += quantity * Rad / 100d;
                 }
                 break;
-            case "Bio":
+            case "bio":
                 if(isRandom){
                     Bio += (quantity + Math.signum(quantity) * (random.nextInt(rangeOfRandom) + 1)) * Bio  / 100;
                 } else {
@@ -1378,73 +1036,38 @@ public class StatsService extends Service {
         }
     }
 
-    // установка количества возможных защиты от аномалий
-    private void ProtectionChanger(String protectionType){
-        if (MaxProtectionsAvailable == 1) {
-            for (String protType : new String[]{"Rad", "Bio", "Psy"}){
-                if (!protectionType.equals(protType)){
-                    Arrays.fill(protectionMap.get(protType), 0);
-                    Arrays.fill(protectionCapacityMap.get(protType), 0);
-                    Arrays.fill(protectionCapacityMaxMap.get(protType), 0);
-                }
-            }
-        }
-    }
-
-    private WifiManager wifiManager;
-    private List<ScanResult> wifiList;
-
-    public void detectWifi(){
-        this.wifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        this.wifiManager.startScan();
-        this.wifiList = this.wifiManager.getScanResults();
-
-        //Log.d("TAGg", wifiList.toString());
-        try {
-            for (int i = 0; i<wifiList.size(); i++){
-                String item = wifiList.get(i).toString();
-                String[] vector_item = item.split(",");
-                String item_essid = vector_item[0];
-                String ssid = item_essid.split(": ")[1];
-               // Log.d("TAGgg", ssid);
-                if (ssid.equals("control")){
-                    IsInsideAnomaly = Boolean.TRUE;
-                    anomalies[NUMBER_OF_ANOMALIES + 2].Apply();
-                }
-                if (ssid.equals("chimera")){
-                    IsInsideAnomaly = Boolean.TRUE;
-                    anomalies[NUMBER_OF_ANOMALIES + 1].Apply();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public void onCreate() {
         super.onCreate();
         this.wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(1, "STALKERNET:My_Partial_Wake_Lock");
         this.wl.acquire(10*60*1000L /*10 minutes*/);   //timeout заставила студия поставить, не знаю как это работает
-        this.EM = new EffectManager(this);
+        AndroidThreeTen.init(this);
+        //здесь база данных открывается, а в onDestroy закрывается вместе с курсором
+        //TODO надо в остальных местах убрать открытие и закрытие базы данных
         dbHelper = new DBHelper(getApplicationContext());
         dbHelper.create_db();
+        database = dbHelper.open();
 
-        playerCharacter = new PlayerCharacter(this);
+        effectManager = new EffectManager(this);
+        playerCharacter = new PlayerCharacter[3];
+        playerCharacter[0] = new PlayerCharacter(this);
+        playerCharacter[1] = new StalkerCharacter(this);
+        playerCharacter[2] = new MonolithCharacter(this);
+        qrAnomaly = new QRAnomaly();
+        wifiAnomaly = new WifiAnomaly(this);
+        anomaly = new Anomaly[3];
+        anomaly[0] = new Anomaly(this, database, cursor);
+        anomaly[1] = new GestaltAnomaly(this, database, cursor);
+        anomaly[2] = new OasisAnomaly(this);
 
-        NUMBER_OF_ANOMALIES = getNumberOfAnomalies();
+        discharge = new Discharge(this, database, cursor);
 
-        GetAnomalies();
-
-        CreateSafeZones();
-
-        LoadStats();
-        playerCharacter.loadStats(getApplicationContext());
-
-
+        loadStats();
 
         this.mFusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
-        //startForeground(101, new Builder(this, Build.VERSION.SDK_INT >= 26 ? createNotificationChannel((NotificationManager) getSystemService("notification")) : "").setOngoing(true).setSmallIcon(R.drawable.ic_launcher_background).setPriority(1).setCategory("service").setContentTitle("StatsService").setContentText("Stats are being updated.").build());
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= 26) {
             String CHANNEL_ID = "my_channel_01";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
@@ -1461,34 +1084,12 @@ public class StatsService extends Service {
 
             startForeground(1, notification);
         }
-
-        //MaxRadProtectionCapacity = 1000;
-
-        protectionMap.put("Rad", RadProtectionArr);
-        protectionMap.put("Bio", BioProtectionArr);
-        protectionMap.put("Psy", PsyProtectionArr);
-        protectionCapacityMaxMap.put("Rad", MaxRadProtectionCapacityArr);
-        protectionCapacityMaxMap.put("Bio", MaxBioProtectionCapacityArr);
-        protectionCapacityMaxMap.put("Psy", MaxPsyProtectionCapacityArr);
-        protectionCapacityMap.put("Rad", RadProtectionCapacityArr);
-        protectionCapacityMap.put("Bio", BioProtectionCapacityArr);
-        protectionCapacityMap.put("Psy", PsyProtectionCapacityArr);
-    }
-    //всё работает так как функцию никто не вызывает
-    @RequiresApi(26)
-    private String createNotificationChannel(NotificationManager notificationManager) {
-        String str = "101";
-        NotificationChannel notificationChannel = new NotificationChannel(str, "StatsService", IMPORTANCE_HIGH);
-        notificationChannel.setImportance(IMPORTANCE_HIGH);
-        notificationChannel.setLockscreenVisibility(0);
-        notificationManager.createNotificationChannel(notificationChannel);
-        return str;
     }
 
     public int onStartCommand(Intent intent, int i, int i2) {
         super.onStartCommand(intent, i, i2);
         Toast.makeText(this, "Service has been started.", Toast.LENGTH_SHORT).show();
-        CheckPermissions();
+        checkPermissions();
         registerReceiver(this.broadcastReceiver, new IntentFilter("Command"));
         registerReceiver(this.broadcastReceiverQR, new IntentFilter("StRoulette"));
         return START_REDELIVER_INTENT;
@@ -1498,19 +1099,24 @@ public class StatsService extends Service {
         super.onDestroy();
         unregisterReceiver(this.broadcastReceiver);
         unregisterReceiver(this.broadcastReceiverQR);
-        SaveStats();
-        playerCharacter.saveStats(getApplicationContext());
+        saveStats();
         this.wl.release();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        if (database != null && database.isOpen()) {
+            database.close();
+        }
     }
 
     //private int Course_Location_RequestCode = 1;
-    private void CheckPermissions() {
+    private void checkPermissions() {
         while (!this.LocationUpdatesStarted) {
             if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_GRANTED) {
                 //if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_COURSE_LOCATION") == PackageManager.PERMISSION_GRANTED) {
                     LocationRequest create = LocationRequest.create();
                     create.setPriority(100).setInterval(1000).setFastestInterval(1000);
-                    this.LocationCallback = new MyLocationCallback(this.MyCurrentLocation, this);
+                    this.LocationCallback = new MyLocationCallback(this.myCurrentLocation, this);
                     this.mFusedLocationProvider.requestLocationUpdates(create, this.LocationCallback, null);
                     this.LocationUpdatesStarted = true;
                     Toast.makeText(this, "Location updates have been started.", Toast.LENGTH_SHORT).show();
@@ -1519,81 +1125,7 @@ public class StatsService extends Service {
         }
     }
 
-    public int getNumberOfAnomalies(){
-        int numberOfAnomalies = 0;
-        database = dbHelper.open();
-        cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{"COUNT(_id)"}, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            numberOfAnomalies = cursor.getInt(0);
-        }
-        cursor.close();
-        dbHelper.close();
-        return numberOfAnomalies;
-    }
 
-    // гештальт аномалию 20 минут нельзя снова открыть
-    private void GestaltLockout(final int gesIndex){
-       Handler handler = new Handler();
-       handler.postDelayed(() -> gesLockoutList[gesIndex] = 0, 1200000);
-    }
-
-    // список аномалий
-    // d - сила
-    // d2 - радиус
-    // гештальт должен идти первым
-    // 0 - не гештальт, 1 - закрыто, 2 - открыто
-    // вызывается в onCreate()
-    /*
-    * Вызывается в class MyLocationCallback и создает список аномалий, которые берет из БД, а также
-    * добавляет 3 аномалии для QR рулетки
-    */
-    public void GetAnomalies() {
-        gesStatus = 1;
-        /*
-        * к NUMBER_OF_ANOMALIES  добавляем 3 в счет аномалий у сталкерской рулетки,
-        * которые не учитываются в CheckAnomalies()
-        */
-        Anomaly[] anomalyArr = new Anomaly[NUMBER_OF_ANOMALIES + 3];  // +3 аномалии для сталкерской рулетки
-        database = dbHelper.open();
-        cursor = database.query(DBHelper.TABLE_ANOMALY, null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID_ANOMALY);
-            int polygon_type = cursor.getColumnIndex(DBHelper.KEY_POLYGON_TYPE);
-            int type = cursor.getColumnIndex(DBHelper.KEY_TYPE);
-            int radius = cursor.getColumnIndex(DBHelper.KEY_RADIUS);
-            int power = cursor.getColumnIndex(DBHelper.KEY_POWER);
-            int minPower = cursor.getColumnIndex(DBHelper.KEY_MIN_POWER);
-            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE_ANOMALY);
-            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE_ANOMALY);
-           // int statService = cursor.getColumnIndex(DBHelper.KEY_STATSERVICE);  - не подумал, что у БД нет типа statService
-            int gestaltStatus = cursor.getColumnIndex(DBHelper.KEY_GESTALT_STATUS);
-            int boolShow = cursor.getColumnIndex(DBHelper.KEY_BOOL_SHOWABLE);
-            do {
-                if (!cursor.getString(type).equals("")) {
-                    anomalyArr[cursor.getInt(idIndex) - 1] = new Anomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
-                    anomalyArr[cursor.getInt(idIndex) - 1].minstrenght = cursor.getDouble(minPower);
-                } else{
-                    anomalyArr[cursor.getInt(idIndex) - 1] = new MonolithAnomaly(cursor.getString(polygon_type), cursor.getString(type), cursor.getDouble(power), cursor.getDouble(radius), new LatLng(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)), this,cursor.getInt(gestaltStatus),cursor.getString(boolShow));
-
-                }
-
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        dbHelper.close();
-
-        anomalyArr[NUMBER_OF_ANOMALIES] = new Anomaly("QR", "Rad", 1d, 1d, this);  //QR рулетка - нигде не учитывается
-        anomalyArr[NUMBER_OF_ANOMALIES + 1] = new Anomaly("QR", "Bio", 2d, 1d, this);  //QR рулетка - нигде не учитывается
-        anomalyArr[NUMBER_OF_ANOMALIES + 2] = new Anomaly("QR", "Psy", 1d, 1d, this);  //QR рулетка - нигде не учитывается
-        anomalies = anomalyArr;
-    }
-
-    public void GetTime() {
-        this.cal = Calendar.getInstance();
-        this.dayInt = this.cal.get(5);
-        this.Hour = this.cal.get(Calendar.HOUR_OF_DAY);
-        this.Minutes = this.cal.get(12);
-    }
 
     public LatLng moving_anomalies(LatLng start_LatLng, LatLng finish_latLng){
         double dLat = (start_LatLng.latitude - finish_latLng.latitude) / 60;
@@ -1616,278 +1148,143 @@ public class StatsService extends Service {
 */
     }
 
-    public void CheckPsyForMonolith(){
-        if (isMonolith && IS_ANOMALIES_AVAILABLE){
-            double d = playerCharacter.getHealth() - 0.5;
-            playerCharacter.setHealth(d);
-        }
+    /*
+    * заполняет карту для определения гештальт аномалия или нет
+    * */
+    private void setAnomalyMap(){
+        anomalyMap.put(RAD, 0);
+        anomalyMap.put(BIO, 0);
+        anomalyMap.put(PSY, 0);
+        anomalyMap.put(GESTALT, 1);
+        anomalyMap.put(OASIS, 2);
     }
-
-
-    // применяет аномалии
-    // вызывается в MyLocationCallback()
-    public void CheckAnomalies() {
-        Anomaly anomaly;
-        if (IS_ANOMALIES_AVAILABLE && !isInSuperSaveZone) {
-            long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
-            // постоянные аномалии
-            if (timeInSeconds > dayFirst) { // 6 сентября в 17:00
-                int i1;
-                if (MonolithOk){
-                    i1 = 7;
-                } else{
-                    i1 = 0;
+    /*
+    * возвращает номер игрового для в зависимости от даты
+    * нужно, чтобы аномалии работали в тот день, в который должны
+    * */
+    // TODO должна возвращать номер игрового для в зависимости от даты но пока что возвращает 1
+    private int getCurrentDay(){
+        return 1;
+    }
+    /*
+    * убирает все аномалии с карты
+    * */
+    private void stopShowAnomalyOnMap(){
+        contentValues = new ContentValues();
+        contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP__ANOMALY, "false");
+        database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_BOOL_SHOWABLE__ANOMALY + "=?", new String[]{"true"});
+    }
+    /*
+    * вызывается в MyLocationCallback()
+    * применяет аномалии
+    * */
+    public void applyAnomalies() {
+        if (IS_ANOMALIES_AVAILABLE) {
+            // перед началом проверки ставит, что мол не находится внутри никаких аномалий
+            isInsideAnomaly = false;
+            // также записывает в базу данных, что рисовать аномалии на карте не надо
+            stopShowAnomalyOnMap();
+            // не только считает количество аномалий, но и записывает в курсор таблицу аномалий
+            int anomalyCount = anomaly[0].getAnomalyInfo();
+            // цикл, в котором проверяется каждая строка из базы данных
+            for (int i = 0; i < anomalyCount; i++) {
+                // проверяет находится ли игрок внутри аномалии i
+                Pair<Boolean, String> anomalyPair = anomaly[0].isInside(getCurrentDay());
+                boolean inside = anomalyPair.first;
+                String type = anomalyPair.second;
+                // проверяет на гештальтность
+                String gesStatus = anomaly[0].getGestaltStatus();
+                // если аномалия - гештальт, то передает в класс гештальт свойства этого гештальта
+                // а также проверяет статус гештальта: open, close, protected
+                if (type.equals(GESTALT)){
+                    double[] gestaltDamage = anomaly[0].getGestaltDamageInfo();
+                    ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).isProtected(inside, gesStatus, gestaltDamage, i + 1);
                 }
-                for (int i = i1; i < 18; i++) {//18
-                    anomalies[i].Apply();
-                }
-
-            }
-            // с 12 сентября в 17:00
-            CheckAnomaliesRegular(dayFirst, daySecond, 18, 31);
-            // c 13 сентября в 11:36
-            CheckAnomaliesRegular(daySecond, dayThird, 18, 38);
-            // c 14 сентября в 15:20
-            CheckAnomaliesRegular(dayThird, dayFourth, 38, 58);
-            // c 15 сентября в 11:20
-            CheckAnomaliesRegular(dayFourth, (dayFourth + dayFourth), 58, 72);
-            // аномалии монолита
-            CheckAnomaliesRegular(dayFirst, (dayFourth + dayFourth), 72, 77);
-
-        }
-
-    }
-
-    public void CheckAnomaliesRegular(long timeStart, long timeFinish, int anomalyStart, int anomalyFinish){
-        long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
-        if(timeInSeconds > timeStart  && timeInSeconds < timeFinish){
-            for (int i = anomalyStart; i < anomalyFinish; i++) {
-                anomalies[i].Apply();
-            }
-        }
-    }
-
-   // public int anomalyIndex;
-    public void CheckIfInAnyAnomalyRegular(long timeStart, long timeFinish, int anomalyStart, int anomalyFinish){
-        long timeInSeconds = (Calendar.getInstance().getTimeInMillis() / 1000);
-        if (timeInSeconds > timeStart  && timeInSeconds < timeFinish){
-            ContentValues contentValues;
-            for (int i = anomalyStart; i < anomalyFinish; i++) {
-                if (anomalies[i].IsInside) {
-                    if (anomalies[i].toShow) {
-                        database = dbHelper.open();
-                        contentValues = new ContentValues();
-                        contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP, "true");
-                        database.update(DBHelper.TABLE_ANOMALY, contentValues,  DBHelper.KEY_ID_ANOMALY + "=" + (i+1), null);
-                    }
-                    IsInsideAnomaly = Boolean.TRUE;
-                    break;
-                }
-            }
-        }
-    }
-
-    // вызывается в MyLocationCallback()
-    public void CheckIfInAnyAnomaly() {
-        this.IsInsideAnomaly = Boolean.FALSE;
-        database = dbHelper.open();
-        ContentValues contentValues;
-        cursor = database.query(DBHelper.TABLE_ANOMALY, new String[]{"_id", "bool_show_on_map"}, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                contentValues = new ContentValues();
-                contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP, "false");
-                database.update(DBHelper.TABLE_ANOMALY, contentValues, null, null);
-            } while (cursor.moveToNext());
-        }
-
-        detectWifi();
-
-        if (IS_ANOMALIES_AVAILABLE && !isInSuperSaveZone) {
-
-            int i1;
-            if (MonolithOk){
-                i1 = 7;
-            }else{
-                i1 = 0;
-            }
-            for (int i = i1 ; i < 18; i++) {//18
-                if (anomalies[i].IsInside) {
-                    if (anomalies[i].toShow) {
-                        contentValues = new ContentValues();
-                        contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP, "true");
-                        database = dbHelper.open();
-                        database.update(DBHelper.TABLE_ANOMALY, contentValues,  DBHelper.KEY_ID_ANOMALY + "=" + (i+1), null);
+                // проверяет находится ли игрок внутри обычной аномалии или снаружи гештальта
+                // если так, то наносит урон, играет звук и запсывает в таблицу, что надо показывать аномалию на карте
+                if ((inside && !type.equals(GESTALT)) || (!inside && type.equals(GESTALT) && gesStatus.equals(GESTALT_OPEN))){
+                    // может становиться true, если находится внутри не гештальта, а может и не становиться
+                    isInsideAnomaly = inside || isInsideAnomaly;
+                    int anomalySubClass = anomalyMap.get(anomaly[0].getType());
+                    playerCharacter[current].applyProtection(anomaly[anomalySubClass].getDamage());
+                    //TODO передвинуть звуки в свой метод
+                    effectManager.StopActions();
+                    effectManager.PlaySound(anomaly[0].getType(), anomaly[0].getPower());
+                    if (vibrate) {
+                        effectManager.VibrateInPattern();
                     }
 
-                    IsInsideAnomaly = Boolean.TRUE;
-                    if (!GestaltProtection) {                                                 //проверка на защиту от открытия гештальта
-                        if (i < NUMBER_OF_GESTALT_ANOMALIES && anomalies[i].gesStatus == 1){  //если конкретный гештальт закрыт
-                            if (gesLockoutList[i] != 1) {                                     // проверяет можно ли конкретный гештальт открыть
-                                database = dbHelper.getWritableDatabase();
-                                anomalies[i].gesStatus = 2;                                   // открываем гештальт
-                                /*ЕСЛИ ГЕШТАЛЬТ ОТКРЫВАЕТСЯ, ТО СТАВИТ ЕГО КООРДИНАТУ НА КАРТУ*/
-                                contentValues = new ContentValues();
-                                contentValues.put(DBHelper.KEY_NAME, "!!!GESTALT!!!");
-                                contentValues.put(DBHelper.KEY_ICON, "icon");
-                                contentValues.put(DBHelper.KEY_LATITUDE, Double.toString(anomalies[i].center.latitude));
-                                contentValues.put(DBHelper.KEY_LONGITUDE, Double.toString(anomalies[i].center.longitude));
-                                contentValues.put(DBHelper.KEY_COMMENT, "Обнаружен Гештальт");
-                                database.insert(DBHelper.TABLE_MARKERS, null, contentValues);
+                    anomaly[0].setShowable(i);
+                }
+            }
+            // вай фай аномалии - контролер или химера
+            if (wifiAnomaly.getWiFiScan()){
+                playerCharacter[current].applyProtection(wifiAnomaly.getDamage(CONTROL_WIFI));
+                playerCharacter[current].applyProtection(wifiAnomaly.getDamage(CHIMERA_WIFI));
+                isInsideAnomaly = true;
 
-                                database = dbHelper.open();
-                                contentValues = new ContentValues();
-                                contentValues.put(DBHelper.KEY_GESTALT_STATUS, "2");
-                                database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID_ANOMALY + "=?", new String[]{String.valueOf(i+1)});
-                            }
-                        }
+                if (wifiAnomaly.makeSound()) {
+                    effectManager.StopActions();
+                    effectManager.PlaySound(wifiAnomaly.getType(), wifiAnomaly.getPower());
+                    if (vibrate) {
+                        effectManager.VibrateInPattern();
                     }
                 }
             }
-            // с 6 сентября в 17:00
-            CheckIfInAnyAnomalyRegular(dayFirst, daySecond, 18, 31);
-            // c 7 сентября в 17:23
-            CheckIfInAnyAnomalyRegular(daySecond, dayThird, 18, 38);
-            // c 8 сентября в 10:47
-            CheckIfInAnyAnomalyRegular(dayThird, dayFourth, 38, 58);
-            // c 9 сентября в 13:37
-            CheckIfInAnyAnomalyRegular(dayFourth, (dayFourth + dayFourth), 58, 72);
-            // аномалии монолита
-            CheckIfInAnyAnomalyRegular(dayFirst, (dayFourth + dayFourth), 72, 77);
 
-        }
-        /*
-        рад выводится само со временем
-        пси выводится сразу
-        био само не выводится
-         */
-        if (!IsInsideAnomaly) {
-            if (fastRadPurification) {
-                if (Rad > 0) {
-                    Rad -= 0.3; // выводится за час 20
-                }
-            } else {
-                if (Rad > 0) {
-                    Rad -= 0.2; // должно выводиться за ...
-                }
+            if (!isInsideAnomaly){
+                playerCharacter[current].purification();
             }
-            Psy = 0.0d;
-            EM.StopActions();
-        }
-        cursor.close();
-        dbHelper.close();
-    }
-
-
-
-    SuperSaveZone[] superSaveZones = new SuperSaveZone[4];
-    public void Create_super_save_zones(){
-        superSaveZones[0] = new SuperSaveZone(checkTime_in, 0, 180, 15d, "stalkers_in");
-        superSaveZones[1] = new SuperSaveZone(checkTime_in, 0, 180, 15d, "military_in");
-        superSaveZones[2] = new SuperSaveZone(checkTime_in, 0, 180, 15d, "stalkers_out");
-/*        superSaveZones[3] = new SuperSaveZone(checkTime_in + 90, 1, 180, 20d, "stalkers_out");
-        superSaveZones[4] = new SuperSaveZone(checkTime_out, 0, 180, 30d, "stalkers_out");
-        superSaveZones[5] = new SuperSaveZone(checkTime_out + 90, 1, 180, 30d, "stalkers_out");
-        superSaveZones[6] = new SuperSaveZone(checkTime_out, 0, 180, 20d, "green_out");
-        superSaveZones[7] = new SuperSaveZone(checkTime_out + 90, 1, 180, 20d, "green_out");*/
-    }
-
-
-
-    public boolean isInSuperSaveZone = false;
-    public void Super_save_zone_check(){
-        isInSuperSaveZone = false;
-        if (((Calendar.getInstance().getTimeInMillis() / 1000) >= dayFirst) /*&& ((Calendar.getInstance().getTimeInMillis() / 1000) <= (checkTime_in + 3600))*/){
-/*            if (Hour >= 20 || Hour <= 4) {
-                for (LatLng latLng : nightZones){
-                    Location location = new Location("GPS");
-                    location.setLatitude(latLng.latitude);
-                    location.setLongitude(latLng.longitude);
-                    if (location.distanceTo(MyCurrentLocation) <= 17){
-                        isInSuperSaveZone = true;
-                    }
-
-                }
-            }*/
         }
     }
-
-
-    public void CreateSafeZones() {
-        SafeZone[] safeZoneArr = new SafeZone[NUMBER_OF_SAVE_ZONES];
-        safeZoneArr[0] = new SafeZone("Circle", 50.0d, new LatLng(64.351080d, 40.736224d), this); // Свобода
-        safeZoneArr[1] = new SafeZone("Circle", 100.0d, new LatLng(64.357220d, 40.721517d), this); // денисовичи
-        safeZoneArr[2] = new SafeZone("Circle", 40.0d, new LatLng(64.351663d, 40.727578d), this); // гараж
-        safeZoneArr[3] = new SafeZone("Circle", 40.0d, new LatLng(64.349906d, 40.725957d), this); // у озера
-        safeZoneArr[4] = new SafeZone("Circle", 40.0d, new LatLng(64.358117d, 40.722426d), this); // денисовичи еще раз
-        this.SafeZones = safeZoneArr;
-    }
-
-
-    public void CheckIfInAnySafezone() {
-        int i = 0;
-        this.IsInsideSafeZone = Boolean.FALSE;
-        while (i < NUMBER_OF_SAVE_ZONES) {
-            this.SafeZones[i].Apply();
-            if (this.SafeZones[i].IsInside) {
-                this.IsInsideSafeZone = Boolean.TRUE;
+    /*
+    * вызывается в MyLocationCallback()
+    * за 10 минут до выброса происходит варнинг
+    * а во время выброса приоверяет, находится ли в безопасном месте игрок
+    * если не находится то вызывает метод персонажа, ответственный за реакцию на выброс
+    * */
+    public void applyDischarge(){
+        discharge.checkDischargeTime();
+        if (discharge.isWarning()){
+            Toast.makeText(this, "Близиться выброс, необходимо укрытие", Toast.LENGTH_LONG).show();
+            effectManager.PlayBuzzer();
+            discharge.setWarning(false);
+        }
+        if (discharge.isDischarging()){
+            Toast.makeText(getApplicationContext(), "!!!Выброс!!!", Toast.LENGTH_LONG).show();
+            effectManager.PlayBuzzer();
+            if (!discharge.isInsideSafeZone()){
+                playerCharacter[current].responseDischarge();
             }
-            i++;
+            discharge.setDischarging(false);
         }
-    }
-
-    public void Discharge() {
-        this.EM.PlayBuzzer();
-        Toast.makeText(getApplicationContext(), "Близиться выброс, не спеша...", Toast.LENGTH_SHORT).show();
-        new Handler().postDelayed(() -> {
-            CheckIfInAnySafezone();
-            EM.PlayBuzzer();
-            if (!(IsInsideSafeZone || DischargeImmunity)) {
-                LastTimeHitBy = "Dis";
-                playerCharacter.setDead(true);
-                Health = 0.0d;
-                Intent intent = new Intent("StatsService.Message");
-                intent.putExtra("Message", "H");
-                sendBroadcast(intent);
-            }
-            Toast.makeText(getApplicationContext(), "Выброс Окончен!!", Toast.LENGTH_SHORT).show();
-            IsDischarging = Boolean.FALSE;
-        }, 600000);
     }
 
     public void checkQuest(){
         //
         //проверка кредо на легенду зоны
         //
-        database = dbHelper.open();
         ContentValues cv;
 
         String creedString = "SELECT access_status FROM milestone WHERE access_status =?";
-        Cursor cursor = database.rawQuery(creedString, new String[]{"true"});
+        cursor = database.rawQuery(creedString, new String[]{"true"});
         if (cursor.getCount() > 8) {
             cv = new ContentValues();
             cv.put(DBHelper.KEY_STATUS__CREED_BRANCH, "true");
             database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "= ?", new String[]{"15"});
-            if (RadProtectionTot < 15){
-                RadProtectionTot = 15;
-            }
-            if (BioProtectionTot < 15){
-                BioProtectionTot = 15;
-            }
-            if (PsyProtectionTot < 15){
-                PsyProtectionTot = 15;
-            }
+            //такой защиты больше нет
+            double[] newContaminationMax = new double[3];
+            Arrays.fill(newContaminationMax, MAX_CONTAMINATION_LEGEND);
+            playerCharacter[current].setContaminationMax(newContaminationMax);
         }
         cursor.close();
-
-        database.close();
     }
     /*
     * Проверяет находится ли игрок в радиусе 30 метров, если находится, то ставит локации
     * access_status значению true
     * */
+    // TODO это надо перенести в класс локаций
     public void checkLocality(){
-        database = dbHelper.open();
         cursor = database.query(DBHelper.TABLE_LOCALITY, new String[]{"_id", "latitude", "longitude", "access_status", "access_key"}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
@@ -1901,7 +1298,7 @@ public class StatsService extends Service {
                     Location location = new Location("");
                     location.setLatitude(cursor.getDouble(latIndex));
                     location.setLongitude(cursor.getDouble(lonIndex));
-                    double distanceToLocality = location.distanceTo(MyCurrentLocation);
+                    double distanceToLocality = location.distanceTo(myCurrentLocation);
                     if (distanceToLocality < 30){
                         ContentValues contentValues = new ContentValues();
                         database.beginTransaction();
@@ -1917,76 +1314,84 @@ public class StatsService extends Service {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        dbHelper.close();
     }
 
 
-    // Нужно чтобы загружать из памяти массивы, которые из double были переведены в string
-    public double[] StringArrToDoubleArr (String stringArr){
-        return Arrays.stream(Objects.requireNonNull(defaultSharedPreferences.getString(stringArr, "0, 0, 0")).split(", ")).mapToDouble(Double::parseDouble).toArray();
+    // Переводит double[][] string
+    private String twoDArrToString(double[][] matrix){
+        String array = Arrays.toString(matrix[0]).replaceAll("[\\[\\]]", "");
+        return array + ", " + Arrays.toString(matrix[1]).replaceAll("[\\[\\]]", "");
+    }
+    // переводит String в double[][]
+    private double[][] stringToTwoDArr(String stringArr, boolean absZero){
+        String defaultValue;
+        if (absZero){
+            defaultValue = "0, 0, 0, 0, 0, 0";
+        } else {
+            defaultValue = "0, 0, 0, 1000, 1000, 1000";
+        }
+        double[][] twoDimensional = {{0, 0, 0},{0, 0, 0}};
+        double[] array = Arrays.stream(Objects.requireNonNull(sharedPreferences.getString(stringArr, defaultValue)).split(", ")).mapToDouble(Double::parseDouble).toArray();
+        int rows = twoDimensional.length;
+        int cols = twoDimensional[0].length;
+        for (int i = 0, k = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                twoDimensional[i][j] = array[k++];
+            }
+        }
+        return twoDimensional;
     }
 
-    SharedPreferences defaultSharedPreferences;
-    public void LoadStats() {
-        defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        MaxHealth = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("MaxHealth", "2000")));
-        this.Health = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Health", "2000")));
-        this.Rad = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Rad", "0")));
-        this.Bio = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Bio", "0")));
-        this.Psy = Double.parseDouble(Objects.requireNonNull(defaultSharedPreferences.getString("Psy", "0")));
-        RadProtectionArr = StringArrToDoubleArr("RadProtectionArr");
-        BioProtectionArr = StringArrToDoubleArr("BioProtectionArr");
-        PsyProtectionArr = StringArrToDoubleArr("PsyProtectionArr");
-        RadProtectionCapacityArr = StringArrToDoubleArr("RadProtectionCapacityArr");
-        BioProtectionCapacityArr = StringArrToDoubleArr("BioProtectionCapacityArr");
-        PsyProtectionCapacityArr = StringArrToDoubleArr("PsyProtectionCapacityArr");
-        MaxRadProtectionCapacityArr = StringArrToDoubleArr("MaxRadProtectionCapacityArr");
-        MaxBioProtectionCapacityArr = StringArrToDoubleArr("MaxBioProtectionCapacityArr");
-        MaxPsyProtectionCapacityArr = StringArrToDoubleArr("MaxPsyProtectionCapacityArr");
-        this.GestaltProtection = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("GesProtection", "false")));
-        this.anomalies[0].gesStatus = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("GesStatus", "1")));
-        this.ScienceQR = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("ScienceQR", "0")));
-        this.DischargeImmunity = Boolean.parseBoolean(defaultSharedPreferences.getString("DischargeImmunity", "false"));
-        this.IsUnlocked = Boolean.parseBoolean(defaultSharedPreferences.getString("Lock", "true"));
-        this.IS_ANOMALIES_AVAILABLE = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("IS_ANOMALIES_AVAILABLE", "true")));
-        this.MaxProtectionsAvailable = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("MaxProtectionsAvailable", "1")));
-        this.fastRadPurification = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("fastRadPurification", "false")));
-        this.MonolithOk = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("MonolithOk", "false")));
-        this.isMonolith = Boolean.parseBoolean(Objects.requireNonNull(defaultSharedPreferences.getString("isMonolith", "false")));
-        this.RadProtectionTot = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("RadProtectionTot", "0")));
-        this.BioProtectionTot = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("BioProtectionTot", "0")));
-        this.PsyProtectionTot = Integer.parseInt(Objects.requireNonNull(defaultSharedPreferences.getString("PsyProtectionTot", "0")));
+    SharedPreferences sharedPreferences;
+    public void loadStats() {
+        sharedPreferences = this.getSharedPreferences(PREFERENCE_NAME,Context.MODE_PRIVATE);
+        playerCharacter[current].setHealth(sharedPreferences.getFloat(HEALTH_KEY, 2000));
+        playerCharacter[current].setMaxHealth(sharedPreferences.getInt(MAX_HEALTH_KEY, 2000));
+        playerCharacter[current].setName(sharedPreferences.getString(NAME_KEY, "Иван"));
+        playerCharacter[current].setFaction(sharedPreferences.getString(FACTION_KEY, "Вольный сталкер"));
+        playerCharacter[current].setFactionPosition(sharedPreferences.getString(FACTION_POSITION_KEY, "рядовой"));
+        playerCharacter[current].setLastTimeHitBy(sharedPreferences.getString(LAST_TIME_HIT_BY_KEY, ""));
+        playerCharacter[current].setDead(sharedPreferences.getBoolean(DEAD_KEY, false));
+        playerCharacter[current].setRadProtection(stringToTwoDArr(RAD_PROTECTION_KEY, true));
+        playerCharacter[current].setBioProtection(stringToTwoDArr(BIO_PROTECTION_KEY, true));
+        playerCharacter[current].setPsyProtection(stringToTwoDArr(PSY_PROTECTION_KEY, true));
+        playerCharacter[current].setGesProtection(stringToTwoDArr(GESTALT_PROTECTION_KEY, true));
+        playerCharacter[current].setContamination2D(stringToTwoDArr(CONTAMINATION_2D_KEY, false));
+        playerCharacter[current].setProtectionMap();
+        playerCharacter[current].setDefaultContaminationMap();
+        playerCharacter[current].setSubProtectionMap();
+
+        setAnomalyMap();
+
+        this.ScienceQR = Integer.parseInt(Objects.requireNonNull(sharedPreferences.getString("ScienceQR", "0")));
+        this.DischargeImmunity = Boolean.parseBoolean(sharedPreferences.getString("DischargeImmunity", "false"));
+        this.IsUnlocked = Boolean.parseBoolean(sharedPreferences.getString("Lock", "true"));
+        this.IS_ANOMALIES_AVAILABLE = Boolean.parseBoolean(Objects.requireNonNull(sharedPreferences.getString("IS_ANOMALIES_AVAILABLE", "true")));
+        this.MaxProtectionsAvailable = Integer.parseInt(Objects.requireNonNull(sharedPreferences.getString("MaxProtectionsAvailable", "1")));
     }
 
-    public void SaveStats() {
-        SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        edit.putString("MaxHealth", Double.toString(this.MaxHealth));
-        edit.putString("Health", Double.toString(this.Health));
-        edit.putString("Rad", Double.toString(this.Rad));
-        edit.putString("Bio", Double.toString(this.Bio));
-        edit.putString("Psy", Double.toString(this.Psy));
-        edit.putString("RadProtectionArr", Arrays.toString(RadProtectionArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("BioProtectionArr", Arrays.toString(BioProtectionArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("PsyProtectionArr", Arrays.toString(PsyProtectionArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("RadProtectionCapacityArr", Arrays.toString(RadProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("BioProtectionCapacityArr", Arrays.toString(BioProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("PsyProtectionCapacityArr", Arrays.toString(PsyProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("MaxRadProtectionCapacityArr", Arrays.toString(MaxRadProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("MaxBioProtectionCapacityArr", Arrays.toString(MaxBioProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("MaxPsyProtectionCapacityArr", Arrays.toString(MaxPsyProtectionCapacityArr).replaceAll("[\\[\\]]", ""));
-        edit.putString("GesProtection", Boolean.toString(this.GestaltProtection));
-        edit.putString("GesStatus", Integer.toString(this.anomalies[0].gesStatus));
+    public void saveStats() {
+        sharedPreferences = this.getSharedPreferences(PREFERENCE_NAME,Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putFloat(HEALTH_KEY, (float) playerCharacter[current].getHealth());
+        edit.putInt(MAX_HEALTH_KEY, playerCharacter[current].getMaxHealth());
+        edit.putString(NAME_KEY, playerCharacter[current].getName());
+        edit.putString(FACTION_KEY, playerCharacter[current].getFaction());
+        edit.putString(FACTION_POSITION_KEY, playerCharacter[current].getFactionPosition());
+        edit.putString(LAST_TIME_HIT_BY_KEY, playerCharacter[current].getLastTimeHitBy());
+        edit.putBoolean(DEAD_KEY, playerCharacter[current].isDead());
+        edit.putString(RAD_PROTECTION_KEY, twoDArrToString(playerCharacter[current].getRadProtection()));
+        edit.putString(BIO_PROTECTION_KEY, twoDArrToString(playerCharacter[current].getBioProtection()));
+        edit.putString(PSY_PROTECTION_KEY, twoDArrToString(playerCharacter[current].getPsyProtection()));
+        edit.putString(GESTALT_PROTECTION_KEY, twoDArrToString(playerCharacter[current].getGesProtection()));
+        edit.putString(CONTAMINATION_2D_KEY, twoDArrToString(playerCharacter[current].getContamination2D()));
+
+
         edit.putString("ScienceQR", Integer.toString(this.ScienceQR));
         edit.putString("DischargeImmunity", Boolean.toString(this.DischargeImmunity));
         edit.putString("Lock", Boolean.toString(this.IsUnlocked));
         edit.putString("IS_ANOMALIES_AVAILABLE", Boolean.toString(this.IS_ANOMALIES_AVAILABLE));
         edit.putString("MaxProtectionsAvailable", Integer.toString(MaxProtectionsAvailable));
-        edit.putString("fastRadPurification", Boolean.toString(this.fastRadPurification));
-        edit.putString("MonolithOk", Boolean.toString(this.MonolithOk));
-        edit.putString("isMonolith", Boolean.toString(this.isMonolith));
-        edit.putString("RadProtectionTot", Integer.toString(this.RadProtectionTot));
-        edit.putString("BioProtectionTot", Integer.toString(this.BioProtectionTot));
-        edit.putString("PsyProtectionTot", Integer.toString(this.PsyProtectionTot));
         edit.apply();
     }
 }

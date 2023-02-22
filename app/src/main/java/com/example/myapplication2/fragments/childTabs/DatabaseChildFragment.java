@@ -131,7 +131,7 @@ public class DatabaseChildFragment extends Fragment {
             description.setText(localCursor.getString(DESCRIPTION_INDEX));
             imageView.setImageDrawable(imageDrawable(localCursor, IMAGE_INDEX));
 
-
+            localCursor.close();
             /*
             * позволяет увеличивать картинки в бестиарии
             * */
@@ -201,14 +201,14 @@ public class DatabaseChildFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        dbHelper.close();
+        database.close();
         cursor.close();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        dbHelper.close();
+        database.close();
         cursor.close();
     }
 }

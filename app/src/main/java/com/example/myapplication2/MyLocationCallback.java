@@ -2,7 +2,6 @@ package com.example.myapplication2;
 
 import android.content.Intent;
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -13,6 +12,10 @@ import java.util.Calendar;
 
 import mad.location.manager.lib.Interfaces.LocationServiceInterface;
 import mad.location.manager.lib.Services.ServicesHelper;
+
+import static com.example.myapplication2.anomaly.Anomaly.BIO;
+import static com.example.myapplication2.anomaly.Anomaly.PSY;
+import static com.example.myapplication2.anomaly.Anomaly.RAD;
 
 //вызывается, когда координаты изменяются
 public class MyLocationCallback extends LocationCallback  implements LocationServiceInterface {
@@ -36,7 +39,8 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
         Log.d("локация_после", String.valueOf(MyCurrentLocation.getLongitude()));*/
 
     }
-
+    // TODO убрать current и все plaeyrCharacter отсюда
+    private int current = 1;
     public void onLocationResult(LocationResult locationResult) {
         super.onLocationResult(locationResult);
         for (Location location : locationResult.getLocations()) {
@@ -46,76 +50,51 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
             this.MyCurrentLocation.setBearing(location.getBearing());
             this.MyCurrentLocation.setAccuracy(location.getAccuracy());
             locationChanged(MyCurrentLocation);
-            if (!ServiceReference.playerCharacter.isDead() && this.ServiceReference.IsUnlocked) {
-                GetTime();
-                TimeToDischarge();
-                try {
-                    ServiceReference.GetAnomalies();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (!ServiceReference.playerCharacter[current].isDead() && this.ServiceReference.IsUnlocked) {
+
+                ServiceReference.applyDischarge();
                 ServiceReference.artCompass(); // артос компас, который дает неуязвимость на 15 нимут
-                ServiceReference.Super_save_zone_check();
                 ServiceReference.getMovingAnomalies();
-                ServiceReference.CheckAnomalies();
-                ServiceReference.CheckIfInAnyAnomaly();
+                ServiceReference.applyAnomalies();
                 ServiceReference.checkLocality();
-                ServiceReference.CheckPsyForMonolith();
-                ServiceReference.GetTime();
+                //ServiceReference.CheckPsyForMonolith();
                 ServiceReference.checkQuest();
 
             }
-            /*if (this.ServiceReference.playerCharacter.getHealth() <= 0.0d) {
-                this.ServiceReference.playerCharacter.setDead(true);
-            }*/
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(this.ServiceReference.playerCharacter.getHealth()); //0
+            stringBuilder.append(this.ServiceReference.playerCharacter[current].getHealth()); //0
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.Rad); //1
+            stringBuilder.append(this.ServiceReference.playerCharacter[current].getContaminationUnit(RAD, 0)); //1
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.Bio); //2
+            stringBuilder.append(this.ServiceReference.playerCharacter[current].getContaminationUnit(BIO, 0)); //2
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.Psy); //3
+            stringBuilder.append(this.ServiceReference.playerCharacter[current].getContaminationUnit(PSY, 0)); //3
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLatitude()); //4
+            stringBuilder.append(this.ServiceReference.myCurrentLocation.getLatitude()); //4
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.MyCurrentLocation.getLongitude());//6
+            stringBuilder.append(this.ServiceReference.myCurrentLocation.getLongitude());//6
             stringBuilder.append(":");
             stringBuilder.append(this.ServiceReference.ScienceQR);  //qr ученого//6
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.TotalProtection(ServiceReference.RadProtectionArr));//7
+            stringBuilder.append(this.ServiceReference.playerCharacter[current].getTotalProtection(ServiceReference.playerCharacter[current].getRadProtection()[1]));//7
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.TotalProtection(ServiceReference.BioProtectionArr));//8
+            stringBuilder.append(this.ServiceReference.playerCharacter[current].getTotalProtection(ServiceReference.playerCharacter[current].getBioProtection()[1]));//8
             stringBuilder.append(":");
-            stringBuilder.append(this.ServiceReference.TotalProtection(ServiceReference.PsyProtectionArr));//9
+            stringBuilder.append(this.ServiceReference.playerCharacter[current].getTotalProtection(ServiceReference.playerCharacter[current].getPsyProtection()[1]));//9
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.RadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //10
+            stringBuilder.append(Arrays.toString(ServiceReference.playerCharacter[current].getRadProtection()[0]).replaceAll("\\[|\\]", "")); //10
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.MaxRadProtectionCapacityArr).replaceAll("\\[|\\]", "")); //11
+            stringBuilder.append(Arrays.toString(ServiceReference.playerCharacter[current].getBioProtection()[0]).replaceAll("\\[|\\]", "")); //11
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.BioProtectionCapacityArr).replaceAll("\\[|\\]", "")); //12
+            stringBuilder.append(Arrays.toString(ServiceReference.playerCharacter[current].getPsyProtection()[0]).replaceAll("\\[|\\]", "")); //12
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.MaxBioProtectionCapacityArr).replaceAll("\\[|\\]", "")); //13
+            stringBuilder.append(Arrays.toString(ServiceReference.playerCharacter[current].getRadProtection()[1]).replaceAll("\\[|\\]", "")); //13
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.PsyProtectionCapacityArr).replaceAll("\\[|\\]", "")); //14
+            stringBuilder.append(Arrays.toString(ServiceReference.playerCharacter[current].getBioProtection()[1]).replaceAll("\\[|\\]", "")); //14
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.MaxPsyProtectionCapacityArr).replaceAll("\\[|\\]", "")); //15
+            stringBuilder.append(Arrays.toString(ServiceReference.playerCharacter[current].getPsyProtection()[1]).replaceAll("\\[|\\]", "")); //15
             stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.RadProtectionArr).replaceAll("\\[|\\]", "")); //16
-            stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.BioProtectionArr).replaceAll("\\[|\\]", "")); //17
-            stringBuilder.append(":");
-            stringBuilder.append(Arrays.toString(ServiceReference.PsyProtectionArr).replaceAll("\\[|\\]", "")); //18
-            stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.MaxProtectionsAvailable); //19
-            stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.RadProtectionTot); //20
-            stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.BioProtectionTot); //21
-            stringBuilder.append(":");
-            stringBuilder.append(ServiceReference.PsyProtectionTot); //22
-            Log.d("гагарин", String.valueOf("гагарин".hashCode()));
-            Log.d("выброс", String.valueOf("выброс".hashCode()));
+            stringBuilder.append(ServiceReference.MaxProtectionsAvailable); //16
             String stringBuilder2 = stringBuilder.toString();
             Intent intent = new Intent("StatsService.Update");
             intent.putExtra("Stats", stringBuilder2);
@@ -124,34 +103,13 @@ public class MyLocationCallback extends LocationCallback  implements LocationSer
             intent1.putExtra("DrawAnomaly", "Draw");
             ServiceReference.sendBroadcast(intent1);
         }
-        this.ServiceReference.SaveStats();
+        this.ServiceReference.saveStats();
     }
 
     public void onLocationAvailability(LocationAvailability locationAvailability) {
         super.onLocationAvailability(locationAvailability);
     }
-//getTime
-    private void GetTime() {
-        this.cal = Calendar.getInstance();
-        this.dayInt = this.cal.get(5);
-        this.Hour = this.cal.get(Calendar.HOUR_OF_DAY);
-        this.Minutes = this.cal.get(12);
-    }
-    // функция, которая задает время выброса
-    private void dischargeTime(int day, int hours, int minutes){
-        if (this.dayInt == day && this.Minutes == minutes && this.Hour == hours) {
-            this.ServiceReference.Discharge();
-            this.ServiceReference.IsDischarging = Boolean.TRUE;
-        }
-    }
-//timeToDischarge
-    private void TimeToDischarge() {
-        if (!this.ServiceReference.IsDischarging) {
-            dischargeTime(13, 11, 26);// c 13 сентября в 11:36
-            dischargeTime(14, 15, 10);// c 14 сентября в 15:20
-            dischargeTime(15, 11, 10);// c 15 сентября в 11:20
-        }
-    }
+
 
 
 }

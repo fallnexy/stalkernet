@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.myapplication2.AnomalyTypeDialog;
 import com.example.myapplication2.CodesQRAndText;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
@@ -33,8 +32,6 @@ public class ChatChildFragment extends Fragment {
 
     Globals globals;
     CodesQRAndText codesQRAndText;
-    AnomalyTypeDialog dialog = new AnomalyTypeDialog();
-    Bundle argsDialog = new Bundle();
 
     public ChatChildFragment(Globals globals) {
         this.globals = globals;

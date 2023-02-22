@@ -5,6 +5,11 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Vibrator;
 
+import static com.example.myapplication2.anomaly.Anomaly.BIO;
+import static com.example.myapplication2.anomaly.Anomaly.GESTALT;
+import static com.example.myapplication2.anomaly.Anomaly.PSY;
+import static com.example.myapplication2.anomaly.Anomaly.RAD;
+
 public class EffectManager {
     public MediaPlayer buzzer;
     private Context context;
@@ -27,11 +32,10 @@ public class EffectManager {
         }
     }
 
-    public void PlaySound(String str, double d) {
-        int i = (int) d;
+    public void PlaySound(String type, double power) {
         this.mediaplayer.reset();
-        if (str.equals("Psy")) {
-            switch (i) {
+        if (type.equals(PSY)) {
+            switch ((int) power) {
                 case 1:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.psi_1);
                     break;
@@ -79,8 +83,8 @@ public class EffectManager {
                     break;
             }
         }
-        if (str.equals("Bio")) {
-            switch (i) {
+        if (type.equals(BIO)) {
+            switch ((int) power) {
                 case 1:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.bio_1);
                     break;
@@ -116,8 +120,8 @@ public class EffectManager {
                     break;
             }
         }
-        if (str.equals("Rad")) {
-            switch (i) {
+        if (type.equals(RAD)) {
+            switch ((int) power) {
                 case 1:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.rad_1);
                     break;
@@ -153,22 +157,15 @@ public class EffectManager {
                     break;
             }
         }
-        if (str.equals("Ges")){
-            switch (i){
-                case 1:
+        if (type.equals(GESTALT)){
+            switch ((int) power){
+                default:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.gestalt_on);
                     break;
             }
         }
-        if (str.equals("ClS")){
-            switch (i){
-                case 1:
-                    this.mediaplayer = MediaPlayer.create(this.context, R.raw.gestalt_on);
-                    break;
-            }
-        }
-        if (str.equals("Start")){
-            switch (i){
+        if (type.equals("Start")){
+            switch ((int) power){
                 case 1:
                     this.mediaplayer = MediaPlayer.create(this.context, R.raw.stalker);
                     break;

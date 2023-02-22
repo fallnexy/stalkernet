@@ -207,7 +207,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
                             // скрыты гештальты
-                        case "hjopgirgyo":
+                        case "gestalt_closed":
                             textOnArt (R.string.gestalt_closed, R.string.gestalt_closed_Sc);
                             intent.putExtra("Command", "gestalt_closed");
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -487,13 +487,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                                 barcodeValue.setText("Повторное применение в краткой срок опасно для здоровья. Функционал заблокирован.");
                             }
                             return;
-                            // переехал в CodesQRAndText
-                        /*case "nuyzi2sg7y3vq5f":
-                            barcodeValue.setText(R.string.beginNewGame);
-                            intent.putExtra("Command", "ResetStats");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            Arrays.fill(cooldown_time, 0);
-                            return;*/
                         case "ovg1m1ngxzp15ti":
                             barcodeValue.setText("Нейтрализация радиационного воздействия. Показатели пользователя в пределах нормы.");
                             intent.putExtra("Command", "setRad0");

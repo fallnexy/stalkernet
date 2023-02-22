@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class GeneralTab extends Fragment {
+
     private Globals globals;
 
     public GeneralTab(Globals globals) {
@@ -37,17 +38,20 @@ public class GeneralTab extends Fragment {
         TextView txtProtectionRad = inflate.findViewById(R.id.txtProtectionRad);
         TextView txtProtectionBio = inflate.findViewById(R.id.txtProtectionBio);
         TextView txtProtectionPsy = inflate.findViewById(R.id.txtProtectionPsy);
-        TextView txtCapacityProtectionRad = inflate.findViewById(R.id.txtCapacityProtRad);
-        TextView txtCapacityProtectionBio = inflate.findViewById(R.id.txtCapacityProtBio);
-        TextView txtCapacityProtectionPsy = inflate.findViewById(R.id.txtCapacityProtPsy);
+        TextView txtCapacityProtectionRad = inflate.findViewById(R.id.txtStrengthRadProtection);
+        TextView txtCapacityProtectionBio = inflate.findViewById(R.id.txtStrengthBioProtection);
+        TextView txtCapacityProtectionPsy = inflate.findViewById(R.id.txtStrengthPsyProtection);
         TextView txtMaxProtectionsAvailable = inflate.findViewById(R.id.txtMaxProtections);
+        TextView txtGestaltOpen = inflate.findViewById(R.id.txtGestaltOpen);
+
+        globals.loadStats();
 
         globals.HealthBar = progressBar;
         globals.RadBar = progressBar2;
         globals.BioBar = progressBar3;
         globals.PsyBar = progressBar4;
-        globals.CO = textView;
-        globals.Messages = textView2;
+        globals.tvCoordinate = textView;
+        globals.tvMessages = textView2;
         globals.MaxProtectionAvailable = txtMaxProtectionsAvailable;
         globals.HealthPercent = txtHealthPercent;
         globals.RadPercent = txtRadPercent;
@@ -59,12 +63,29 @@ public class GeneralTab extends Fragment {
         globals.RadProtectionPercent = txtProtectionRad;
         globals.BioProtectionPercent = txtProtectionBio;
         globals.PsyProtectionPercent = txtProtectionPsy;
-
-        //txtMaxProtectionsAvailable.setText("Количество разрешенных защит: " + globals.MaxProtectionAvailable);
-        //txtProtectionRad.setText("защита: " + globals.ProtectionRad + "%");
-        //txtProtectionBio.setText("защита: " + globals.ProtectionBio + "%");
-        //txtProtectionPsy.setText("защита: " + globals.ProtectionPsy + "%");
+        globals.tvGestaltOpen = txtGestaltOpen;
 
         return inflate;
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        globals.saveStats();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        globals.saveStats();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        globals.loadStats();
+    }
+
+
+
 }

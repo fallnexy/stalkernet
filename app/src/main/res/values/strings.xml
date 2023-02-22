@@ -225,4 +225,5 @@
     <string name="mono_5">Второй монолит\nПричины его появления доподлинно не известны. Ясно только одно, после его появления Старший монолит пришел в ярость и выжег вокруг себя все пси-излучением, уничтожив тем самым и верных бойцов и еретиков</string>
     <string name="txtVPlayerName">Имя</string>
     <string name="txtVPlayerFaction">группированка</string>
+    <string name="gestalt_open">!!!ГЕШТАЛЬТ ОТКРЫТ!!!</string>
 </resources>

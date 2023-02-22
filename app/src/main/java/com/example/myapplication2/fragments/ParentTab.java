@@ -1,15 +1,10 @@
 package com.example.myapplication2.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
 
-import com.example.myapplication2.AnomalyTypeDialog;
-import com.example.myapplication2.CodesQRAndText;
 import com.example.myapplication2.Globals;
 import com.example.myapplication2.R;
 import com.example.myapplication2.fragments.childTabs.ChatChildFragment;
@@ -41,8 +36,8 @@ public class ParentTab extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
         View inflate = layoutInflater.inflate(R.layout.fragment_chat, viewGroup, false);
-        final EditText editText = inflate.findViewById(R.id.CommandLine);
-        TextView txtView = inflate.findViewById(R.id.txtViewChat);
+        /*final EditText editText = inflate.findViewById(R.id.CommandLine);
+        TextView txtView = inflate.findViewById(R.id.txtViewChat);*/
 
         // запускаем ChildFragment
         mSectionsPagerAdapterChild = new SectionsPagerAdapterChild(getChildFragmentManager());

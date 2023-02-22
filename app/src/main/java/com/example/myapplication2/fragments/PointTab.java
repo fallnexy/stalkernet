@@ -1,6 +1,7 @@
 package com.example.myapplication2.fragments;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,8 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.FilterQueryProvider;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -22,15 +22,16 @@ import com.example.myapplication2.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 public class PointTab extends Fragment {
     private Globals globals;
 
     DBHelper dbHelper;
-    SQLiteDatabase database;
+    SQLiteDatabase databasePoint;
     Cursor cursor;
-    SimpleCursorAdapter userAdapter;
+    PointSimpleCursorAdapter userAdapter;
     ListView listViewPoints;
     ContentValues contentValues;
     public static final int IDM_DELETE = 1102;
@@ -50,48 +51,41 @@ public class PointTab extends Fragment {
         return inflate;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    private void applyUserAdapter(){
         try {
-            database = dbHelper.getWritableDatabase();
-            cursor = database.rawQuery("select * from " + DBHelper.TABLE_MARKERS, null);
-            String[] headers = new String[]{DBHelper.KEY_ID, DBHelper.KEY_NAME, DBHelper.KEY_LATITUDE, DBHelper.KEY_LONGITUDE, DBHelper.KEY_COMMENT};
-            userAdapter = new SimpleCursorAdapter(getActivity(), R.layout.item_frag_point,
-                    cursor, headers, new int[]{R.id.txtV_key, R.id.txtV_name, R.id.txtV_lat, R.id.txtV_long, R.id.txtV_comment}, 0);
-
-            // установка слушателя изменения текста
-           /* enterSurname.addTextChangedListener(new TextWatcher() {
-
-                public void afterTextChanged(Editable s) { }
-
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                // при изменении текста выполняем фильтрацию
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    userAdapter.getFilter().filter(s.toString());
-                }
-            });*/
+            databasePoint = dbHelper.getWritableDatabase();
+            cursor = databasePoint.rawQuery("select * from " + DBHelper.TABLE_MARKERS, null);
+            String[] headers = new String[]{DBHelper.KEY_ID__MARKER, DBHelper.KEY_NAME__MARKER, DBHelper.KEY_LATITUDE__MARKER, DBHelper.KEY_LONGITUDE__MARKER, DBHelper.KEY_COMMENT__MARKER};
+            userAdapter = new PointSimpleCursorAdapter(getActivity(), R.layout.item_frag_point,
+                    cursor, headers, new int[]{R.id.txtV_key, R.id.txtV_name, R.id.txtV_coordinate, R.id.txtV_comment}, 0);
 
             // устанавливаем провайдер фильтрации
             userAdapter.setFilterQueryProvider(constraint -> {
 
                 if (constraint == null || constraint.length() == 0) {
-                    return database.rawQuery("select * from " + DBHelper.TABLE_MARKERS, null);
+                    return databasePoint.rawQuery("select * from " + DBHelper.TABLE_MARKERS, null);
                 }
                 else {
-                    return database.rawQuery("select * from " + DBHelper.TABLE_MARKERS + " where " +
-                            DBHelper.KEY_ID + " like ?", new String[]{constraint.toString() + "%"});
+                    return databasePoint.rawQuery("select * from " + DBHelper.TABLE_MARKERS + " where " +
+                            DBHelper.KEY_ID__MARKER + " like ?", new String[]{constraint.toString() + "%"});
                 }
             });
 
-            /*listViewPoints.setOnItemClickListener(onItemClickListener);*/
             listViewPoints.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             listViewPoints.setAdapter(userAdapter);
 
 
         }
-        catch (SQLException ex){}
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        applyUserAdapter();
+
     }
 
     @Override
@@ -104,9 +98,12 @@ public class PointTab extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == IDM_DELETE) {
             // удаляем
-            database.delete(DBHelper.TABLE_MARKERS, DBHelper.KEY_ID + "= ?", new String[] {String.valueOf(cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID)))});;
-            // уведомляем, что данные изменились, но че т ничего не убновлется
-            userAdapter.notifyDataSetChanged();
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MARKER);
+            databasePoint.delete(DBHelper.TABLE_MARKERS, DBHelper.KEY_ID__MARKER + "= ?", new String[] {String.valueOf(cursor.getInt(idIndex))});;
+            /*
+            * просто пересобираем весь список точек
+            * */
+            applyUserAdapter();
             return true;
         }
         return super.onContextItemSelected(item);
@@ -114,7 +111,7 @@ public class PointTab extends Fragment {
 
     public void onPause() {
         super.onPause();
-        dbHelper.close();
+        databasePoint.close();
         cursor.close();
 
 
@@ -123,7 +120,86 @@ public class PointTab extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        dbHelper.close();
+        databasePoint.close();
         cursor.close();
     }
+
+    class PointSimpleCursorAdapter extends SimpleCursorAdapter{
+
+        private Context context;
+        private Cursor cursor;
+        private int[] to;
+        private String[] from;
+
+        public PointSimpleCursorAdapter(Context context, int layout, Cursor cursor, String[] from, int[] to, int flags) {
+            super(context, layout, cursor, from, to, flags);
+            this.context = context;
+            this.cursor = cursor;
+            this.to = to;
+            this.from = from;
+
+        }
+
+        @Override
+        public void bindView (View view, Context context, Cursor cursor){
+
+            int idIndex = cursor.getColumnIndex(from[0]);
+            TextView tvId = view.findViewById(to[0]);
+            String textId = "№ " + cursor.getString(idIndex);
+            tvId.setText(textId );
+
+            int nameIndex = cursor.getColumnIndex(from[1]);
+            TextView tvName = view.findViewById(to[1]);
+            tvName.setText(cursor.getString(nameIndex));
+
+            int latitudeIndex = cursor.getColumnIndex(from[2]);
+            int longitudeIndex = cursor.getColumnIndex(from[3]);
+            TextView tvCoordinate = view.findViewById(to[2]);
+            String textCoordinate = "координаты: " + cursor.getString(latitudeIndex) + " - " + cursor.getString(longitudeIndex);
+            tvCoordinate.setText(textCoordinate);
+
+            int commentIndex = cursor.getColumnIndex(from[4]);
+            TextView tvComment = view.findViewById(to[3]);
+            tvComment.setText(cursor.getString(commentIndex));
+
+            tvName.setOnClickListener(view1 -> {
+                editText(from[1], "имя");
+            });
+
+            tvComment.setOnClickListener(view1 -> {
+                editText(from[4], "комментарий");
+            });
+
+
+        }
+
+        private void editText(String from, String s) {
+            // Create a dialog builder
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            String title = "Введите " + s;
+            builder.setTitle(title);
+
+            // Create an EditText view for user input
+            final EditText input = new EditText(context);
+            builder.setView(input);
+
+            // Set positive button to save the entered text
+            builder.setPositiveButton("Сохранить", (dialog, which) -> {
+                String text = input.getText().toString();
+                int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MARKER);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(from, text);
+                databasePoint.update(DBHelper.TABLE_MARKERS, contentValues, DBHelper.KEY_ID__MARKER + " = " + cursor.getString(idIndex), null);
+                applyUserAdapter();
+            });
+
+            // Create and show the dialog
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+    }
+
 }
+
+

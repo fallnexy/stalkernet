@@ -19,7 +19,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static String DB_PATH; // полный путь к базе данных
     private static String DB_NAME = "stalker.db"; // сделаная на пк база данных
 
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 14;
     public static final String DATABASE_NAME = "stalkerDB";
     public static final String TABLE_MARKERS = "markers";
     public static final String TABLE_COOLDOWNS = "coolDowns";
@@ -35,6 +35,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_ARTEFACT = "artefact"; // сделанная на пк таблица в stalker.db
     public static final String TABLE_MILESTONE = "milestone"; // сделанная на пк таблица в stalker.db
     public static final String TABLE_ITEM = "item"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_SAFE_ZONE = "save_zone"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_DISCHARGE = "discharge"; // сделанная на пк таблица в stalker.db
 
     // таблицы-костыли для expandableView
     public static final String TABLE_TABLE_OF_TABLES = "table_of_tables"; // сделанная на пк таблица в stalker.db
@@ -48,17 +50,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     //таблица anomaly
-    public static final String KEY_ID_ANOMALY = "_id";
+    public static final String KEY_ID__ANOMALY = "_id";
     public static final String KEY_POLYGON_TYPE = "polygon_type";
-    public static final String KEY_TYPE = "type";
-    public static final String KEY_POWER = "power";
-    public static final String KEY_MIN_POWER = "min_power";
-    public static final String KEY_RADIUS = "radius";
-    public static final String KEY_LATITUDE_ANOMALY = "latitude";
-    public static final String KEY_LONGITUDE_ANOMALY = "longitude";
-    public static final String KEY_GESTALT_STATUS = "gestalt_status";
-    public static final String KEY_BOOL_SHOWABLE = "bool_showable";
-    public static final String KEY_BOOL_SHOW_ON_MAP = "bool_show_on_map";
+    public static final String KEY_TYPE__ANOMALY = "type";
+    public static final String KEY_POWER__ANOMALY = "power";
+    public static final String KEY_MIN_POWER__ANOMALY = "min_power";
+    public static final String KEY_RADIUS__ANOMALY = "radius";
+    public static final String KEY_LATITUDE__ANOMALY = "latitude";
+    public static final String KEY_LONGITUDE__ANOMALY = "longitude";
+    public static final String KEY_GESTALT_STATUS__ANOMALY = "gestalt_status";
+    public static final String KEY_BOOL_SHOWABLE__ANOMALY = "bool_showable";
+    public static final String KEY_BOOL_SHOW_ON_MAP__ANOMALY = "bool_show_on_map";
+    public static final String KEY_DAY_START__ANOMALY = "day_start";
+    public static final String KEY_DAY_FINISH__ANOMALY = "day_finish";
 
 
     // таблица locality
@@ -173,13 +177,26 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ACCESS_STATUS__CREED_BRANCH = "access_status"; // можно ли выполнять
     public static final String KEY_ACCESS_KEY__CREED_BRANCH = "access_key";
 
+    //таблица safe zone
+    public static final String KEY_ID__SAFE_ZONE = "_id";
+    public static final String KEY_POLYGON_TYPE__SAFE_ZONE = "polygon_type";
+    public static final String KEY_RADIUS__SAFE_ZONE = "radius";
+    public static final String KEY_LATITUDE__SAFE_ZONE = "latitude";
+    public static final String KEY_LONGITUDE__SAFE_ZONE = "longitude";
+
+    //таблица discharge
+    public static final String KEY_ID__DISCHARGE = "_id";
+    public static final String KEY_DATE__DISCHARGE = "date";
+    public static final String KEY_STATUS__DISCHARGE = "status";
+    public static final String KEY_DELAY_STATUS__DISCHARGE = "delay_status";
+
     // таблица markers
-    public static final String KEY_ID = "_id";
-    public static final String KEY_NAME = "name";
-    public static final String KEY_ICON = "icon";
-    public static final String KEY_LATITUDE = "latitude";
-    public static final String KEY_LONGITUDE = "longitude";
-    public static final String KEY_COMMENT = "comment";
+    public static final String KEY_ID__MARKER = "_id";
+    public static final String KEY_NAME__MARKER = "name";
+    public static final String KEY_ICON__MARKER = "icon";
+    public static final String KEY_LATITUDE__MARKER = "latitude";
+    public static final String KEY_LONGITUDE__MARKER = "longitude";
+    public static final String KEY_COMMENT__MARKER = "comment";
 
     // таблица cooldowns
     public static final String KEY_ID_CD = "_id";
@@ -196,12 +213,12 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDb) {
         sqLiteDb.execSQL("create table " + TABLE_MARKERS + "("
-                + KEY_ID + " integer primary key,"
-                + KEY_NAME + " text,"
-                + KEY_ICON + " text,"
-                + KEY_LATITUDE + " text,"
-                + KEY_LONGITUDE + " text,"
-                + KEY_COMMENT + " text" + ")"
+                + KEY_ID__MARKER + " integer primary key,"
+                + KEY_NAME__MARKER + " text,"
+                + KEY_ICON__MARKER + " text,"
+                + KEY_LATITUDE__MARKER + " text,"
+                + KEY_LONGITUDE__MARKER + " text,"
+                + KEY_COMMENT__MARKER + " text" + ")"
         );
 
         sqLiteDb.execSQL("create table " + TABLE_COOLDOWNS + "("

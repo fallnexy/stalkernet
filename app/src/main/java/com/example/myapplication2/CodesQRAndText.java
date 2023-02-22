@@ -4,21 +4,17 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-/**
+/*
  * Created by fallnexy on 16.09.2021.
  */
 /*
@@ -37,8 +33,6 @@ public class CodesQRAndText {
     // переменные, необходимые для sc1 и sc2
     String textCode;
     String[] textCodeSplitted = new String[6];
-    String typeFirstProtection = "";
-    String typeSecondProtection = "";
 
     public CodesQRAndText(Fragment fragment, TextView textView, Globals globals){
         this.fragment = fragment;
@@ -129,21 +123,11 @@ public class CodesQRAndText {
                     var1 = -1;
                     break label94;
                 case "sc1":
-                    textView.setText(makeSCText(textCodeSplitted));
-                    try {
-                        anomalyTypeChecker(textCodeSplitted[1]);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
-                    fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
-
-                    var1 = -1;
-                    break label94;
                 case "sc2":
                     textView.setText(makeSCText(textCodeSplitted));
                     intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
                     fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+
                     var1 = -1;
                     break label94;
                 case "зона5звезд":
@@ -434,7 +418,8 @@ public class CodesQRAndText {
             cursor = database.rawQuery("select * from " + DBHelper.TABLE_COOLDOWNS + " where " + DBHelper.KEY_NAME_CD + "=?", new String[]{code});
         }
         cursor.moveToFirst();
-        id = cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID_CD));
+        int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID_CD);
+        id = cursor.getInt(idIndex);
 
         cursor = database.query(DBHelper.TABLE_COOLDOWNS, null, null, null, null, null, null);
         cursor.moveToPosition(id-1);
@@ -443,7 +428,8 @@ public class CodesQRAndText {
             textView.setText(science);
         } else {
             long firstTime = Calendar.getInstance().getTimeInMillis();
-            if (firstTime - cursor.getLong(cursor.getColumnIndex(DBHelper.KEY_TIME_CD)) > coolDawnMillis){
+            int timeIndex = cursor.getColumnIndex(DBHelper.KEY_TIME_CD);
+            if (firstTime - cursor.getLong(timeIndex) > coolDawnMillis){
                 textView.setText(nonScience);
                 intent.putExtra("Command", command);
                 fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -501,46 +487,7 @@ public class CodesQRAndText {
             textCode = input;
         }
     }
-    void showDialog(){
-        AnomalyTypeDialog dialog = new AnomalyTypeDialog();
-        Bundle args = new Bundle();
-        args.putString("typeFirstProtection", typeFirstProtection);
-        args.putString("typeSecondProtection", typeSecondProtection);
-        dialog.setCancelable(false);
-        dialog.setArguments(args);
-        dialog.show(fragment.getActivity().getSupportFragmentManager(), "custom");
-    }
-    private void anomalyTypeChecker(String type){
-        if (globals.MaxProtectionAvailable.getText().equals("Количество разрешенных защит: 2")) {
-            int counter = 0;
-            HashMap<String, String> protectionTypeMap = new HashMap<>();
-            protectionTypeMap.put("rad", globals.TotalProtectionRad);
-            protectionTypeMap.put("bio", globals.TotalProtectionBio);
-            protectionTypeMap.put("psy", globals.TotalProtectionPsy);
-            for (String protType : new String[] {"rad", "bio", "psy"}){
-                if (!protType.equals(type) && Double.parseDouble(Objects.requireNonNull(protectionTypeMap.get(protType))) > 0){
-                    counter++;
-                }
-            }
 
-            if (counter == 2 && Double.parseDouble(Objects.requireNonNull(protectionTypeMap.get(type))) == 0){
-                if (Double.parseDouble(globals.TotalProtectionRad) > 0){
-                    typeFirstProtection = "Rad";
-                    if (Double.parseDouble(globals.TotalProtectionBio) > 0){
-                        typeSecondProtection = "Bio";
-                    } else {
-                        typeSecondProtection = "Psy";
-                    }
-                } else {
-                    typeFirstProtection = "Bio";
-                    typeSecondProtection = "Psy";
-                }
-
-                showDialog();
-
-            }
-        }
-    }
     private String makeSCText(@NonNull String[] text){
         String textFinal = "";
         if (text[0].equals("sc1")){
@@ -567,9 +514,6 @@ public class CodesQRAndText {
                     break;
                 case "quest":
                     textFinal += "квест: ";
-                    break;
-                case "tot":
-                    textFinal += "легенда: ";
                     break;
                 default:
                     textFinal += "ничто: ";

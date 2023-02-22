@@ -7,7 +7,6 @@ import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -129,7 +128,7 @@ public class CreedChildFragment extends Fragment {
             int BONUS_INDEX = localCursor.getColumnIndex(DBHelper.KEY_BONUS__CREED_BRANCH);
             int ID_INDEX = localCursor.getColumnIndex(DBHelper.KEY_ID__CREED_BRANCH);
             int BRANCH_ID_INDEX = localCursor.getColumnIndex(DBHelper.KEY_BRANCH_ID__CREED_BRANCH);
-            Log.d("цвет", String.valueOf(BRANCH_ID_INDEX));
+            //Log.d("цвет", String.valueOf(BRANCH_ID_INDEX));
             localCursor.moveToPosition(childPosition);
             name.setText(localCursor.getString(NAME_INDEX));
             bonus.setText("Награда: " + localCursor.getString(BONUS_INDEX));
@@ -244,7 +243,6 @@ public class CreedChildFragment extends Fragment {
                     notifyDataSetChanged();
                 }
             });
-
             return convertView;
         }
 
