@@ -51,7 +51,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     //таблица anomaly
     public static final String KEY_ID__ANOMALY = "_id";
-    public static final String KEY_POLYGON_TYPE = "polygon_type";
+    public static final String KEY_POLYGON_TYPE__ANOMALY = "polygon_type";
     public static final String KEY_TYPE__ANOMALY = "type";
     public static final String KEY_POWER__ANOMALY = "power";
     public static final String KEY_MIN_POWER__ANOMALY = "min_power";
@@ -60,7 +60,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_LONGITUDE__ANOMALY = "longitude";
     public static final String KEY_GESTALT_STATUS__ANOMALY = "gestalt_status";
     public static final String KEY_BOOL_SHOWABLE__ANOMALY = "bool_showable";
-    public static final String KEY_BOOL_SHOW_ON_MAP__ANOMALY = "bool_show_on_map";
+    public static final String KEY_VISIBLE__ANOMALY = "bool_show_on_map";
     public static final String KEY_DAY_START__ANOMALY = "day_start";
     public static final String KEY_DAY_FINISH__ANOMALY = "day_finish";
 
@@ -238,7 +238,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // нужно для бд, созданной на пк
-    void create_db(){
+    public void create_db(){
 
         File file = new File(DB_PATH);
         if (!file.exists()) {

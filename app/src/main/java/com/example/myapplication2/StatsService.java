@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.myapplication2.anomaly.Anomaly;
 import com.example.myapplication2.anomaly.GestaltAnomaly;
+import com.example.myapplication2.anomaly.MineAnomaly;
 import com.example.myapplication2.anomaly.OasisAnomaly;
 import com.example.myapplication2.anomaly.QRAnomaly;
 import com.example.myapplication2.anomaly.WifiAnomaly;
@@ -34,6 +35,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.jakewharton.threetenabp.AndroidThreeTen;
+
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -48,6 +50,18 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 
 import static android.app.NotificationManager.IMPORTANCE_HIGH;
+import static com.example.myapplication2.anomaly.Anomaly.BIO;
+import static com.example.myapplication2.anomaly.Anomaly.GESTALT;
+import static com.example.myapplication2.anomaly.Anomaly.MINE;
+import static com.example.myapplication2.anomaly.Anomaly.OASIS;
+import static com.example.myapplication2.anomaly.Anomaly.PSY;
+import static com.example.myapplication2.anomaly.Anomaly.RAD;
+import static com.example.myapplication2.anomaly.MineAnomaly.MINE_ACTIVATION;
+import static com.example.myapplication2.anomaly.MineAnomaly.MINE_EXPLOSION;
+import static com.example.myapplication2.anomaly.WifiAnomaly.CHIMERA_WIFI;
+import static com.example.myapplication2.anomaly.WifiAnomaly.CONTROL_WIFI;
+import static com.example.myapplication2.fragments.MapOSMTab.INTENT_MAP;
+import static com.example.myapplication2.fragments.MapOSMTab.INTENT_MAP_UPDATE;
 import static com.example.myapplication2.playerCharacter.PlayerCharacter.BIO_PROTECTION_KEY;
 import static com.example.myapplication2.playerCharacter.PlayerCharacter.CONTAMINATION_2D_KEY;
 import static com.example.myapplication2.playerCharacter.PlayerCharacter.DEAD_KEY;
@@ -61,16 +75,14 @@ import static com.example.myapplication2.playerCharacter.PlayerCharacter.NAME_KE
 import static com.example.myapplication2.playerCharacter.PlayerCharacter.PREFERENCE_NAME;
 import static com.example.myapplication2.playerCharacter.PlayerCharacter.PSY_PROTECTION_KEY;
 import static com.example.myapplication2.playerCharacter.PlayerCharacter.RAD_PROTECTION_KEY;
-import static com.example.myapplication2.anomaly.Anomaly.BIO;
-import static com.example.myapplication2.anomaly.Anomaly.GESTALT;
-import static com.example.myapplication2.anomaly.Anomaly.OASIS;
-import static com.example.myapplication2.anomaly.Anomaly.PSY;
-import static com.example.myapplication2.anomaly.Anomaly.RAD;
-import static com.example.myapplication2.anomaly.GestaltAnomaly.GESTALT_OPEN;
-import static com.example.myapplication2.anomaly.WifiAnomaly.CHIMERA_WIFI;
-import static com.example.myapplication2.anomaly.WifiAnomaly.CONTROL_WIFI;
 
 public class StatsService extends Service {
+    public static final String LOG_CHE = "ну чече";
+    public static final String CHANNEL_ID = "my_channel_01";
+    public static final String INTENT_SERVICE = "StRoulette";
+    public static final String INTENT_SERVICE_PROTECTION = "protection";
+    public static final String INTENT_SERVICE_MINE = "mine_anomaly";
+    public static final String INTENT_SERVICE_SOUND = "effect_manager";
     //TODO сделать коды переключения между персонажами
     public static final double MAX_CONTAMINATION = 1000;
     public static final double MAX_CONTAMINATION_LEGEND = 1500;
@@ -91,6 +103,11 @@ public class StatsService extends Service {
     DBHelper dbHelper;
     SQLiteDatabase database;
     Cursor cursor;
+    private MyLocationCallback LocationCallback;
+    private boolean LocationUpdatesStarted = false;
+    public Location myLocation = new Location("GPS");
+    public Location myCurrentLocation;
+
     //нужность переменных неизвестна
     //private static final int ID_SERVICE = 101;
     public int NUMBER_OF_ANOMALIES = 0; // задается в onCreate
@@ -101,7 +118,7 @@ public class StatsService extends Service {
     public double Bio = 0.0d, Rad = 0.0d;
     public int MaxRad = 1000, MaxBio = 1000;
 
-    public int MaxProtectionsAvailable = 1;
+
 
     public double[] RadProtectionArr = {0, 0, 0};
     public double[] BioProtectionArr = {0, 0, 0};
@@ -115,9 +132,7 @@ public class StatsService extends Service {
     public boolean DischargeImmunity = false;
 
     public boolean IsUnlocked = true;
-    private MyLocationCallback LocationCallback;
-    private boolean LocationUpdatesStarted = false;
-    public Location myCurrentLocation = new Location("GPS");
+
     public boolean vibrate = true;
     public boolean Sound = true;
     public int ScienceQR = 0;// не работает
@@ -187,9 +202,32 @@ public class StatsService extends Service {
                         break;
                 }
             }
-            String type = intent.getStringExtra("protection");
+            String type = intent.getStringExtra(INTENT_SERVICE_PROTECTION);
             if (type != null){
                 ((StalkerCharacter) playerCharacter[1]).nullifyThirdProtection(type);
+            }
+            String mine = intent.getStringExtra(INTENT_SERVICE_MINE);
+            if (mine != null){
+                effectManager.StopSound();
+                if (mine.equals("true")){
+                    effectManager.mineDisActivated();
+                } else {
+                    playerCharacter[current].increaseHealthPercent(-50d);
+                    effectManager.mineExplosion();
+                }
+                playerCharacter[current].setMineAvailable(true);
+            }
+            String sound = intent.getStringExtra(INTENT_SERVICE_SOUND);
+            if (sound != null) {
+                switch (sound){
+                    case MINE_ACTIVATION:
+                        effectManager.mineActivated();
+                        break;
+                    case MINE_EXPLOSION:
+                        effectManager.StopSound();
+                        effectManager.mineExplosion();
+                        break;
+                }
             }
         }
     };
@@ -457,24 +495,6 @@ public class StatsService extends Service {
                    case 1045731098:
                        if (fromCommand.equals("штраф")) {
                            shit = 38;
-                           break label110;
-                       }
-                       break;
-                   case -1241360960: // этот и следующие 2 - количество разешенных защит
-                       if (fromCommand.equals("setOneProtAv")) {
-                           shit = 42;
-                           break label110;
-                       }
-                       break;
-                   case 1396794662:
-                       if (fromCommand.equals("setTwoProtAv")) {
-                           shit = 43;
-                           break label110;
-                       }
-                       break;
-                   case -1781101704:
-                       if (fromCommand.equals("setThreeProtAv")) {
-                           shit = 44;
                            break label110;
                        }
                        break;
@@ -880,15 +900,6 @@ public class StatsService extends Service {
                case 38:
                    playerCharacter[current].setHealth(0);
                    break;
-               case 42: // макс одна защита
-                   MaxProtectionsAvailable = 1;
-                   break;
-               case 43: // макс две защиты
-                   MaxProtectionsAvailable = 2;
-                   break;
-               case 44: // макс три защиты
-                   MaxProtectionsAvailable = 3;
-                   break;
                case 51: // защита от выброса на 10 минут
                    boolean DischargeImmunityTemp = DischargeImmunity;
                    DischargeImmunity = true;
@@ -1054,24 +1065,24 @@ public class StatsService extends Service {
         playerCharacter[2] = new MonolithCharacter(this);
         qrAnomaly = new QRAnomaly();
         wifiAnomaly = new WifiAnomaly(this);
-        anomaly = new Anomaly[3];
+        anomaly = new Anomaly[4];
         anomaly[0] = new Anomaly(this, database, cursor);
         anomaly[1] = new GestaltAnomaly(this, database, cursor);
         anomaly[2] = new OasisAnomaly(this);
+        anomaly[3] = new MineAnomaly(this,database,cursor);
 
         discharge = new Discharge(this, database, cursor);
 
         loadStats();
 
-        this.mFusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
         createNotificationChannel();
     }
 
     private void createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= 26) {
-            String CHANNEL_ID = "my_channel_01";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                    "Channel human readable title",
+                    "Channel stalker",
                     IMPORTANCE_HIGH);
             channel.setImportance(IMPORTANCE_HIGH);
             channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
@@ -1091,7 +1102,7 @@ public class StatsService extends Service {
         Toast.makeText(this, "Service has been started.", Toast.LENGTH_SHORT).show();
         checkPermissions();
         registerReceiver(this.broadcastReceiver, new IntentFilter("Command"));
-        registerReceiver(this.broadcastReceiverQR, new IntentFilter("StRoulette"));
+        registerReceiver(this.broadcastReceiverQR, new IntentFilter(INTENT_SERVICE));
         return START_REDELIVER_INTENT;
     }
 
@@ -1109,23 +1120,81 @@ public class StatsService extends Service {
         }
     }
 
-    //private int Course_Location_RequestCode = 1;
     private void checkPermissions() {
-        while (!this.LocationUpdatesStarted) {
+        while (!LocationUpdatesStarted) {
             if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_GRANTED) {
-                //if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_COURSE_LOCATION") == PackageManager.PERMISSION_GRANTED) {
-                    LocationRequest create = LocationRequest.create();
-                    create.setPriority(100).setInterval(1000).setFastestInterval(1000);
-                    this.LocationCallback = new MyLocationCallback(this.myCurrentLocation, this);
-                    this.mFusedLocationProvider.requestLocationUpdates(create, this.LocationCallback, null);
-                    this.LocationUpdatesStarted = true;
-                    Toast.makeText(this, "Location updates have been started.", Toast.LENGTH_SHORT).show();
-                //}
+                LocationRequest request = LocationRequest.create();
+                request.setPriority(100).setInterval(1000).setFastestInterval(1000);
+                LocationCallback = new MyLocationCallback(myLocation, this);
+                mFusedLocationProvider.requestLocationUpdates(request, LocationCallback, null);
+                LocationUpdatesStarted = true;
+                Toast.makeText(this, "Location updates have been started.", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    /*
+    * получает координаты из MyLocationCallback
+    * */
+    public void updateLocation(Location location) {
 
+        myCurrentLocation = location;
+        //Toast.makeText(this, "speed = " + myCurrentLocation.getSpeed(), Toast.LENGTH_SHORT).show();
+        //Log.d(LOG_CHE_CHE, "service speed " + myCurrentLocation.getSpeed());
+        if (!playerCharacter[current].isDead() && IsUnlocked) {
+            applyDischarge();
+            //artCompass(); // артос компас, который дает неуязвимость на 15 нимут
+            //getMovingAnomalies();
+            applyAnomalies();
+            checkLocality();
+            checkQuest();
+
+
+        }
+        setOutPutString();
+        saveStats();
+    }
+    public void setOutPutString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(playerCharacter[current].getHealth()); //0
+        stringBuilder.append(":");
+        stringBuilder.append(playerCharacter[current].getContaminationUnit(RAD, 0)); //1
+        stringBuilder.append(":");
+        stringBuilder.append(playerCharacter[current].getContaminationUnit(BIO, 0)); //2
+        stringBuilder.append(":");
+        stringBuilder.append(playerCharacter[current].getContaminationUnit(PSY, 0)); //3
+        stringBuilder.append(":");
+        stringBuilder.append(myCurrentLocation.getLatitude()); //4
+        stringBuilder.append(":");
+        stringBuilder.append(myCurrentLocation.getLongitude());//6
+        stringBuilder.append(":");
+        stringBuilder.append(ScienceQR);  //qr ученого//6
+        stringBuilder.append(":");
+        stringBuilder.append(playerCharacter[current].getTotalProtection(playerCharacter[current].getRadProtection()[1]));//7
+        stringBuilder.append(":");
+        stringBuilder.append(playerCharacter[current].getTotalProtection(playerCharacter[current].getBioProtection()[1]));//8
+        stringBuilder.append(":");
+        stringBuilder.append(playerCharacter[current].getTotalProtection(playerCharacter[current].getPsyProtection()[1]));//9
+        stringBuilder.append(":");
+        stringBuilder.append(Arrays.toString(playerCharacter[current].getRadProtection()[0]).replaceAll("\\[|\\]", "")); //10
+        stringBuilder.append(":");
+        stringBuilder.append(Arrays.toString(playerCharacter[current].getBioProtection()[0]).replaceAll("\\[|\\]", "")); //11
+        stringBuilder.append(":");
+        stringBuilder.append(Arrays.toString(playerCharacter[current].getPsyProtection()[0]).replaceAll("\\[|\\]", "")); //12
+        stringBuilder.append(":");
+        stringBuilder.append(Arrays.toString(playerCharacter[current].getRadProtection()[1]).replaceAll("\\[|\\]", "")); //13
+        stringBuilder.append(":");
+        stringBuilder.append(Arrays.toString(playerCharacter[current].getBioProtection()[1]).replaceAll("\\[|\\]", "")); //14
+        stringBuilder.append(":");
+        stringBuilder.append(Arrays.toString(playerCharacter[current].getPsyProtection()[1]).replaceAll("\\[|\\]", "")); //15
+        String stringBuilder2 = stringBuilder.toString();
+        Intent intent = new Intent("StatsService.Update");
+        intent.putExtra("Stats", stringBuilder2);
+        sendBroadcast(intent);
+        Intent intent1 = new Intent(INTENT_MAP);
+        intent1.putExtra(INTENT_MAP_UPDATE, "Draw");
+        sendBroadcast(intent1);
+    }
 
     public LatLng moving_anomalies(LatLng start_LatLng, LatLng finish_latLng){
         double dLat = (start_LatLng.latitude - finish_latLng.latitude) / 60;
@@ -1157,6 +1226,7 @@ public class StatsService extends Service {
         anomalyMap.put(PSY, 0);
         anomalyMap.put(GESTALT, 1);
         anomalyMap.put(OASIS, 2);
+        anomalyMap.put(MINE, 3);
     }
     /*
     * возвращает номер игрового для в зависимости от даты
@@ -1166,55 +1236,42 @@ public class StatsService extends Service {
     private int getCurrentDay(){
         return 1;
     }
+
     /*
-    * убирает все аномалии с карты
-    * */
-    private void stopShowAnomalyOnMap(){
-        contentValues = new ContentValues();
-        contentValues.put(DBHelper.KEY_BOOL_SHOW_ON_MAP__ANOMALY, "false");
-        database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_BOOL_SHOWABLE__ANOMALY + "=?", new String[]{"true"});
-    }
-    /*
-    * вызывается в MyLocationCallback()
+    * вызывается в setOutPutString
     * применяет аномалии
     * */
     public void applyAnomalies() {
         if (IS_ANOMALIES_AVAILABLE) {
             // перед началом проверки ставит, что мол не находится внутри никаких аномалий
             isInsideAnomaly = false;
-            // также записывает в базу данных, что рисовать аномалии на карте не надо
-            stopShowAnomalyOnMap();
             // не только считает количество аномалий, но и записывает в курсор таблицу аномалий
             int anomalyCount = anomaly[0].getAnomalyInfo();
             // цикл, в котором проверяется каждая строка из базы данных
             for (int i = 0; i < anomalyCount; i++) {
-                // проверяет находится ли игрок внутри аномалии i
+                // проверяет находится ли игрок внутри аномалии i. TODO inside учитывает день игры, не повлияет ли это на гештальт?
                 Pair<Boolean, String> anomalyPair = anomaly[0].isInside(getCurrentDay());
+
+
                 boolean inside = anomalyPair.first;
                 String type = anomalyPair.second;
-                // проверяет на гештальтность
-                String gesStatus = anomaly[0].getGestaltStatus();
                 // если аномалия - гештальт, то передает в класс гештальт свойства этого гештальта
                 // а также проверяет статус гештальта: open, close, protected
                 if (type.equals(GESTALT)){
-                    double[] gestaltDamage = anomaly[0].getGestaltDamageInfo();
-                    ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).isProtected(inside, gesStatus, gestaltDamage, i + 1);
+                    ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).isProtected(anomaly[0].getGestaltDamageInfo());
                 }
                 // проверяет находится ли игрок внутри обычной аномалии или снаружи гештальта
                 // если так, то наносит урон, играет звук и запсывает в таблицу, что надо показывать аномалию на карте
-                if ((inside && !type.equals(GESTALT)) || (!inside && type.equals(GESTALT) && gesStatus.equals(GESTALT_OPEN))){
-                    // может становиться true, если находится внутри не гештальта, а может и не становиться
-                    isInsideAnomaly = inside || isInsideAnomaly;
-                    int anomalySubClass = anomalyMap.get(anomaly[0].getType());
+                if (inside){
+                    isInsideAnomaly = true;
+                    int anomalySubClass = anomalyMap.get(type);
                     playerCharacter[current].applyProtection(anomaly[anomalySubClass].getDamage());
                     //TODO передвинуть звуки в свой метод
                     effectManager.StopActions();
-                    effectManager.PlaySound(anomaly[0].getType(), anomaly[0].getPower());
+                    effectManager.PlaySound(type, anomaly[0].getPower());
                     if (vibrate) {
                         effectManager.VibrateInPattern();
                     }
-
-                    anomaly[0].setShowable(i);
                 }
             }
             // вай фай аномалии - контролер или химера
@@ -1246,7 +1303,7 @@ public class StatsService extends Service {
     public void applyDischarge(){
         discharge.checkDischargeTime();
         if (discharge.isWarning()){
-            Toast.makeText(this, "Близиться выброс, необходимо укрытие", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Близится выброс, необходимо укрытие", Toast.LENGTH_LONG).show();
             effectManager.PlayBuzzer();
             discharge.setWarning(false);
         }
@@ -1272,7 +1329,7 @@ public class StatsService extends Service {
             cv = new ContentValues();
             cv.put(DBHelper.KEY_STATUS__CREED_BRANCH, "true");
             database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "= ?", new String[]{"15"});
-            //такой защиты больше нет
+            //Легенда зоны увеличивает количество заражения, которое можно пережить
             double[] newContaminationMax = new double[3];
             Arrays.fill(newContaminationMax, MAX_CONTAMINATION_LEGEND);
             playerCharacter[current].setContaminationMax(newContaminationMax);
@@ -1367,7 +1424,6 @@ public class StatsService extends Service {
         this.DischargeImmunity = Boolean.parseBoolean(sharedPreferences.getString("DischargeImmunity", "false"));
         this.IsUnlocked = Boolean.parseBoolean(sharedPreferences.getString("Lock", "true"));
         this.IS_ANOMALIES_AVAILABLE = Boolean.parseBoolean(Objects.requireNonNull(sharedPreferences.getString("IS_ANOMALIES_AVAILABLE", "true")));
-        this.MaxProtectionsAvailable = Integer.parseInt(Objects.requireNonNull(sharedPreferences.getString("MaxProtectionsAvailable", "1")));
     }
 
     public void saveStats() {
@@ -1391,7 +1447,6 @@ public class StatsService extends Service {
         edit.putString("DischargeImmunity", Boolean.toString(this.DischargeImmunity));
         edit.putString("Lock", Boolean.toString(this.IsUnlocked));
         edit.putString("IS_ANOMALIES_AVAILABLE", Boolean.toString(this.IS_ANOMALIES_AVAILABLE));
-        edit.putString("MaxProtectionsAvailable", Integer.toString(MaxProtectionsAvailable));
         edit.apply();
     }
 }

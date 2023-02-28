@@ -39,12 +39,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
-
 
 public class MainActivity extends AppCompatActivity implements QuestConfirmInterface{
 
+    public static final String INTENT_MAIN= "StatsService.Update";
+    public static final String INTENT_MAIN_PROTECTION = "protection";
+    public static final String INTENT_MAIN_MINE = "mine_field";
     public static final int REQUEST_BACKGROUND_LOCATION_PERMISSION = 1001;
+    private static final int REQUEST_CODE = 123;
     private boolean FineLocationPermissionGranted;
     private int Fine_Location_RequestCode = 1;
     private int Course_Location_RequestCode = 1;
@@ -88,16 +90,20 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
                 globals.ProtectionRadArr = split[13];
                 globals.ProtectionBioArr = split[14];
                 globals.ProtectionPsyArr = split[15];
-                globals.MaxProtectionAvailable.setText(getString(R.string.protectionsAmount) + split[16]);
                 globals.UpdateStats();
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            String protectionTypes = intent.getStringExtra("protection");
+            String protectionTypes = intent.getStringExtra(INTENT_MAIN_PROTECTION);
             if (protectionTypes != null){
                 StalkerCharacter stalkerCharacter = new StalkerCharacter(context);
                 stalkerCharacter.nullifyProtectionDialog(protectionTypes);
+            }
+            String mine = intent.getStringExtra(INTENT_MAIN_MINE);
+            if (mine != null){
+                MineDialogFragment exampleDialog = MineDialogFragment.newInstance(mine.equals("true"));
+                exampleDialog.show(getSupportFragmentManager(), "example_dialog");
             }
         }
     };
@@ -210,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
 
     public void onResume() {
 
-        registerReceiver(this.broadcastReceiver, new IntentFilter("StatsService.Update"));
+        registerReceiver(this.broadcastReceiver, new IntentFilter(INTENT_MAIN));
         registerReceiver(this.broadcastReceiverMessages, new IntentFilter("StatsService.Message"));
         super.onResume();
     }

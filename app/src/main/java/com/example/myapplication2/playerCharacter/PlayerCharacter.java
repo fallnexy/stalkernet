@@ -7,29 +7,47 @@ package com.example.myapplication2.playerCharacter;
 * принимает урон от аномалий - стандартный урон от всех аномалий
 * */
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.PowerManager;
 import android.widget.Toast;
+
+import com.example.myapplication2.MainActivity;
+import com.example.myapplication2.R;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Random;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.util.Pair;
 
 import static com.example.myapplication2.Discharge.DISCHARGE;
+import static com.example.myapplication2.MainActivity.INTENT_MAIN;
+import static com.example.myapplication2.MainActivity.INTENT_MAIN_MINE;
+import static com.example.myapplication2.StatsService.CHANNEL_ID;
+import static com.example.myapplication2.StatsService.INTENT_SERVICE;
+import static com.example.myapplication2.StatsService.INTENT_SERVICE_SOUND;
 import static com.example.myapplication2.anomaly.Anomaly.BIO;
 import static com.example.myapplication2.anomaly.Anomaly.GESTALT;
+import static com.example.myapplication2.anomaly.Anomaly.MINE;
 import static com.example.myapplication2.anomaly.Anomaly.OASIS;
 import static com.example.myapplication2.anomaly.Anomaly.PSY;
 import static com.example.myapplication2.anomaly.Anomaly.RAD;
+import static com.example.myapplication2.anomaly.MineAnomaly.MINE_ACTIVATION;
+import static com.example.myapplication2.anomaly.MineAnomaly.MINE_COUNT_DOWN;
+import static com.example.myapplication2.anomaly.MineAnomaly.MINE_EXPLOSION;
 
 public class PlayerCharacter {
     //константа
     public static final int DEFAULT_CHARACTER = 0;
     public static final int[] MAX_PROTECTION_STRENGTH = {2000, 2000, 100000};
     // значения, которые может принимать lastTimeHitBy
-    private static final String[] ALLOWED_VALUES = {"rad", "bio", "psy", "dis", "ges", ""};
+    private static final String[] ALLOWED_VALUES = {"rad", "bio", "psy", "dis", "ges", "min", ""};
 
     public static final String PREFERENCE_NAME = "player_character_preferences";
     public static final String NAME_KEY = "name_key";
@@ -56,6 +74,7 @@ public class PlayerCharacter {
     private int maxHealth;
     private double health;
     private boolean dead;
+    private boolean mineAvailable = true;
 
     /*
     * contamination - матрица с 2 строками и 3 столбцами
@@ -82,10 +101,12 @@ public class PlayerCharacter {
 
     private Context context;
     private SharedPreferences sharedPreferences;
+    private  PowerManager powerManager;
 
 
     public PlayerCharacter(Context context) {
         this.context = context;
+        powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         // нужны ли все эти this?
         this.name = "Иван";
         this.faction = "Вольный сталкер";
@@ -161,8 +182,8 @@ public class PlayerCharacter {
             } else if (health > maxHealth) {
                 this.health = maxHealth;
             } else {
+                this.health = 0;
                 setDead(true);
-                this.health = health;
             }
         }
     }
@@ -258,6 +279,9 @@ public class PlayerCharacter {
                     break;
                 case DISCHARGE:
                     sendDeathInfo("Вы умерли от выброса", "H");
+                    break;
+                case MINE:
+                    sendDeathInfo("Вы подорвались на мине", "H");
                     break;
                 case "":
                     sendDeathInfo("Вы умерли?", "H");
@@ -379,40 +403,120 @@ public class PlayerCharacter {
     public void applyProtection(Pair<String,Double> damagePair){
         String type = damagePair.first;
         double damage = damagePair.second;
-        double[][] protection = protectionMap.get(type);
-        double totalProtection = getTotalProtection(protection[1]);
-        double decreaseProtection = damage * totalProtection / 100d;
-        double decreaseHealth = damage * (1 - totalProtection / 100d);
-        for (int i = 0; i < 3; i++ ){
-            if (protection[0][i] > 0) {
-                protection[0][i] -= decreaseProtection;
-                if (protection[0][i] < 0) {
-                    protection[0][i] = 0;
-                    protection[1][i] = 0;
+        if (!type.equals(MINE)) {
+            double[][] protection = protectionMap.get(type);
+            double totalProtection = getTotalProtection(protection[1]);
+            double decreaseProtection = damage * totalProtection / 100d;
+            double decreaseHealth = damage * (1 - totalProtection / 100d);
+            for (int i = 0; i < 3; i++ ){
+                if (protection[0][i] > 0) {
+                    protection[0][i] -= decreaseProtection;
+                    if (protection[0][i] < 0) {
+                        protection[0][i] = 0;
+                        protection[1][i] = 0;
+                    }
+                    break;
                 }
-                break;
+            }
+            switch (type){
+                case RAD:
+                    setRadProtection(protection);
+                    break;
+                case BIO:
+                    setBioProtection(protection);
+                    break;
+                case PSY:
+                    setPsyProtection(protection);
+                    break;
+                case GESTALT:
+                    setGesProtection(protection);
+                    break;
+                default:
+                    break;
+            }
+            if (!type.equals(GESTALT) && !type.equals(OASIS)) {
+                increaseContaminationUnit(type, decreaseHealth);
+            }
+            increaseHealth(-decreaseHealth);
+        } else {
+            resolveMine(damage, "false");
+            setLastTimeHitBy(type);
+        }
+    }
+    public boolean isMineAvailable() {
+        return mineAvailable;
+    }
+
+    public void setMineAvailable(boolean mineAvailable) {
+        this.mineAvailable = mineAvailable;
+    }
+
+    /*
+    * обработка минного поля
+    * */
+
+
+    private int notificationId = 2;
+    private int counter = 0;
+    protected void resolveMine(double chance, String protection){
+        double newChance = chance;
+        if (chance < 20d){
+            counter = 0;
+        } else if (chance > 40d){
+            counter++;
+            newChance = chance + counter * 5;
+            if (newChance > 100){
+                newChance = 100;
             }
         }
-        switch (type){
-            case RAD:
-                setRadProtection(protection);
-                break;
-            case BIO:
-                setBioProtection(protection);
-                break;
-            case PSY:
-                setPsyProtection(protection);
-                break;
-            case GESTALT:
-                setGesProtection(protection);
-                break;
-            default:
-                break;
+
+        if (powerManager.isInteractive()) {
+            String toastString = "вероятность активации мины составляет: " + newChance + "%";
+            Toast.makeText(context, toastString, Toast.LENGTH_SHORT).show();
+            if (mineAvailable) {
+                Random rand = new Random();
+                int randomNum = rand.nextInt(101);
+                if (randomNum <  newChance){
+                    Intent intent = new Intent(INTENT_MAIN);
+                    intent.putExtra(INTENT_MAIN_MINE, protection);
+                    context.sendBroadcast(intent);
+                    intent = new Intent(INTENT_SERVICE);
+                    intent.putExtra(INTENT_SERVICE_SOUND, MINE_ACTIVATION);
+                    context.sendBroadcast(intent);
+                }
+                mineAvailable = false;
+                Handler handler = new Handler();
+                handler.postDelayed(() -> setMineAvailable(true), MINE_COUNT_DOWN);
+            }
+        } else {
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), CHANNEL_ID)
+                    .setSmallIcon(R.drawable.profile)
+                    .setContentTitle("МИННОЕ ПОЛЕ")
+                    .setContentText("Откройте приложение, чтобы иметь возможномть деактивировать активированную мину")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true);
+
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+            notificationManager.notify(notificationId, builder.build());
+
+            if (mineAvailable) {
+                Random rand = new Random();
+                int randomNum = rand.nextInt(101);
+                if (randomNum <  newChance){
+                    increaseHealthPercent(-50);
+                    intent = new Intent(INTENT_SERVICE);
+                    intent.putExtra(INTENT_SERVICE_SOUND, MINE_EXPLOSION);
+                    context.sendBroadcast(intent);
+                }
+                mineAvailable = false;
+                Handler handler = new Handler();
+                handler.postDelayed(() -> setMineAvailable(true), MINE_COUNT_DOWN);
+            }
         }
-        if (!type.equals(GESTALT) && !type.equals(OASIS)) {
-            increaseContaminationUnit(type, decreaseHealth);
-        }
-        increaseHealth(-decreaseHealth);
     }
     /*
     * выведение аномалий из организма, если персонаж находится все аномалий

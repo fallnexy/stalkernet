@@ -226,4 +226,6 @@
     <string name="txtVPlayerName">Имя</string>
     <string name="txtVPlayerFaction">группированка</string>
     <string name="gestalt_open">!!!ГЕШТАЛЬТ ОТКРЫТ!!!</string>
+    <string name="example_format">Чтобы деактивировать мину, решите пример: %1$d + %2$d</string>
+    <string name="timer_format">Осталось секунд: %1$d</string>
 </resources>

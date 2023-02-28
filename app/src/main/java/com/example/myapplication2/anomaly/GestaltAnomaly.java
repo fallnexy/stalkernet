@@ -2,7 +2,6 @@ package com.example.myapplication2.anomaly;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
@@ -49,17 +48,17 @@ public class GestaltAnomaly extends Anomaly{
     * вызывается в статсервисе, если тип аномалии гештальт
     * берет статы, которые получил родительский класс
     * */
-    public void isProtected(boolean inside, String gesStatus, double[] gestaltDamage, int position){
-        this.gesStatus = gesStatus;
-        this.distance = gestaltDamage[0];
-        this.radius = gestaltDamage[1];
-        this.power = gestaltDamage[2];
-        this.minPower = gestaltDamage[3];
-        if (inside && this.gesStatus.equals(GESTALT_CLOSE)){
+    public void isProtected(Pair<Double[], String> gestaltDamage){
+        this.gesStatus = gestaltDamage.second;
+        this.distance = gestaltDamage.first[0];
+        this.radius = gestaltDamage.first[1];
+        this.power = gestaltDamage.first[2];
+        this.minPower = gestaltDamage.first[3];
+        /*if (inside && this.gesStatus.equals(GESTALT_CLOSE)){
             setCV(GESTALT_OPEN, String.valueOf(position), "G");
         } else if (inside && this.gesStatus.equals(GESTALT_OPEN)){
             sendIntent("G");
-        }
+        }*/
     }
     /*
     * вызывается где-нибудь, чтобы изменить статус на протектед
@@ -77,14 +76,6 @@ public class GestaltAnomaly extends Anomaly{
         contentValues = new ContentValues();
         contentValues.put(DBHelper.KEY_GESTALT_STATUS__ANOMALY, gesStatus);
         this.database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID__ANOMALY + "=?", new String[]{id});
-        sendIntent(massage);
-    }
-    /*
-    * вызывается в setCV, чтобы отправить сообщение в mainActivity
-    * */
-    private void sendIntent (String message){
-        Intent intent = new Intent("StatsService.Message");
-        intent.putExtra("Message", message);
-        context.sendBroadcast(intent);
+        sendIntent("StatsService.Message","Message",massage);
     }
 }

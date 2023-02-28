@@ -42,6 +42,7 @@ public class GeneralTab extends Fragment {
         TextView txtCapacityProtectionBio = inflate.findViewById(R.id.txtStrengthBioProtection);
         TextView txtCapacityProtectionPsy = inflate.findViewById(R.id.txtStrengthPsyProtection);
         TextView txtMaxProtectionsAvailable = inflate.findViewById(R.id.txtMaxProtections);
+        txtMaxProtectionsAvailable.setText("Защит? каких защит?");
         TextView txtGestaltOpen = inflate.findViewById(R.id.txtGestaltOpen);
 
         globals.loadStats();
@@ -52,7 +53,7 @@ public class GeneralTab extends Fragment {
         globals.PsyBar = progressBar4;
         globals.tvCoordinate = textView;
         globals.tvMessages = textView2;
-        globals.MaxProtectionAvailable = txtMaxProtectionsAvailable;
+        //globals.MaxProtectionAvailable = txtMaxProtectionsAvailable;
         globals.HealthPercent = txtHealthPercent;
         globals.RadPercent = txtRadPercent;
         globals.BioPercent = txtBioPercent;

@@ -7,6 +7,7 @@ import android.os.Vibrator;
 
 import static com.example.myapplication2.anomaly.Anomaly.BIO;
 import static com.example.myapplication2.anomaly.Anomaly.GESTALT;
+import static com.example.myapplication2.anomaly.Anomaly.MINE;
 import static com.example.myapplication2.anomaly.Anomaly.PSY;
 import static com.example.myapplication2.anomaly.Anomaly.RAD;
 
@@ -33,7 +34,9 @@ public class EffectManager {
     }
 
     public void PlaySound(String type, double power) {
-        this.mediaplayer.reset();
+        if (!type.equals(MINE)) {
+            mediaplayer.reset();
+        }
         if (type.equals(PSY)) {
             switch ((int) power) {
                 case 1:
@@ -171,7 +174,22 @@ public class EffectManager {
                     break;
             }
         }
-        this.mediaplayer.start();
+        if (!type.equals(MINE)) {
+            mediaplayer.start();
+        }
+    }
+
+    public void mineActivated(){
+        mediaplayer = MediaPlayer.create(context, R.raw.mine_active);
+        mediaplayer.start();
+    }
+    public void mineDisActivated(){
+        mediaplayer = MediaPlayer.create(context, R.raw.mine_disactivated);
+        mediaplayer.start();
+    }
+    public void mineExplosion(){
+        mediaplayer = MediaPlayer.create(context, R.raw.mine_explosion);
+        mediaplayer.start();
     }
 
     public void PlayBuzzer() {
@@ -183,6 +201,11 @@ public class EffectManager {
     public void StopActions() {
         if (this.vibrator != null) {
             this.vibrator.cancel();
+        }
+    }
+    public void StopSound() {
+        if (mediaplayer.isPlaying()) {
+            mediaplayer.stop();
         }
     }
 }

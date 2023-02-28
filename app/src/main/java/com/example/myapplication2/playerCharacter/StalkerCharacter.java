@@ -8,12 +8,13 @@ package com.example.myapplication2.playerCharacter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.util.Arrays;
 
 import androidx.appcompat.app.AlertDialog;
 
+import static com.example.myapplication2.MainActivity.INTENT_MAIN;
+import static com.example.myapplication2.MainActivity.INTENT_MAIN_PROTECTION;
 import static com.example.myapplication2.anomaly.Anomaly.BIO;
 import static com.example.myapplication2.anomaly.Anomaly.PSY;
 import static com.example.myapplication2.anomaly.Anomaly.RAD;
@@ -37,7 +38,7 @@ public class StalkerCharacter extends PlayerCharacter{
                 output.append(protectionType).append("@");
             }
         }
-        Log.d("ну чече", "counter = " + counter);
+        //Log.d("ну чече", "counter = " + counter);
         //выставляет защиту
         double strength = value == 0 ? 0: MAX_PROTECTION_STRENGTH[getSubProtectionMap().get(subType)];
         getProtectionMap().get(type)[0][getSubProtectionMap().get(subType)] = strength;
@@ -45,8 +46,8 @@ public class StalkerCharacter extends PlayerCharacter{
         // если защит слишком много, отправляет сообщение в mainActivity,
         // чтобы там выбрали какую защиту снять
         if (value > 0 && counter > 1) {
-            Intent intent = new Intent("StatsService.Update");
-            intent.putExtra("protection", output.toString());
+            Intent intent = new Intent(INTENT_MAIN);
+            intent.putExtra(INTENT_MAIN_PROTECTION, output.toString());
             getContext().sendBroadcast(intent);
         }
     }
@@ -56,7 +57,6 @@ public class StalkerCharacter extends PlayerCharacter{
     * */
     public void nullifyProtectionDialog( String input){
         String[] inputSplit = input.split("@");
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Выбор защиты");

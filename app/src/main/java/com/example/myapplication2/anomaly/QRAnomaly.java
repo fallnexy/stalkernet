@@ -48,11 +48,6 @@ public class QRAnomaly extends Anomaly{
     }
 
     @Override
-    public void setShowable(int i) {
-        // Do nothing
-    }
-
-    @Override
     public Pair<String, Double> getDamage() {
         // Do nothing
         return new Pair<>("", 0d);
