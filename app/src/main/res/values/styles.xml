@@ -9,5 +9,25 @@
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
         <item name="background">@drawable/fon_0521</item>
     </style>
+    <style name="AppThemeNew" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">#FFE925</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:navigationBarColor">#72000000</item>
+    </style>
+
+    <style name="AppThemeNewNew" parent="Theme.MaterialComponents.Light.Bridge">
+        <!-- Customize your theme here -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">#FFE925</item>
+        <!--<item name="android:windowFullscreen">true</item>-->
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:navigationBarColor">#72000000</item>
+    </style>
 
 </resources>

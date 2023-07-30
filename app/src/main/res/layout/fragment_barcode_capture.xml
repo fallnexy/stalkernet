@@ -8,16 +8,16 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <com.example.myapplication2.camera.CameraSourcePreview
+  <com.example.stalkernet.camera.CameraSourcePreview
       android:id="@+id/preview"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
-    <com.example.myapplication2.camera.GraphicOverlay
+    <com.example.stalkernet.camera.GraphicOverlay
         android:id="@+id/graphicOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-  </com.example.myapplication2.camera.CameraSourcePreview>
+  </com.example.stalkernet.camera.CameraSourcePreview>
 
 </LinearLayout>

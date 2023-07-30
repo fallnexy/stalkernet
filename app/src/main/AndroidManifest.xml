@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.myapplication2">
+    package="com.example.stalkernet">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -29,7 +29,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppThemeNewNew">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -37,13 +37,13 @@
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
         <service
-            android:name=".StatsService"
+            android:name="com.example.stalkernet.StatsService"
             android:stopWithTask="false"
             android:enabled="true"
             android:exported="true" />
         <activity
-            android:name=".MainActivity"
-            android:theme="@style/AppTheme"
+            android:name="com.example.stalkernet.MainActivity"
+            android:theme="@style/AppThemeNewNew"
             android:screenOrientation="locked"
             android:exported="true">
             <intent-filter>
@@ -52,7 +52,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".barcode.BarcodeCaptureActivity"
+        <activity android:name="com.example.stalkernet.barcode.BarcodeCaptureActivity"
             android:label="Read Barcode"/>
     </application>
 

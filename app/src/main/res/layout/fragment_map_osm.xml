@@ -1,13 +1,310 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout6"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.MapOSMTab">
 
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clVitalStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivHealth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/health_symbol"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/pbHealth"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#C4433F40"
+            android:foregroundGravity="center_vertical"
+            android:progressTint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="@+id/ivHealth"
+            app:layout_constraintStart_toEndOf="@+id/ivHealth"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvHealth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="hp"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/pbHealth"
+            app:layout_constraintEnd_toEndOf="@+id/pbHealth"
+            app:layout_constraintStart_toEndOf="@+id/ivHealth"
+            app:layout_constraintTop_toTopOf="@+id/pbHealth" />
+
+        <ImageView
+            android:id="@+id/ivRad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/rad_symbol"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivHealth" />
+
+        <ProgressBar
+            android:id="@+id/pbRad"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#C4433F40"
+            android:progressTint="@color/Yellow"
+            app:layout_constraintBottom_toBottomOf="@+id/ivRad"
+            app:layout_constraintStart_toEndOf="@+id/ivRad"
+            app:layout_constraintTop_toTopOf="@+id/ivRad" />
+
+        <TextView
+            android:id="@+id/tvRad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="anomaly_type"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/pbRad"
+            app:layout_constraintEnd_toEndOf="@+id/pbRad"
+            app:layout_constraintStart_toEndOf="@+id/ivRad"
+            app:layout_constraintTop_toTopOf="@+id/pbRad" />
+
+
+        <ProgressBar
+            android:id="@+id/pbRadSuit"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_suit"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbRad"
+            app:layout_constraintStart_toEndOf="@+id/pbRad"
+            app:layout_constraintTop_toTopOf="@+id/pbRad" />
+
+        <ProgressBar
+            android:id="@+id/pbRadArt"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_art"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbRad"
+            app:layout_constraintStart_toEndOf="@+id/pbRadSuit"
+            app:layout_constraintTop_toTopOf="@+id/pbRad" />
+
+        <ProgressBar
+            android:id="@+id/pbRadQuest"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_quest"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbRad"
+            app:layout_constraintStart_toEndOf="@+id/pbRadArt"
+            app:layout_constraintTop_toTopOf="@+id/pbRad" />
+
+        <ImageView
+            android:id="@+id/ivBio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/bio_symbol"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivRad" />
+
+        <ProgressBar
+            android:id="@+id/pbBio"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#C4433F40"
+            android:progressTint="@color/green"
+            app:layout_constraintBottom_toBottomOf="@+id/ivBio"
+            app:layout_constraintStart_toEndOf="@+id/ivBio"
+            app:layout_constraintTop_toTopOf="@+id/ivBio" />
+
+        <TextView
+            android:id="@+id/tvBio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="anomaly_type"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/pbBio"
+            app:layout_constraintEnd_toEndOf="@+id/pbBio"
+            app:layout_constraintStart_toEndOf="@+id/ivBio"
+            app:layout_constraintTop_toTopOf="@+id/pbBio" />
+
+
+        <ProgressBar
+            android:id="@+id/pbBioSuit"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_suit"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbBio"
+            app:layout_constraintStart_toEndOf="@+id/pbBio"
+            app:layout_constraintTop_toTopOf="@+id/pbBio" />
+
+        <ProgressBar
+            android:id="@+id/pbBioArt"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_art"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbBio"
+            app:layout_constraintStart_toEndOf="@+id/pbBioSuit"
+            app:layout_constraintTop_toTopOf="@+id/pbBio" />
+
+        <ProgressBar
+            android:id="@+id/pbBioQuest"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_quest"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbBio"
+            app:layout_constraintStart_toEndOf="@+id/pbBioArt"
+            app:layout_constraintTop_toTopOf="@+id/pbBio" />
+
+        <ImageView
+            android:id="@+id/ivPsy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/psy_symbol"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivBio" />
+
+        <ProgressBar
+            android:id="@+id/pbPsy"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#C4433F40"
+            android:progressTint="#0767B3"
+            app:layout_constraintBottom_toBottomOf="@+id/ivPsy"
+            app:layout_constraintStart_toEndOf="@+id/ivPsy"
+            app:layout_constraintTop_toTopOf="@+id/ivPsy" />
+
+        <TextView
+            android:id="@+id/tvPsy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="anomaly_type"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/pbPsy"
+            app:layout_constraintEnd_toEndOf="@+id/pbPsy"
+            app:layout_constraintStart_toEndOf="@+id/ivPsy"
+            app:layout_constraintTop_toTopOf="@+id/pbPsy" />
+
+
+        <ProgressBar
+            android:id="@+id/pbPsySuit"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_suit"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbPsy"
+            app:layout_constraintStart_toEndOf="@+id/pbPsy"
+            app:layout_constraintTop_toTopOf="@+id/pbPsy" />
+
+        <ProgressBar
+            android:id="@+id/pbPsyArt"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_art"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbPsy"
+            app:layout_constraintStart_toEndOf="@+id/pbPsySuit"
+            app:layout_constraintTop_toTopOf="@+id/pbPsy" />
+
+        <ProgressBar
+            android:id="@+id/pbPsyQuest"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/pb_quest"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@+id/pbPsy"
+            app:layout_constraintStart_toEndOf="@+id/pbPsyArt"
+            app:layout_constraintTop_toTopOf="@+id/pbPsy" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnToUser"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:elevation="10dp"
+        app:icon="@drawable/icon_go_to_user"
+        app:iconTintMode="multiply"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOpenHub"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="10dp"
+        android:visibility="gone"
+        app:icon="@drawable/gest_symbol"
+        app:iconTintMode="multiply"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txtCoordinate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="10dp"
+        android:text="координаты"
+        android:textColor="@color/colorAccent"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtGestalt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/gestalt_open"
+        android:visibility="invisible"
+        android:textColor="@color/Yellow"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtCoordinate" />
+
     <org.osmdroid.views.MapView
         android:id="@+id/mapOSM"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
-</FrameLayout>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </org.osmdroid.views.MapView>
+</androidx.constraintlayout.widget.ConstraintLayout>

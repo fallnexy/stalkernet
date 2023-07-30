@@ -9,20 +9,6 @@
     tools:context=".fragments.childTabs.ChatChildFragment">
 
 
-    <!--<Button
-        android:id="@+id/btnOnVib"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/button_action_0521"
-        android:text="Включить вибрацию"
-        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnAddAnomaly" />-->
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -84,7 +70,7 @@
                 android:textColor="@color/common_google_signin_btn_text_dark_pressed"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnAddAnomaly" />
+                app:layout_constraintTop_toBottomOf="@+id/btnOnVib" />
 
             <Button
                 android:id="@+id/btnBroadcastCommand"
@@ -116,6 +102,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
+                android:visibility="invisible"
                 android:id="@+id/btnAddAnomaly"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
@@ -124,6 +111,19 @@
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/button_action_0521"
                 android:text="Сделать QR код"
+                android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnOnVib" />
+
+            <Button
+                android:id="@+id/btnOnVib"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/button_action_0521"
+                android:text="вибрация"
                 android:textColor="@color/common_google_signin_btn_text_dark_pressed"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

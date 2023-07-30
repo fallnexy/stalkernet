@@ -24,7 +24,7 @@
 				android:layout_height="28dp"
 				android:layout_marginStart="8dp"
 				android:layout_marginTop="16dp"
-				android:src="@drawable/health_symbol_0521"
+				android:src="@drawable/health_symbol"
 				app:layout_constraintEnd_toStartOf="@+id/txtHealthPercent"
 				app:layout_constraintHorizontal_bias="0.5"
 				app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -38,7 +38,7 @@
 				android:layout_marginStart="8dp"
 				android:layout_marginTop="8dp"
 				android:layout_marginEnd="8dp"
-				android:text="V 0.63"
+				android:text="V 0.65"
 				android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
@@ -61,7 +61,7 @@
 					android:layout_margin="10dp"
 					android:layout_marginStart="16dp"
 					android:layout_marginTop="10dp"
-					android:progressDrawable="@drawable/prog"
+					android:progressDrawable="@drawable/health_bar"
 					android:scaleY="1.5" />
 
 				<TextView
@@ -71,7 +71,7 @@
 					android:layout_gravity="end|center_vertical"
 					android:layout_marginEnd="16dp"
 					android:layout_marginBottom="0dp"
-					android:text="@string/loading"
+					android:text="@string/to_map"
 					android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 					android:visibility="visible" />
 			</FrameLayout>
@@ -85,7 +85,7 @@
 				android:layout_marginStart="8dp"
 				android:layout_marginTop="8dp"
 				android:layout_marginEnd="8dp"
-				android:progressDrawable="@drawable/prog"
+				android:progressDrawable="@drawable/health_bar"
 				android:scaleY="1.5"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
@@ -107,7 +107,7 @@
 					android:layout_height="wrap_content"
 					android:layout_margin="10dp"
 					android:layout_marginTop="10dp"
-					android:progressDrawable="@drawable/prog"
+					android:progressDrawable="@drawable/health_bar"
 					android:scaleY="1.5" />
 
 				<TextView
@@ -117,7 +117,7 @@
 					android:layout_gravity="end|center_vertical"
 					android:layout_marginEnd="16dp"
 					android:layout_marginBottom="0dp"
-					android:text="@string/loading"
+					android:text="@string/to_map"
 					android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 					android:visibility="visible"
 					app:layout_constraintEnd_toStartOf="@+id/ProgressRad" />
@@ -129,7 +129,7 @@
 				android:layout_height="28dp"
 				android:layout_marginStart="8dp"
 				android:layout_marginBottom="8dp"
-				android:src="@drawable/bio_symbol_0521"
+				android:src="@drawable/bio_symbol"
 				app:layout_constraintBottom_toTopOf="@+id/FL_Bio"
 				app:layout_constraintStart_toStartOf="parent" />
 
@@ -153,7 +153,7 @@
 				android:layout_marginStart="8dp"
 				android:layout_marginTop="8dp"
 				android:layout_marginEnd="8dp"
-				android:text="V 0.64"
+				android:text="V 0.65"
 				android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
@@ -193,7 +193,7 @@
 				android:layout_height="28dp"
 				android:layout_marginStart="8dp"
 				android:layout_marginBottom="8dp"
-				android:src="@drawable/rad_symbol_0521"
+				android:src="@drawable/rad_symbol"
 				app:layout_constraintBottom_toTopOf="@+id/FL_Rad"
 				app:layout_constraintHorizontal_chainStyle="spread_inside"
 				app:layout_constraintStart_toStartOf="parent" />
@@ -239,7 +239,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_margin="10dp"
-					android:progressDrawable="@drawable/prog"
+					android:progressDrawable="@drawable/health_bar"
 					android:scaleY="1.5"
 					android:secondaryProgressTint="@color/secondaryGreen" />
 
@@ -250,7 +250,7 @@
 					android:layout_gravity="end|center_vertical"
 					android:layout_marginEnd="16dp"
 					android:layout_marginBottom="0dp"
-					android:text="@string/loading"
+					android:text="@string/to_map"
 					android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 					android:visibility="visible" />
 			</FrameLayout>
@@ -288,7 +288,7 @@
 				android:layout_gravity="center"
 				android:layout_marginTop="20dp"
 				android:layout_marginEnd="8dp"
-				android:text="@string/loading"
+				android:text="@string/to_map"
 				android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 				android:visibility="visible"
 				app:layout_constraintEnd_toEndOf="parent"
@@ -302,7 +302,7 @@
 				android:layout_height="28dp"
 				android:layout_marginStart="8dp"
 				android:layout_marginBottom="8dp"
-				android:src="@drawable/psy_symbol_0521"
+				android:src="@drawable/psy_symbol"
 				app:layout_constraintBottom_toTopOf="@+id/FL_Psy"
 				app:layout_constraintStart_toStartOf="parent" />
 
