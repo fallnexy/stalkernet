@@ -128,7 +128,7 @@ public class CreedChildFragment extends Fragment {
             int BONUS_INDEX = localCursor.getColumnIndex(DBHelper.KEY_BONUS__CREED_BRANCH);
             int ID_INDEX = localCursor.getColumnIndex(DBHelper.KEY_ID__CREED_BRANCH);
             int BRANCH_ID_INDEX = localCursor.getColumnIndex(DBHelper.KEY_BRANCH_ID__CREED_BRANCH);
-            //Log.d("цвет", String.valueOf(BRANCH_ID_INDEX));
+
             localCursor.moveToPosition(childPosition);
             name.setText(localCursor.getString(NAME_INDEX));
             bonus.setText("Награда: " + localCursor.getString(BONUS_INDEX));
@@ -149,10 +149,11 @@ public class CreedChildFragment extends Fragment {
             // выбор цвета ветки кредо
             switch (localCursor.getInt(BRANCH_ID_INDEX)){
                 case 1:
-                    convertView.setBackgroundColor(getResources().getColor(R.color.creedOne));
+                    //convertView.setBackgroundColor(getResources().getColor(R.color.creedOne));
+                    convertView.setBackground(getResources().getDrawable(R.drawable.rectangle_orange_background));
                     break;
                 case 2:
-                    convertView.setBackgroundColor(getResources().getColor(R.color.creedTwo));
+                    convertView.setBackground(getResources().getDrawable(R.drawable.rectangle_light_orange_background));
                     break;
             }
 

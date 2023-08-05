@@ -1,6 +1,4 @@
 package com.example.stalkernet;
-//https://habr.com/ru/post/349102/ В Андроид 8 (у меня) службы все равно убиваются
-// и с этим надо что то делать (ссылка). startForegroundService - запуск службы для андроид 8
 
 import android.Manifest;
 import android.app.Activity;
@@ -19,7 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 
-import com.example.stalkernet.fragments.GeneralTab;
 import com.example.stalkernet.fragments.MapOSMTab;
 import com.example.stalkernet.fragments.ParentTab;
 import com.example.stalkernet.fragments.PointTab;
@@ -51,7 +48,7 @@ import static com.example.stalkernet.anomaly.Anomaly.RAD;
 
 public class MainActivity extends AppCompatActivity implements QuestConfirmInterface{
 
-    public static final String INTENT_MAIN= "StatsService.Update";
+    public static final String INTENT_MAIN = "StatsService.Update";
     public static final String INTENT_MAIN_PROTECTION = "protection";
     public static final String INTENT_MAIN_MINE = "mine_field";
     public static final int REQUEST_BACKGROUND_LOCATION_PERMISSION = 1001;
@@ -101,17 +98,10 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
                         mainLayout.setBackgroundResource(R.drawable.fon);
                     }
                 }
-                /*globals.Rad = split[1];
-                globals.Bio = split[2];
-                if (Double.parseDouble(split[3]) >= 1000.0d) {
-                    mainLayout.setBackgroundResource(R.drawable.death_0521);
-                } else {
-                    globals.Psy = split[3];
-                }*/
                 globals.location.setLatitude(Double.parseDouble(split[1]));
                 globals.location.setLongitude(Double.parseDouble(split[2]));
-                globals.ScienceQR = Integer.parseInt(split[3]);
-                globals.UpdateStats();
+                globals.scienceQR = Boolean.parseBoolean(split[3]);
+                globals.updateStats();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -185,11 +175,6 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(this.mViewPager));
 
         CheckPermissions(this);
-        // делает navigation bar прозрачым
-        //Window w = getWindow();
-        //w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        //w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        //w.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
 
@@ -232,11 +217,11 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
             database = dbHelper.open();
             cursor = database.rawQuery("SELECT _id, access_key FROM quest_step WHERE quest_id =?", new String[]{groupPosition});
             cursor.moveToPosition(Integer.parseInt(childPosition));
-            int positionIndex = cursor.getColumnIndex(DBHelper.KEY_ID_QUEST_STEP);
+            int positionIndex = cursor.getColumnIndex(DBHelper.KEY_ID__QUEST_STEP);
             int position = cursor.getInt(positionIndex);
             ContentValues cv = new ContentValues();
             cv.put(DBHelper.KEY_STATUS_QUEST_STEP, result);
-            database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID_QUEST_STEP + "=" + position, null);
+            database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID__QUEST_STEP + "=" + position, null);
             cursor.close();
             dbHelper.close();
         }
@@ -276,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
     //верхние кнопки
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         public int getCount() {
-            return 5;
+            return 4;
         }
 
         public SectionsPagerAdapter(FragmentManager fragmentManager) {
@@ -285,15 +270,15 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
 
         public Fragment getItem(int i) {
             switch (i) {
+                /*case 0:
+                    return new GeneralTab(globals);*/
                 case 0:
-                    return new GeneralTab(globals);
-                case 1:
                     return new MapOSMTab(globals);
-                case 2:
+                case 1:
                     return new PointTab(globals);
-                case 3:
+                case 2:
                     return new QRTab(globals);
-                case 4:
+                case 3:
                     return new ParentTab(globals);
                 default:
                     return null;

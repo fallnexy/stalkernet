@@ -6,11 +6,6 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +19,10 @@ import com.example.stalkernet.QuestConfirmDialog;
 import com.example.stalkernet.R;
 
 import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 
 public class QuestChildFragment extends Fragment {
@@ -65,7 +64,7 @@ public class QuestChildFragment extends Fragment {
 
         protected Cursor getChildrenCursor(Cursor groupCursor) {
             // получаем курсор по элементам для конкретной группы
-            int idColumn = groupCursor.getColumnIndex(DBHelper.KEY_ID_QUEST);
+            int idColumn = groupCursor.getColumnIndex(DBHelper.KEY_ID__QUEST);
             String stringForCursor = "SELECT _id, quest_id, description, status, access_key FROM quest_step " +
                     "WHERE quest_id =? AND access_status =?";
             return database.rawQuery(stringForCursor, new String[]{String.valueOf(groupCursor.getInt(idColumn)), "true"});
@@ -90,7 +89,7 @@ public class QuestChildFragment extends Fragment {
 
             cursor.moveToPosition(groupPosition);
             int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME_QUEST);
-            int statusIndex = cursor.getColumnIndex(DBHelper.KEY_STATUS_QUEST);
+            int statusIndex = cursor.getColumnIndex(DBHelper.KEY_STATUS__QUEST);
             int descriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION_QUEST);
             //int imageIndex = cursor.getColumnIndex(DBHelper.KEY_IMAGE_TABLE_OF_TABLES);
 
@@ -130,6 +129,8 @@ public class QuestChildFragment extends Fragment {
 
             localCursor.moveToPosition(childPosition);
             description.setText(localCursor.getString(DESCRIPTION_INDEX));
+
+            //выставляет статус завершенности квеста
             if (localCursor.getString(STATUS_INDEX).toLowerCase(Locale.ENGLISH).equals("true")){
                 ContentValues cv;
                 status.setTextColor(getResources().getColor(R.color.green));
@@ -139,10 +140,11 @@ public class QuestChildFragment extends Fragment {
                 * Далее идет определение того, выполненный подквест - последний в квесте или нет,
                 * и что делать в обоих случаях
                 */
-                int questStepId = localCursor.getInt(localCursor.getColumnIndex(DBHelper.KEY_ID_QUEST_STEP)); //id выполненного подквеста
+                int idIndex = localCursor.getColumnIndex(DBHelper.KEY_ID__QUEST_STEP);
+                int questStepId = localCursor.getInt(idIndex); //id выполненного подквеста
                 Cursor isNextStepCursor = database.rawQuery("SELECT _id, quest_id FROM quest_step WHERE quest_id =?", new String[]{String.valueOf(groupPosition + 1)});
                 isNextStepCursor.moveToLast();
-                int questId = isNextStepCursor.getInt(isNextStepCursor.getColumnIndex(DBHelper.KEY_ID_QUEST_STEP)); //id последнего подквеста в курсоре
+                int questId = isNextStepCursor.getInt(idIndex); //id последнего подквеста в курсоре
                 /*
                 * Если выполненный подквест последний в квесте, то ставит статус родительскому квесту TRUE.
                 * Иначе если id выполненного подквеста меньше id последнего подквеста в квесте, то отображеет
@@ -150,12 +152,12 @@ public class QuestChildFragment extends Fragment {
                 */
                 if (questStepId == questId){
                     cv = new ContentValues();
-                    cv.put(DBHelper.KEY_STATUS_QUEST, "true");
-                    database.update(DBHelper.TABLE_QUEST, cv, DBHelper.KEY_ID_QUEST + "=" + (groupPosition+1), null);
+                    cv.put(DBHelper.KEY_STATUS__QUEST, "true");
+                    database.update(DBHelper.TABLE_QUEST, cv, DBHelper.KEY_ID__QUEST + "=" + (groupPosition+1), null);
                 } else if(questStepId < questId){
                     cv = new ContentValues();
-                    cv.put(DBHelper.KEY_ACCESS_STATUS_QUEST_STEP, "true");
-                    database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID_QUEST_STEP + "=" + questId, null);
+                    cv.put(DBHelper.KEY_ACCESS_STATUS__QUEST_STEP, "true");
+                    database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID__QUEST_STEP + "=" + (questStepId+1), null);
                 }
                 isNextStepCursor.close();
                 notifyDataSetChanged();
@@ -225,6 +227,8 @@ public class QuestChildFragment extends Fragment {
                 childTo);
         exListQuest.setAdapter(questAdapter);
     }
+
+
     @Override
     public void onResume() {
         super.onResume();

@@ -3,6 +3,7 @@ package com.example.stalkernet;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -12,6 +13,7 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
+import static com.example.stalkernet.StatsService.LOG_CHE;
 import static com.example.stalkernet.anomaly.Anomaly.BIO;
 import static com.example.stalkernet.anomaly.Anomaly.PSY;
 import static com.example.stalkernet.anomaly.Anomaly.RAD;
@@ -30,9 +32,9 @@ public class Globals {
     Context mContext;
 
     private double[] totalProtections;
-    private double[] radProtections;
-    private double[] bioProtections;
-    private double[] psyProtections;
+    private double[] radProtectionIn;
+    private double[] bioProtectionIn;
+    private double[] psyProtectionIn;
     public ProgressBar radQuestBar, radArtBar, radSuitBar;
     public ProgressBar bioQuestBar, bioArtBar, bioSuitBar;
     public ProgressBar psyQuestBar, psyArtBar, psySuitBar;
@@ -46,12 +48,12 @@ public class Globals {
             strengthRad, strengthBio, strengthPsy,
             ProtectionRadArr, ProtectionBioArr, ProtectionPsyArr;
 
-    public TextView healthText, radText, bioText, psyText,
-            RadProtectionPercent, BioProtectionPercent, PsyProtectionPercent,
-            RadCapacityPercent, BioCapacityPercent, PsyCapacityPercent, MaxProtectionAvailable;
+    public TextView healthText, healthTextUser, radText, bioText, psyText,
+            radProtectionOut, bioProtectionOut, psyProtectionOut, radTotalProtection, bioTotalProtection,psyTotalProtection,
+            radCapacityOut, bioCapacityOut, psyCapacityOut, MaxProtectionAvailable;
     public Location location = new Location("GPS");
 
-    public int ScienceQR =1;          // не работает или работает? - вроде как обновляет вместе с обновлением координат
+    public boolean scienceQR = false;          // не работает или работает? - вроде как обновляет вместе с обновлением координат
 
 
     public Globals(Context mContext) {
@@ -72,7 +74,21 @@ public class Globals {
         this.massage = massage;
     }
 
-    // для жизней
+    /*
+    * для здоровья
+    * updateHealth обновляет в юзере
+    * updateBar обновляет на карте
+    * */
+    private void updateHealth(int maxHealth, String strHealth, TextView tvRegularFraction){
+        float health;
+        try {
+            health = Float.parseFloat(strHealth);
+        } catch (Exception unused) {
+            health = 0;
+        }
+        String regularFraction = String.format(Locale.US,"Состояние: %.0f", health) + " / " + maxHealth;
+        tvRegularFraction.setText(regularFraction);
+    }
     private void updateBar(@NonNull ProgressBar barName, int maxHealth, String strHealth, TextView perCent){
         float health;
         barName.setMax(maxHealth);
@@ -86,16 +102,19 @@ public class Globals {
         perCent.setText(percent);
     }
     // для всего остального
-    private void updateBar(double[] protectionValues, TextView perCentCapacity, TextView perCentProtection, double totalProtection){
-        String percentCapacity = "Прочность: " +
-                "Бр " + String.format(Locale.US,"%.1f", 100 * protectionValues[2] / MAX_PROTECTION_STRENGTH[2]) + "%; " +
-                "Арт " + String.format(Locale.US,"%.1f", 100 * protectionValues[1] / MAX_PROTECTION_STRENGTH[1]) + "%; " +
-                "Кв " + String.format(Locale.US,"%.1f", 100 * protectionValues[0] / MAX_PROTECTION_STRENGTH[0]) + "% ";
+    private void updateBar(double[] protectionValues, TextView perCentCapacity, TextView perCentProtection, double totalProtection, TextView tvTotalProtection){
+        String percentCapacity =
+                String.format(Locale.US,"%.1f\n", 100 * protectionValues[2] / MAX_PROTECTION_STRENGTH[2]) +
+                String.format(Locale.US,"%.1f\n", 100 * protectionValues[1] / MAX_PROTECTION_STRENGTH[1]) +
+                String.format(Locale.US,"%.1f\n", 100 * protectionValues[0] / MAX_PROTECTION_STRENGTH[0]);
 
         perCentCapacity.setText(percentCapacity);
 
-        String percentProtection = String.format(Locale.US,"Защита: Бр %.0f; Арт %.0f; Кв %.0f; ∑ %.2f", protectionValues[5], protectionValues[4], protectionValues[3], totalProtection);
+        String percentProtection = String.format(Locale.US,"%.2f\n%.2f\n%.2f", protectionValues[5], protectionValues[4], protectionValues[3]);
         perCentProtection.setText(percentProtection);
+
+        String str = String.format(Locale.US,"Итоговая защита: %.2f", totalProtection);
+        tvTotalProtection.setText(str);
     }
     /*
     * методы добавленные после начала переделки
@@ -133,13 +152,13 @@ public class Globals {
     public void setProtections(String type, double[] protections){
         switch (type){
             case RAD:
-                this.radProtections = Arrays.copyOf(protections, protections.length);
+                this.radProtectionIn = Arrays.copyOf(protections, protections.length);
                 break;
             case BIO:
-                this.bioProtections = Arrays.copyOf(protections, protections.length);
+                this.bioProtectionIn = Arrays.copyOf(protections, protections.length);
                 break;
             case PSY:
-                this.psyProtections = Arrays.copyOf(protections, protections.length);
+                this.psyProtectionIn = Arrays.copyOf(protections, protections.length);
                 break;
         }
 
@@ -169,18 +188,20 @@ public class Globals {
                             " - " +
                             String.format(Locale.US,"%.6f", location.getLongitude());
         tvCoordinate.setText(coordinate);
+        Log.d(LOG_CHE, coordinate);
     }
 
     //эта штука вызывается в MainActivity и обновяет статы, которые есть в GeneralTab
-    public void UpdateStats() {
+    public void updateStats() {
         loadSome(mContext);
+        updateHealth(maxHealth, Health, healthTextUser);
         updateBar(healthBar,maxHealth, Health, healthText);
-        updateBar(radProtections, RadCapacityPercent, RadProtectionPercent, totalProtections[0]);
-        updateBar(bioProtections, BioCapacityPercent, BioProtectionPercent, totalProtections[1]);
-        updateBar(psyProtections, PsyCapacityPercent, PsyProtectionPercent, totalProtections[2]);
-        setProtectionBars(radQuestBar, radArtBar, radSuitBar, radProtections);
-        setProtectionBars(bioQuestBar, bioArtBar, bioSuitBar, bioProtections);
-        setProtectionBars(psyQuestBar, psyArtBar, psySuitBar, psyProtections);
+        updateBar(radProtectionIn, radCapacityOut, radProtectionOut, totalProtections[0], radTotalProtection);
+        updateBar(bioProtectionIn, bioCapacityOut, bioProtectionOut, totalProtections[1], bioTotalProtection);
+        updateBar(psyProtectionIn, psyCapacityOut, psyProtectionOut, totalProtections[2], psyTotalProtection);
+        setProtectionBars(radQuestBar, radArtBar, radSuitBar, radProtectionIn);
+        setProtectionBars(bioQuestBar, bioArtBar, bioSuitBar, bioProtectionIn);
+        setProtectionBars(psyQuestBar, psyArtBar, psySuitBar, psyProtectionIn);
         setTvGestaltOpen();
         setTvMessages();
         setCoordinate();

@@ -35,7 +35,7 @@ public class GeneralTab extends Fragment {
         TextView txtRadPercent = inflate.findViewById(R.id.txtRadPercent);
         TextView txtBioPercent = inflate.findViewById(R.id.txtBioPercent);
         TextView txtPsyPercent = inflate.findViewById(R.id.txtPsyPercent);
-        TextView txtProtectionRad = inflate.findViewById(R.id.txtProtectionRad);
+        TextView txtProtectionRad = inflate.findViewById(R.id.txtProtectionRa);
         TextView txtProtectionBio = inflate.findViewById(R.id.txtProtectionBio);
         TextView txtProtectionPsy = inflate.findViewById(R.id.txtProtectionPsy);
         TextView txtCapacityProtectionRad = inflate.findViewById(R.id.txtStrengthRadProtection);
@@ -56,12 +56,12 @@ public class GeneralTab extends Fragment {
         /*globals.radText = txtRadPercent;
         globals.bioText = txtBioPercent;
         globals.psyText = txtPsyPercent;*/
-        globals.RadCapacityPercent = txtCapacityProtectionRad;
-        globals.BioCapacityPercent = txtCapacityProtectionBio;
-        globals.PsyCapacityPercent = txtCapacityProtectionPsy;
-        globals.RadProtectionPercent = txtProtectionRad;
-        globals.BioProtectionPercent = txtProtectionBio;
-        globals.PsyProtectionPercent = txtProtectionPsy;
+        //globals.radCapacityOut = txtCapacityProtectionRad;
+        //globals.bioCapacityOut = txtCapacityProtectionBio;
+        //globals.psyCapacityOut = txtCapacityProtectionPsy;
+        //globals.radProtectionOut = txtProtectionRad;
+        //globals.bioProtectionOut = txtProtectionBio;
+        //globals.psyProtectionOut = txtProtectionPsy;
         //globals.tvGestaltOpen = txtGestaltOpen;
 
         return inflate;

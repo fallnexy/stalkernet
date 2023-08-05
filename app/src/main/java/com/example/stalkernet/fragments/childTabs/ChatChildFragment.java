@@ -2,20 +2,23 @@ package com.example.stalkernet.fragments.childTabs;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.stalkernet.CodesQRAndText;
 import com.example.stalkernet.Globals;
 import com.example.stalkernet.R;
+import com.google.android.material.button.MaterialButton;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -29,14 +32,29 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import static com.example.stalkernet.StatsService.DRIFT_CORRECTION_KEY;
 import static com.example.stalkernet.StatsService.INTENT_SERVICE;
+import static com.example.stalkernet.StatsService.INTENT_SERVICE_DRIFT_CORRECTION;
+import static com.example.stalkernet.StatsService.INTENT_SERVICE_MAX_DRIFT;
 import static com.example.stalkernet.StatsService.INTENT_SERVICE_VIBRATION;
+import static com.example.stalkernet.StatsService.MAX_DRIFT_KEY;
+import static com.example.stalkernet.playerCharacter.PlayerCharacter.PREFERENCE_NAME;
+
 
 public class ChatChildFragment extends Fragment {
 
     Globals globals;
     CodesQRAndText codesQRAndText;
-    private Button btnVib;
+
+    private EditText editText;
+
+    private String[] textCodeSplitted;
+    private ImageView ivAddAnomaly;
+    private ImageView ivRemoveAnomaly;
+    private TextView txtView;
+    private TextView txtCorrection;
+    private int maxDrift;
+    private int driftCorrection;
 
     public ChatChildFragment(Globals globals) {
         this.globals = globals;
@@ -47,21 +65,38 @@ public class ChatChildFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
         View inflate = layoutInflater.inflate(R.layout.fragment_chat_child, viewGroup, false);
-        final EditText editText = inflate.findViewById(R.id.CommandLine);
-        TextView txtView = inflate.findViewById(R.id.txtViewChat);
-        setVibration(inflate);
-        ImageView ivAddAnomaly = inflate.findViewById(R.id.ivAddAnomaly);
-        ImageView ivRemoveAnomaly = inflate.findViewById(R.id.ivRemoveAnomaly);
-        // Inflate the layout for this fragment
+        editText = inflate.findViewById(R.id.CommandLine);
+        txtView = inflate.findViewById(R.id.txtViewChat);
+        ivAddAnomaly = inflate.findViewById(R.id.ivAddAnomaly);
+        ivRemoveAnomaly = inflate.findViewById(R.id.ivRemoveAnomaly);
         codesQRAndText = new CodesQRAndText(this, txtView, globals);
+        txtCorrection = inflate.findViewById(R.id.txtCorrection);
+        loadStats();
 
-        inflate.findViewById(R.id.btnBroadcastCommand).setOnClickListener(view -> {
+        setBtnCommand(inflate, editText);
+        setBtnMakeQR(inflate);
+        setBtnVibration(inflate);
+
+        setSeekBarDrift(inflate);
+
+        setSeekBarCorrection(inflate);
+
+
+
+        return inflate;
+    }
+    /*
+    * копки отправки кода команды
+    * */
+    private void setBtnCommand(View inflate, EditText editText){
+        MaterialButton sendCommand = inflate.findViewById(R.id.btnBroadcastCommand);
+        sendCommand.setOnClickListener(view -> {
             Intent intent;
             int var3;
 
             String code = String.valueOf(editText.getText());
 
-            codesQRAndText.checkCode(code, globals.ScienceQR == 1);
+            codesQRAndText.checkCode(code, globals.scienceQR);
 
             label94: {
 
@@ -303,8 +338,71 @@ public class ChatChildFragment extends Fragment {
             }
 
         });
+    }
+    /*
+    * ползунки для дрифта аномалий
+    * */
+    private void setSeekBarDrift(View inflate){
+        TextView txtMaxDrift = inflate.findViewById(R.id.txtMaxDrift);
+        txtMaxDrift.setText(String.valueOf(maxDrift));
 
-        String[] textCodeSplitted = new String[6];
+        Intent intent = new Intent(INTENT_SERVICE);
+
+        SeekBar drift = inflate.findViewById(R.id.seekBarDrift);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            drift.setMin(1);
+        }
+        drift.setMax(30);
+        drift.setProgress(maxDrift, true);
+        drift.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                txtMaxDrift.setText(String.valueOf(progress));
+                intent.putExtra(INTENT_SERVICE_MAX_DRIFT, progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                getActivity().sendBroadcast(intent);
+            }
+        });
+    }
+    private void setSeekBarCorrection(View inflate){
+        Intent intent = new Intent(INTENT_SERVICE);
+
+        SeekBar correction = inflate.findViewById(R.id.seekBarCorrection);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            correction.setMin(1);
+        }
+        correction.setMax(30);
+        correction.setProgress(driftCorrection, true);
+        correction.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                txtCorrection.setText(String.valueOf(progress));
+                intent.putExtra(INTENT_SERVICE_DRIFT_CORRECTION, progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                getActivity().sendBroadcast(intent);
+            }
+        });
+    }
+    /*
+    * кнопка создания qr
+    * */
+    private void setBtnMakeQR(View inflate){
         inflate.findViewById(R.id.btnAddAnomaly).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -352,16 +450,30 @@ public class ChatChildFragment extends Fragment {
                 }
             }
         });
-
-        return inflate;
     }
-
-    private void setVibration(View inflate) {
-        btnVib = inflate.findViewById(R.id.btnOnVib);
+    /*
+    * кнопка настройки вибрации
+    * */
+    private void setBtnVibration(View inflate) {
+        MaterialButton btnVib = inflate.findViewById(R.id.btnOnVib);
         btnVib.setOnClickListener(view -> {
             Intent intent = new Intent(INTENT_SERVICE);
             intent.putExtra(INTENT_SERVICE_VIBRATION, "turn");
             getActivity().sendBroadcast(intent);
         });
+    }
+
+    SharedPreferences sharedPreferences;
+    public void loadStats() {
+        sharedPreferences = requireActivity().getSharedPreferences(PREFERENCE_NAME,Context.MODE_PRIVATE);
+        maxDrift = sharedPreferences.getInt(MAX_DRIFT_KEY, 10);
+        driftCorrection = sharedPreferences.getInt(DRIFT_CORRECTION_KEY, 3);
+
+        txtCorrection.setText(String.valueOf(driftCorrection));
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadStats();
     }
 }

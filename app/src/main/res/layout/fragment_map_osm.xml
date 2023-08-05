@@ -6,6 +6,7 @@
     android:id="@+id/frameLayout6"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:elevation="0dp"
     tools:context=".fragments.MapOSMTab">
 
 
@@ -13,7 +14,7 @@
         android:id="@+id/clVitalStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="10dp"
+        android:elevation="1dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -250,12 +251,16 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnToUser"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:elevation="10dp"
-        app:icon="@drawable/icon_go_to_user"
+        app:backgroundTint="@null"
+        android:background="@drawable/round_green_button"
+        app:iconPadding="0dp"
+        app:iconGravity="textStart"
+        app:icon="@drawable/point"
+        app:iconSize="30dp"
         app:iconTintMode="multiply"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -292,6 +297,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:elevation="10dp"
         android:text="@string/gestalt_open"
         android:visibility="invisible"
         android:textColor="@color/Yellow"
@@ -299,10 +305,46 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtCoordinate" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMapChange"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:elevation="4dp"
+        app:icon="@drawable/map_button"
+        android:stateListAnimator="@null"
+        android:translationZ="15dp"
+        app:iconSize="25dp"
+        app:iconPadding="0dp"
+        app:iconGravity="textStart"
+        app:iconTintMode="multiply"
+        app:backgroundTint="@null"
+        android:background="@drawable/round_green_button"
+        app:layout_constraintBottom_toTopOf="@+id/btnHideOSMUserMarker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnHideOSMUserMarker"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:elevation="4dp"
+        app:backgroundTint="@null"
+        android:background="@drawable/round_green_button"
+        app:iconTintMode="multiply"
+        app:iconSize="25dp"
+        app:iconPadding="0dp"
+        app:iconGravity="textStart"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <org.osmdroid.views.MapView
         android:id="@+id/mapOSM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:elevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 

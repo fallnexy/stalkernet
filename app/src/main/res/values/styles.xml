@@ -7,7 +7,6 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">#FFE925</item>
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
-        <item name="background">@drawable/fon_0521</item>
     </style>
     <style name="AppThemeNew" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->

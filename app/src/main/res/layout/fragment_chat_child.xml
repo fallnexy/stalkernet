@@ -43,6 +43,7 @@
                 android:layout_marginEnd="102dp"
                 android:text="QR код для удаления аномалии"
                 android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ivAddAnomaly" />
@@ -68,18 +69,21 @@
                 android:layout_marginEnd="93dp"
                 android:text="QR код для добавления аномалии"
                 android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnOnVib" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBroadcastCommand"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/button_action_0521"
+                app:backgroundTint="@color/creedTwo"
+                android:stateListAnimator="@null"
+                android:elevation="10dp"
                 android:text="Ввести"
                 android:textColor="@color/common_google_signin_btn_text_dark_pressed"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -94,15 +98,14 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/enter_field_0521"
-                android:inputType=""
                 android:gravity="center"
+                android:inputType=""
                 android:textColor="@color/common_google_signin_btn_text_dark_default"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:visibility="invisible"
                 android:id="@+id/btnAddAnomaly"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
@@ -112,17 +115,18 @@
                 android:background="@drawable/button_action_0521"
                 android:text="Сделать QR код"
                 android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnOnVib" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOnVib"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/button_action_0521"
+                app:backgroundTint="@color/creedTwo"
                 android:text="вибрация"
                 android:textColor="@color/common_google_signin_btn_text_dark_pressed"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -152,6 +156,82 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView5"
                 tools:src="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/txtMaxDriftDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Максимально допустимое смещение, м"
+                android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                app:layout_constraintEnd_toStartOf="@+id/txtMaxDrift"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivRemoveAnomaly" />
+
+            <TextView
+                android:id="@+id/txtMaxDrift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="число"
+                android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/txtMaxDriftDescription"
+                app:layout_constraintTop_toBottomOf="@+id/ivRemoveAnomaly" />
+
+            <SeekBar
+                android:id="@+id/seekBarDrift"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtMaxDriftDescription" />
+
+            <TextView
+                android:id="@+id/txtCorrectionDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="Коррекция смещения, м"
+                android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                app:layout_constraintEnd_toStartOf="@+id/txtCorrection"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seekBarDrift" />
+
+            <TextView
+                android:id="@+id/txtCorrection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:text="число"
+                android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/txtCorrectionDescription"
+                app:layout_constraintTop_toBottomOf="@+id/seekBarDrift" />
+
+            <SeekBar
+                android:id="@+id/seekBarCorrection"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtCorrection" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

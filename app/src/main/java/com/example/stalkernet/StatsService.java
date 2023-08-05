@@ -91,21 +91,26 @@ public class StatsService extends Service {
     public static final String INTENT_SERVICE_SOUND = "effect_manager";
     public static final String INTENT_SERVICE_TEST_COORDINATE = "drag_marker";
     public static final String INTENT_SERVICE_VIBRATION = "vibration";
+    public static final String INTENT_SERVICE_MAX_DRIFT = "max_drift";
+    public static final String INTENT_SERVICE_DRIFT_CORRECTION = "drift_correction";
     public static final String SEND_CONTAMINATION = "send_contamination";
     public static final String SEND_TOTAL_PROTECTIONS = "send_total_protections";
     public static final String SEND_RAD_PROTECTIONS = "send_rad_protections";
     public static final String SEND_BIO_PROTECTIONS = "send_bio_protections";
     public static final String SEND_PSY_PROTECTIONS = "send_psy_protections";
     public static final String CURRENT_KEY = "current_key";
+    public static final String MAX_DRIFT_KEY = "max_drift_key";
+    public static final String DRIFT_CORRECTION_KEY = "drift_correction_key";
 
-    //TODO сделать коды переключения между персонажами
     public static final double MAX_CONTAMINATION = 1000;
     public static final double MAX_CONTAMINATION_LEGEND = 1500;
     public static final String GESTALT_ID = "1";
     // создает экземпляр персонажа игрока и аномалии
-    private int current = 0;
+    private int current;
     public PlayerCharacter[] playerCharacter;
     public Anomaly[] anomaly;
+    public Quest quest;
+    public Tool tools;
     public QRAnomaly qrAnomaly;
     public WifiAnomaly wifiAnomaly;
     public Discharge discharge;
@@ -117,7 +122,7 @@ public class StatsService extends Service {
     private boolean isInsideAnomaly = false;
     private HashMap<String, Integer> anomalyMap = new HashMap<>();
     private HashMap<Integer, Integer> factionMap = new HashMap<>();
-    private  ContentValues contentValues;
+
     DBHelper dbHelper;
     SQLiteDatabase database;
     Cursor cursor;
@@ -126,6 +131,9 @@ public class StatsService extends Service {
     public Location myLocation = new Location("GPS");
     public Location myCurrentLocation;
 
+    private int maxDrift;
+    private int driftCorrection;
+    public boolean scienceQR;
     //нужность переменных неизвестна
     //private static final int ID_SERVICE = 101;
     public int NUMBER_OF_ANOMALIES = 0; // задается в onCreate
@@ -153,7 +161,7 @@ public class StatsService extends Service {
 
     public boolean vibrate = true;
     public boolean Sound = true;
-    public int ScienceQR = 1;// не работает
+
 
     private Calendar cal = Calendar.getInstance();
     private int Hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -270,7 +278,19 @@ public class StatsService extends Service {
                 int factionIndex = cursor.getColumnIndex(DBHelper.KEY_FACTION_ID__USER);
                 current = factionMap.get(cursor.getInt(factionIndex));
                 cursor.close();
+
+
                 saveStats();
+                loadStats();
+                quest.isQuestAvailable(input);
+            }
+            int intInput = intent.getIntExtra(INTENT_SERVICE_MAX_DRIFT, -1);
+            if (intInput > 0){
+                setMaxDrift(intInput);
+            }
+            intInput = intent.getIntExtra(INTENT_SERVICE_DRIFT_CORRECTION, -1);
+            if (intInput > 0){
+                setDriftCorrection(intInput);
             }
         }
     };
@@ -301,11 +321,11 @@ public class StatsService extends Service {
                        break label110;
                    case "sc1":  //sc1 код по типу sc1@rad@suit@80@
                                 //                 0   1   2   3
-                       try {
+                       //try {
                            playerCharacter[current].setProtection(textCodeSplitted[1],textCodeSplitted[2],Double.parseDouble(textCodeSplitted[3]));
-                       } catch (Exception e) {
-                           e.printStackTrace();
-                       }
+                       //} catch (Exception e) {
+                       //    e.printStackTrace();
+                       //}
                        shit = -1;
                        break label110;
                    case "sc2": // sc2@rad@25
@@ -545,50 +565,8 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case 1071529183:
-                       if (fromCommand.equals("bioProt10030")) {
-                           shit = 45;
-                           break label110;
-                       }
-                       break;
-                   case 1071529276:
-                       if (fromCommand.equals("bioProt10060")) {
-                           shit = 46;
-                           break label110;
-                       }
-                       break;
-                   case 1071529369:
-                       if (fromCommand.equals("bioProt10090")) {
-                           shit = 47;
-                           break label110;
-                       }
-                       break;
-                   case 123907793:
-                       if (fromCommand.equals("psyProt10030")) {
-                           shit = 48;
-                           break label110;
-                       }
-                       break;
-                   case 123907886:
-                       if (fromCommand.equals("psyProt10060")) {
-                           shit = 49;
-                           break label110;
-                       }
-                       break;
-                   case 123907979:
-                       if (fromCommand.equals("psyProt10090")) {
-                           shit = 50;
-                           break label110;
-                       }
-                       break;
                    case -1975691119:
                        if (fromCommand.equals("discharge10Sc")) {
-                           shit = 51;
-                           break label110;
-                       }
-                       break;
-                   case -1975691677: // защита от выброса на10 минут
-                       if (fromCommand.equals("discharge10BD")) {
                            shit = 51;
                            break label110;
                        }
@@ -852,7 +830,7 @@ public class StatsService extends Service {
                    playerCharacter[current].setMineAvailable(true);
                    ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).setProtected(GESTALT_ID);
 
-                   ScienceQR = 1; // больше не ученый
+                   scienceQR = false; // больше не ученый
                    DischargeImmunity = false;
 
                    intent1 = new Intent("StatsService.Message");
@@ -897,10 +875,12 @@ public class StatsService extends Service {
                    break;
                    //новые коды
                case 23:
-                   ScienceQR = 1;
+                   tools.setScienceQR(user_id, true);
+                   scienceQR = true;
                    break;
                case 24:
-                   ScienceQR = 0;
+                   tools.setScienceQR(user_id, false);
+                   scienceQR = false;
                    break;
                case 29:
                    IS_ANOMALIES_AVAILABLE = true;
@@ -919,13 +899,13 @@ public class StatsService extends Service {
                    }, 3600000);
                    break;
                case 31: // этот и следующие 2 - шприцы от рад и био
-                   setHealthBy_BD("rad", -75, true, 9);
+                   setGleb_Mech("rad", -75, true, 9);
                    break;
                case 32:
-                   setHealthBy_BD("bio", -75, true, 9);
+                   setGleb_Mech("bio", -75, true, 9);
                    break;
                case 33:
-                   setHealthBy_BD("Health", 40, false, 0);
+                   setGleb_Mech("Health", 40, false, 0);
                    break;
                case 34: // этот и два следующих - обнуление защит
                    Arrays.fill(RadProtectionArr, 0);
@@ -1000,37 +980,37 @@ public class StatsService extends Service {
                    Bio -= 0.15 * Bio;
                    break;
                case 90: //Здесь и далее глеб
-                   setHealthBy_BD("rad", -65, true, 9);
+                   setGleb_Mech("rad", -65, true, 9);
                    break;
                case 91:
-                   setHealthBy_BD("rad", -75, true, 9);
+                   setGleb_Mech("rad", -75, true, 9);
                    break;
                case 92:
-                   setHealthBy_BD("rad", -85, true, 9);
+                   setGleb_Mech("rad", -85, true, 9);
                    break;
                case 93:
                    Rad = 0;
                    break;
                case 94:
-                   setHealthBy_BD("bio", -65, true, 9);
+                   setGleb_Mech("bio", -65, true, 9);
                    break;
                case 95:
-                   setHealthBy_BD("bio", -75, true, 9);
+                   setGleb_Mech("bio", -75, true, 9);
                    break;
                case 96:
-                   setHealthBy_BD("bio", -85, true, 9);
+                   setGleb_Mech("bio", -85, true, 9);
                    break;
                case 97:
                    Bio = 0;
                    break;
                case 98:
-                   setHealthBy_BD("Health", 60, true, 9);
+                   setGleb_Mech("Health", 60, true, 9);
                    break;
                case 99:
-                   setHealthBy_BD("Health", 70, true, 9);
+                   setGleb_Mech("Health", 70, true, 9);
                    break;
                case 100:
-                   setHealthBy_BD("Health", 80, true, 9);
+                   setGleb_Mech("Health", 80, true, 9);
                    break;
                case 101:
                    Health = MaxHealth;
@@ -1045,7 +1025,7 @@ public class StatsService extends Service {
         return null;
     }
 // для qr болотного доктора
-    private void setHealthBy_BD (String type, int quantity, boolean isRandom, int rangeOfRandom){
+    private void setGleb_Mech(String type, int quantity, boolean isRandom, int rangeOfRandom){
         switch (type){
             case "Health":
                 if(isRandom){
@@ -1114,6 +1094,10 @@ public class StatsService extends Service {
         anomaly[2] = new OasisAnomaly(this);
         anomaly[3] = new MineAnomaly(this,database,cursor);
 
+        quest = new Quest(database, cursor);
+        tools = new Tool(database, cursor);
+        scienceQR = tools.getScienceQR(user_id);
+
         discharge = new Discharge(this, database, cursor);
 
         loadStats();
@@ -1162,7 +1146,6 @@ public class StatsService extends Service {
             database.close();
         }
     }
-
     private void checkPermissions() {
         while (!LocationUpdatesStarted) {
             if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_GRANTED) {
@@ -1174,6 +1157,27 @@ public class StatsService extends Service {
                 Toast.makeText(this, "Location updates have been started.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    /*
+     * сеттеры и геттеры для максимально допустимого смещения координаты и ее коррекции
+     * */
+    public int getMaxDrift() {
+        return maxDrift;
+    }
+
+    public void setMaxDrift(int maxDrift) {
+        this.maxDrift = maxDrift;
+        if (maxDrift < getDriftCorrection()){
+            setDriftCorrection(maxDrift);
+        }
+    }
+
+    public int getDriftCorrection() {
+        return driftCorrection;
+    }
+
+    public void setDriftCorrection(int driftCorrection) {
+        this.driftCorrection = Math.min(driftCorrection, getMaxDrift());
     }
 
     /*
@@ -1198,6 +1202,8 @@ public class StatsService extends Service {
         saveStats();
     }
     public void setOutPutString(){
+        Intent intent = new Intent("StatsService.Update");
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(playerCharacter[current].getHealth()); //0
         stringBuilder.append(":");
@@ -1205,10 +1211,10 @@ public class StatsService extends Service {
         stringBuilder.append(":");
         stringBuilder.append(myCurrentLocation.getLongitude());//6
         stringBuilder.append(":");
-        stringBuilder.append(ScienceQR);  //qr ученого//6
+        stringBuilder.append(scienceQR);  //qr ученого//6
         stringBuilder.append(":");
         String stringBuilder2 = stringBuilder.toString();
-        Intent intent = new Intent("StatsService.Update");
+
         intent.putExtra("Stats", stringBuilder2);
         intent.putExtra(SEND_CONTAMINATION, playerCharacter[current].getIntContamination(true));
         intent.putExtra(SEND_TOTAL_PROTECTIONS, playerCharacter[current].getStringTotalProtections());
@@ -1449,6 +1455,10 @@ public class StatsService extends Service {
         sharedPreferences = this.getSharedPreferences(PREFERENCE_NAME,Context.MODE_PRIVATE);
         current = sharedPreferences.getInt(CURRENT_KEY, 0);
         user_id = sharedPreferences.getInt(USER_ID_KEY, 1);
+        maxDrift = sharedPreferences.getInt(MAX_DRIFT_KEY, 10);
+        driftCorrection = sharedPreferences.getInt(DRIFT_CORRECTION_KEY, 3);
+        scienceQR = sharedPreferences.getBoolean("ScienceQR", false);
+
         playerCharacter[current].setHealth(sharedPreferences.getFloat(HEALTH_KEY, 2000));
         playerCharacter[current].setMaxHealth(sharedPreferences.getInt(MAX_HEALTH_KEY, 2000));
         playerCharacter[current].setName(sharedPreferences.getString(NAME_KEY, "Иван"));
@@ -1468,7 +1478,7 @@ public class StatsService extends Service {
         setAnomalyMap();
         setFactionMap();
 
-        this.ScienceQR = Integer.parseInt(Objects.requireNonNull(sharedPreferences.getString("ScienceQR", "1")));
+
         this.DischargeImmunity = Boolean.parseBoolean(sharedPreferences.getString("DischargeImmunity", "false"));
         this.IsUnlocked = Boolean.parseBoolean(sharedPreferences.getString("Lock", "true"));
         this.IS_ANOMALIES_AVAILABLE = Boolean.parseBoolean(Objects.requireNonNull(sharedPreferences.getString("IS_ANOMALIES_AVAILABLE", "true")));
@@ -1493,9 +1503,11 @@ public class StatsService extends Service {
 
         edit.putInt(CURRENT_KEY, current);
         edit.putInt(USER_ID_KEY, user_id);
+        edit.putInt(MAX_DRIFT_KEY, maxDrift);
+        edit.putInt(DRIFT_CORRECTION_KEY, driftCorrection);
 
 
-        edit.putString("ScienceQR", Integer.toString(this.ScienceQR));
+        edit.putBoolean("ScienceQR", scienceQR);
         edit.putString("DischargeImmunity", Boolean.toString(this.DischargeImmunity));
         edit.putString("Lock", Boolean.toString(this.IsUnlocked));
         edit.putString("IS_ANOMALIES_AVAILABLE", Boolean.toString(this.IS_ANOMALIES_AVAILABLE));

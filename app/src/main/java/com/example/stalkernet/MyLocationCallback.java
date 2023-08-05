@@ -45,22 +45,17 @@ public class MyLocationCallback extends LocationCallback {
         super.onLocationAvailability(locationAvailability);
     }
     /*
-    * если координта поменялась больше, чем на 10 метров, то подменяет координату на такую,
-    * что расстояние поменялось на 3 метра
+    * если координта поменялась больше, чем на service.getMaxDrift() метров, то подменяет координату на такую,
+    * что расстояние поменялось на service.getDriftCorrection() метра
     * */
     private Location simpleLocationPredictor(Location previousLocation, Location currentLocation) {
         double distance = previousLocation.distanceTo(currentLocation);
-        if (distance > 10) {
-            // If the distance between the two locations is more than 10 meters,
-            // reduce the distance to 3 meters and calculate the new location
-            double factor = 3.0 / distance;
+        if (distance > service.getMaxDrift()) {
+            double factor = service.getDriftCorrection() / distance;
             double x = previousLocation.getLatitude() + factor * (currentLocation.getLatitude() - previousLocation.getLatitude());
             double y = previousLocation.getLongitude() + factor * (currentLocation.getLongitude() - previousLocation.getLongitude());
             currentLocation.setLatitude(x);
             currentLocation.setLongitude(y);
-            /*Log.d("ну чече", "distance = " + newLocation.distance(previousLocation));
-            Log.d("ну чече", "lat = " + factor * (currentLocation.x - previousLocation.x));
-            Log.d("ну чече", "lon = " + factor * (currentLocation.y - previousLocation.y));*/
         }
         return currentLocation;
     }

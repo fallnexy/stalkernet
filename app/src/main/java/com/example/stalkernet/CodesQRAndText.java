@@ -130,18 +130,6 @@ public class CodesQRAndText {
                     textAndCoolDown(intent, 90000, R.string.injectorHP, R.string.injectorHPsc, R.string.injectorHPdawn, "injectorHP", code, scienceQR);
                     var1 = -1;
                     break label94;
-                case "разреш1тип":
-                    simpleSendMessageAndText(intent, R.string.setOneProtectionAvailable, "setOneProtAv");
-                    var1 = -1;
-                    break label94;
-                case "разреш2тип":
-                    simpleSendMessageAndText(intent, R.string.setTwoProtectionsAvailable, "setTwoProtAv");
-                    var1 = -1;
-                    break label94;
-                case "разреш3тип":
-                    simpleSendMessageAndText(intent, R.string.setThreeProtectionsAvailable, "setThreeProtAv");
-                    var1 = -1;
-                    break label94;
                 case "sc1":
                 case "sc2":
                     textView.setText(makeSCText(textCodeSplitted));
@@ -286,11 +274,6 @@ public class CodesQRAndText {
                         var3 = 17;
                         break label94;
                     }
-                case 425265276: //
-                    if (code.equals("чекинвыброс")) {
-                        var3 = 30;
-                        break label94;
-                    }
                 case -1759609022: //
                     if (code.equals("наукада")) {
                         var3 = 33;
@@ -394,10 +377,6 @@ public class CodesQRAndText {
                 break;
             case 29:
                 intent.putExtra("Command", "штраф");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 30:
-                intent.putExtra("Command", "discharge10BD");
                 ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                 break;
             case 31:

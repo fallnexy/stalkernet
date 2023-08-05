@@ -77,15 +77,15 @@ public class QRTab extends Fragment implements View.OnClickListener{
         useFlash = inflate.findViewById(R.id.use_flash);
 
         inflate.findViewById(R.id.read_barcode).setOnClickListener(this);
-        inflate.findViewById(R.id.pre_read_barcode).setOnClickListener(this);
+        inflate.findViewById(R.id.apply_qr).setOnClickListener(this);
         btnScienceQR = inflate.findViewById(R.id.btnScienceQR);
         btnScienceQR.setOnClickListener(this);
-        /*if (globals.ScienceQR == 1 *//*|| isScienceQR*//*) {
+
+        if (globals.scienceQR){
             btnScienceQR.setVisibility(View.VISIBLE);
+        } else {
+            btnScienceQR.setVisibility(View.INVISIBLE);
         }
-        if (globals.ScienceQR == 0 *//*|| !isScienceQR*//*){*/
-            btnScienceQR.setVisibility(View.VISIBLE);
-        //}
 
         codesQRAndText = new CodesQRAndText(this, barcodeValue, globals);
 
@@ -93,6 +93,13 @@ public class QRTab extends Fragment implements View.OnClickListener{
         secondTime = 0;
         cooldown_time = new long[25];
         composites = new Spanned[20];
+        setComposites();
+
+        LoadBarcodeText();
+        return inflate;
+    }
+
+    private void setComposites(){
         composites[0] = Html.fromHtml(getString(R.string.composite_detected));
         composites[1] = Html.fromHtml(getString(R.string.composite_continue));
         composites[2] = Html.fromHtml(getString(R.string.composite_canceled));
@@ -108,16 +115,13 @@ public class QRTab extends Fragment implements View.OnClickListener{
         composites[12] = Html.fromHtml(getString(R.string.art_status_jt0dfct2w0));
         composites[13] = Html.fromHtml("getString(R.string.art_status_monolithMech_fail)");
         composites[14] = Html.fromHtml("getString(R.string.art_status_monolithMech_fail_2)");
-
-        LoadBarcodeText();
-        return inflate;
     }
 /*
 * QR ученого
 * */
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.pre_read_barcode) {
+        if (v.getId() == R.id.apply_qr) {
             //isScienceQR = false;
             scienceQR = false;
             pre_scan = true;
@@ -233,12 +237,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
 
-                        case "12543659521":
-                            barcodeValue.setText("Защита от радиации на 2 часа поставлена");
-                            intent.putExtra("Command", "TwoHoursRadProtection");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-
                         case "явсемогущий+":
                             barcodeValue.setText("Неуязвимость включена");
                             intent.putExtra("Command", "God");
@@ -249,111 +247,15 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             intent.putExtra("Command", "noMoreGod");
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "чекинвыброс":
-                            barcodeValue.setText("Пользователь защищён от выброса на 10 минут.");
-                            intent.putExtra("Command", "discharge10BD");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "aperfjbasj":
-                            barcodeValue.setText("Боец Чистого Неба показывает вам безопасный путь к базе");
-                            intent.putExtra("Command", "clear4");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                            ///////////////////////////////////////////////////////////////////////////////
+
                             ///////////////////////////////////////////////////////////////////////////////
                             ////////////////////////////////////////////////////////////////////////////// сентябрь 2020
 
-                        case "z1z1ab6fu0kf3ie": // этот и ещё 4 кодов на жизни
-                            barcodeValue.setText("Пользователь при смерти. Требуется срочная медицинская помощь.");
-                            intent.putExtra("Command", "health5");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "a1a3d8a04e4v97b":
-                            barcodeValue.setText("Пользователь в критическом состоянии. Требуется срочная медицинская помощь.");
-                            intent.putExtra("Command", "health25");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "xoiu32t19zp0qew":
-                            barcodeValue.setText("Пользователь в стабильном состоянии. Обратитесь за квалифицированной помощью при первой возможности.");
-                            intent.putExtra("Command", "health50");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "glykfcose20cc46":
-                            barcodeValue.setText("Жизненные показатели в пределах нормы.");
-                            intent.putExtra("Command", "health75");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "wr73d9dw8uv1tsi":
-                            barcodeValue.setText("Пользователь здоров.");
-                            intent.putExtra("Command", "health100");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "012zfy971xlsoez": // далее идут различные защиты
-                            barcodeValue.setText("Активирована защита костюма от радиационного воздействия.");
-                            intent.putExtra("Command", "SetRadProtection100"); // написано, что 100, но на самом деле 90
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "t5izlre4vhdegt0": // это защита и предыдущая используют код от цифровых ключей
-                            barcodeValue.setText("Активирована защита костюма от биологического воздействия.");
-                            intent.putExtra("Command", "SetBioProtection100"); // написано, что 100, но на самом деле 90
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "1k35ibpbiinxq38":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от радиационного воздействия: нестабильный.");
-                            intent.putExtra("Command", "radProt10030");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "ex2jvbswz1wmgyy":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от радиационного воздействия: умеренный.");
-                            intent.putExtra("Command", "radProt10060");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "77gnxcdh115bd32":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от радиационного воздействия: надёжный.");
-                            intent.putExtra("Command", "radProt10090");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "burx446yy1c6z3p":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от биологического воздействия: нестабильный.");
-                            intent.putExtra("Command", "bioProt10030");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "qev1ngqe58yz70r":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от биологического воздействия: умеренный.");
-                            intent.putExtra("Command", "bioProt10060");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "r7j2l73s278ty3l":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от биологического воздействия: надёжный.");
-                            intent.putExtra("Command", "bioProt10090");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "k6q8g4dstmtzfau":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от воздействия пси-полей: нестабильный.");
-                            intent.putExtra("Command", "psyProt10030");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "3q7nd4zssllogyw":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от воздействия пси-полей: умеренный.");
-                            intent.putExtra("Command", "psyProt10060");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "876kpgh006m08tx":
-                            barcodeValue.setText("Применён эффект аномального образования. Уровень защиты от воздействия пси-полей: надёжный.");
-                            intent.putExtra("Command", "psyProt10090");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
                         case "dh22ibvye055lq3":
                             barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Устройство зарегистрировано на 10 минут.");
                             intent.putExtra("Command", "discharge10Sc");
                             QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                             return;
-                        case "30f23o9miysuvas":
-                            barcodeValue.setText("Зафиксировано кратковременное локальное искажение пространства. Пользователь защищён от Выброса на короткое время.");
-                            intent.putExtra("Command", "discharge10BD");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-
                         case "i8qpfu02xjuvmzu":
                             barcodeValue.setText("Синхронизация оборудования с локальным рассеивателем вредоносных частиц. Устройство зарегистрировано на 30 минут.");
                             intent.putExtra("Command", "discharge45");
@@ -705,69 +607,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             database.close();
                             textOnArt(R.string.quest_21_02_0, str);
                             return;
-                        case "mono37":
-                            int str_1 = R.string.quest_21_02sc;
-                            Location point_location_m = new Location("GPS"); //64.353468, 40.743153
-                            point_location_m.setLatitude(64.353468);
-                            point_location_m.setLongitude(40.743153);
-                            double distanceToPoint_m = point_location_m.distanceTo(globals.location);
-                            if(distanceToPoint_m <= 35){
-                                textOnArt(R.string.mono_1, str_1);
-                                return;
-                            }
-                            Location point_location_1_m = new Location("GPS"); //64.354130, 40.743956
-                            point_location_1_m.setLatitude(64.354130d);
-                            point_location_1_m.setLongitude(40.743956d);
-                            double distanceToPoint_1_m = point_location_1_m.distanceTo(globals.location);
-                            if (distanceToPoint_1_m <= 20){
-                                textOnArt(R.string.mono_2, str_1);
-                                return;
-                            }
-                            Location point_location_2_m = new Location("GPS"); //64.353162, 40.737232
-                            point_location_2_m.setLatitude(64.353162d);
-                            point_location_2_m.setLongitude(40.737232d);
-                            double distanceToPoint_2_m = point_location_2_m.distanceTo(globals.location);
-                            if (distanceToPoint_2_m <= 50){
-                                textOnArt(R.string.mono_3, str_1);
-                                return;
-                            }
-                            Location point_location_3_m = new Location("GPS"); //64.352157, 40.730430
-                            point_location_3_m.setLatitude(64.352157d);
-                            point_location_3_m.setLongitude(40.730430d);
-                            double distanceToPoint_3_m = point_location_3_m.distanceTo(globals.location);
-                            if (distanceToPoint_3_m <= 20){
-                                textOnArt(R.string.mono_4, str_1);
-                                return;
-                            }
-                            Location point_location_4_m = new Location("GPS"); //64.356972, 40.721597
-                            point_location_4_m.setLatitude(64.356972d);
-                            point_location_4_m.setLongitude(40.721597d);
-                            double distanceToPoint_4_m = point_location_4_m.distanceTo(globals.location);
-                            if (distanceToPoint_4_m <= 20){
-                                textOnArt(R.string.mono_5, str_1);
-                                return;
-                            }
-                            textOnArt(R.string.quest_21_02_0, str_1);
-                            return;
-                        case "olkkihlsyf":
-                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_1, R.string.quest_21_06sc, 20d);
-                            return;
-                        case "qirhtruhoc":
-                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_2, R.string.quest_21_06sc, 20d);
-                            return;
-                        case "zvkwridurj":
-                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_3, R.string.quest_21_06sc, 20d);
-                            return;
-                        case "enogktjwkl":
-                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_4, R.string.quest_21_06sc, 20d);
-                            return;
-                        case "gcedsruvlp":
-                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_5, R.string.quest_21_06sc, 20d);
-                            return;
-                        case "nzwgnqmzpc":
-                            simpleLocationDepend(64.35714851769004d, 40.72133372676017d, R.string.quest_21_06out, R.string.quest_21_06_6, R.string.quest_21_06sc, 20d);
-                            return;
-
                             //здесь и далее Глеб
                         case "radiation":
                             textAndCoolDown(intent, 0, 2400000, R.string.glebRad0,R.string.glebRadsc, R.string.glebRadDawn, "radiation");
@@ -886,152 +725,6 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             stalkerRoulette();
                             textAndCoolDown(intent, 24, 300000, R.string.art_21_dang, R.string.art_21_28sc, R.string.art_21_dawn_1, "nope");
                             return;
-                        case "gbmiavcnwe":
-                            textOnArt(R.string.quest_21_01, R.string.quest_21_01sc);
-                            return;
-                        case "hwhfkrpois":
-                            textOnArt(R.string.quest_21_05, R.string.quest_21_05sc);
-                            return;
-                        case "y1tb4a41ax5bx2f":
-                            textOnArt(R.string.quest_21_12, R.string.empty_string);
-                            return;
-                        case "ohcgmehbyb":
-                            textOnArt(R.string.quest_21_13, R.string.quest_21_13sc);
-                            return;
-                        case "igtdaixicb":
-                            barcodeValue.setText(R.string.quest_21_14);
-                            return;
-                        case "lnbhxllvvt":
-                            barcodeValue.setText(R.string.quest_21_15);
-                            return;
-                        case "samnwsyuxx":
-                            barcodeValue.setText(R.string.quest_21_16);
-                            return;
-                        case "swygbgulnj":
-                            barcodeValue.setText(R.string.quest_21_17);
-                            return;
-                        case "cpehrpgzsi":
-                            barcodeValue.setText(R.string.quest_21_18);
-                            return;
-                        case "rrescqknte":
-                            barcodeValue.setText(R.string.quest_21_19);
-                            return;
-                        case "yctwpgxnnq":
-                            barcodeValue.setText(R.string.quest_21_20);
-                            return;
-                        case "elfjpnbrhb":
-                            barcodeValue.setText(R.string.quest_21_21);
-                            return;
-                        case "zwtcojlmsr":
-                            barcodeValue.setText(R.string.quest_21_22);
-                            return;
-                        case "xmzbqdtpps":
-                            barcodeValue.setText(R.string.quest_21_23);
-                            return;
-                        case "eebpfgdiqw":
-                            barcodeValue.setText(R.string.quest_21_24);
-                            return;
-                        case "coslhafgne":
-                            barcodeValue.setText(R.string.quest_21_25);
-                            return;
-                        case "gktdfyrrda":
-                            barcodeValue.setText(R.string.quest_21_26);
-                            return;
-                        case "amkstawjtg":
-                            barcodeValue.setText(R.string.quest_21_27);
-                            return;
-                        case "zyrbhecbvs":
-                            barcodeValue.setText(R.string.quest_21_28);
-                            return;
-                        case "uhgjtwdygz":
-                            textOnArt(R.string.quest_21_29, R.string.quest_21_29sc);
-                            return;
-                        case "yswhfypvtg":
-                            barcodeValue.setText(R.string.quest_21_30);
-                            return;
-                        case "psytwdicgo":
-                            barcodeValue.setText(R.string.quest_21_31);
-                            return;
-                        case "wuwapfrfci":
-                            barcodeValue.setText(R.string.quest_21_32);
-                            return;
-                        case "isfjzmeadf":
-                            barcodeValue.setText(R.string.quest_21_33);
-                            return;
-                        case "ltrxtkpapb":
-                            barcodeValue.setText(R.string.quest_21_34);
-                            return;
-                        case "sihroxooxg":
-                            barcodeValue.setText(R.string.quest_21_35);
-                            return;
-                        case "wciotomxpk":
-                            barcodeValue.setText(R.string.quest_21_36);
-                            return;
-                        case "rnlbvlfaqj":
-                            barcodeValue.setText(R.string.quest_21_37);
-                            return;
-                        case "hfcqafirdj":
-                            barcodeValue.setText(R.string.quest_21_38);
-                            return;
-                        case "hjravnikxn":
-                            textOnArt(R.string.quest_21_39, R.string.quest_21_39sc);
-                            return;
-                        case "eukebgdxuz":
-                            textOnArt(R.string.quest_21_40, R.string.quest_21_40sc);
-                            return;
-                        case "tfvajqrxvh":
-                            barcodeValue.setText(R.string.quest_21_41);
-                            return;
-                        case "pryynkqqsm":
-                            barcodeValue.setText(R.string.quest_21_42);
-                            return;
-                        case "kwxtyregob":
-                            barcodeValue.setText(R.string.quest_21_43);
-                            return;
-                        case "rbcldsgiyu":
-                            barcodeValue.setText(R.string.quest_21_44);
-                            return;
-                        case "csyvxiwfmp":
-                            barcodeValue.setText(R.string.quest_21_45);
-                            return;
-                        case "pxgqbanfuz":
-                            textOnArt(R.string.quest_21_46, R.string.quest_21_46sc);
-                            return;
-                        case "ixdpwulpic": // здесь и далее установка защит
-                            barcodeValue.setText(R.string.protection_21_04);
-                            intent.putExtra("Command", "sc1, bio, suit, 80");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "vaxhhgwbob": // здесь и далее установка защит
-                            barcodeValue.setText(R.string.protection_21_05);
-                            intent.putExtra("Command", "sc1, rad, suit, 80");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "fgmkzxrddw": // здесь и далее установка защит
-                            barcodeValue.setText(R.string.protection_21_06);
-                            intent.putExtra("Command", "sc1, bio, suit, 50");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "mtqlvkqorz": // здесь и далее установка защит
-                            barcodeValue.setText(R.string.protection_21_07);
-                            intent.putExtra("Command", "sc1, bio, suit, 25");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "rqxdohhlcs": // здесь и далее установка защит
-                            barcodeValue.setText(R.string.protection_21_08);
-                            intent.putExtra("Command", "sc1, rad, suit, 25");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "bzqglooxoc": // здесь и далее установка защит
-                            barcodeValue.setText(R.string.protection_21_09);
-                            intent.putExtra("Command", "sc1, bio, suit, 50");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
-                        case "kpqufqpwae": // здесь и далее установка защит
-                            barcodeValue.setText(R.string.protection_21_10);
-                            intent.putExtra("Command", "sc1, rad, suit, 50");
-                            QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                            return;
                         case "коссева": // здесь и далее установка защит
                             barcodeValue.setText("Надет костюм СЕВА (80% БИО)");
                             intent.putExtra("Command", "sc1, bio, suit, 80");
@@ -1096,22 +789,11 @@ public class QRTab extends Fragment implements View.OnClickListener{
                     String str = "mpjvqlzkws"; //"Соня не убивала" -1022716346     // "health5" 795560281       // "BDplus2Health"    -16716590  // "dolgDischargeImmunity"  -1449685624 // gestalt_closed_3   1910275381
                     String str2 = "xrjoqykant"; //"ScienceQR" -1555514523    // "health25" -1107435105     // "BDplus5Health"   -1649172843  // "dolgDischargeImmunity"  1259972122      // gestalt_closed_4   1910275382
                     String str3 = "pjiscyunaf"; //"ScienceQRoff" -1930888214 //  "health50" -1107435017    // "BDplus10Health"    1381804599  // "mechMinus60Rad"  -1658045336             // monolithStrong   1989494219
-                    String str4 = "гагры"; //"G" 71                  // "health75"  -1107434950       // "BDplus45HealthRandom"  1036792636  //  "mechMinus60Bio"  -1658060453        // monolithWeak  1749658540
+                    String str4 = "гагры"; //"G" 71                        // "BDplus45HealthRandom"  1036792636  //  "mechMinus60Bio"  -1658060453        // monolithWeak  1749658540
                     String str5 = "штраф"; // "gestalt_closed" 1704779201     // "health100"  29249045         // "BDminus5Health"  -944954941  // "mechPlus70Health"  -232827188      // monolith_blessing -63138094
                     String str6 = "200";             // "gestalt_closed_2" 1910275380   // "radProtection100" 1293683299  // "BDminus10HealthRandom"  804709100     // "setRad0"  1984920125   // plus10RadProtection  852949013
                     String str7 = "300";               // "всегдазакрыт" -1925203169       // "radProt10030"  -1800724366   // "BDminus21HealthRandom"  5747468       // "setBio15"  1388454378  //  plus10BioProtection  -301504184
-                                              //  "SetGesProtection" 317294316     // "radProt10060" -1800724273   // "BDprotectionBio6025"  1323666026      // "setBio0"  1984451498
-                                              //  "теперьоткрыт" 1974805046        // "radProt10090" -1800724180   // "BDprotectionBio6035"  1323666057  // "minus15Rad"  1784296673
-                                              //  "SetGesProtectionOFF" -707972381  // "bioProt10030" 1071529183   // "BDprotectionRad6025"  -1895336201  //
-                                              // "TwoHoursRadProtection" 1543390539 // "bioProt10060" 1071529276   // "BDprotectionRad6035"  -1895336170  //  "plus10Rad"  -1523616740
-                                              // "15minutesGod" -1151237055         // "bioProt10090" 1071529369   // "BDprotectionPsy6025"  1159342392  //  "plus10Bio"  -1523631857
-                                              // "minus50Rad" 1787841802            // "psyProt10030" 123907793    // "BDprotectionBio120"  735430818   //
-                                              // "minus50Bio" 1787826685            // "psyProt10060" 123907886    // "BDprotectionRad120"  1185781365  // "minus15Bio"  1784281556
-                                              // "minus25Rad" 1785220194            // "psyProt10090" 123907979    // "BDprotectionPsy120"  1145772052  //
-                                              // "minus25Bio" 1785205077            // discharge10Sc  -1975691119  // "setRadOn80Percent"   -1167097637  // "anomalyFreedomOn"   551741458
-                                              // "plus40Health" -201032814          // discharge10BD   -1975691677  // "setBioOn80Percent"  1699558920  // "anomalyFreedomOff"  -75884132
-                                              // "plus20Health" 608313812           // discharge45    1271685827    // "discharge10OA"   -1975691277    // "art_oasis" 283987183
-                                              // irfD5rXx 607639868  3lk98Q5H -1127128685 LxPfas9O 823391914
+
                     statusMessage.setText(R.string.barcode_failure);
                     Log.d(TAG, "No barcode captured, intent data is null " + str.hashCode() + "  " + str2.hashCode() + "  " + str3.hashCode() + "  " + str4.hashCode() + "  " + str5.hashCode() + "  " + str6.hashCode() + "  " + str7.hashCode());
                 }
@@ -1306,7 +988,7 @@ public class QRTab extends Fragment implements View.OnClickListener{
         Arrays.fill(compositionOfArts, false);
     }
     // Расстояние до точки
-    private void check_point(LatLng latLng, Double radius, String in_massage, String out_massage){
+    private void check_point(LatLng latLng, double radius, String in_massage, String out_massage){
         Location point_location = new Location("");
         point_location.setLatitude(latLng.latitude);
         point_location.setLongitude(latLng.longitude);

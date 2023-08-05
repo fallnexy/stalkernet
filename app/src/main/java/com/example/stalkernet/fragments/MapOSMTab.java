@@ -57,6 +57,9 @@ public class MapOSMTab extends Fragment {
     public static final int ADMIRAL = 1;
     public static final int MAIDAN = 3;
     public static final int SECOND_LES_ZAVOD = 2;
+    public static final int GOOGLE_MAP = 4;
+
+    private int current_map = 3;
 
     private Globals globals;
     private Discharge discharge;
@@ -70,6 +73,7 @@ public class MapOSMTab extends Fragment {
     private Bitmap currentMap;
     private GeoPoint startPoint;
     private IMapController mapController;
+    private MyLocationNewOverlay mLocationOverlay;
 
 
     private Polygon[] anomalyPolygons = null;
@@ -120,7 +124,7 @@ public class MapOSMTab extends Fragment {
         anomaly = new Anomaly(database, cursor);
 
         map = inflate.findViewById(R.id.mapOSM);
-        setUpMap(ARKH);
+        setUpMap(current_map);
 
         setVitalStatus(inflate);
         setTestMarker(true);
@@ -128,6 +132,8 @@ public class MapOSMTab extends Fragment {
         setBtnOpenHub(inflate);
         setCoordinate(inflate);
         setTxtGestalt(inflate);
+        setBtnMapChange(inflate);
+        setBtnHideOSMUserMarker(inflate);
 
         points = new Points(getContext());
         // рисует маркеры из БД на карте
@@ -169,7 +175,7 @@ public class MapOSMTab extends Fragment {
             case MAIDAN:
                 startPoint = new GeoPoint(64.35342867d, 40.7328d);
                 currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_2022);
-                overlay.setPosition(new GeoPoint(64.3606562,40.71272391), new GeoPoint( 64.347312, 40.75284205));
+                overlay.setPosition(new GeoPoint(/*64.3606562*/64.36029,40.71272391), new GeoPoint( /*64.347312*/64.347652, 40.75284205));
                 break;
             case ADMIRAL:
                 startPoint = new GeoPoint(64.573749, 40.516295);
@@ -181,6 +187,13 @@ public class MapOSMTab extends Fragment {
                 currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_secondlz);
                 overlay.setPosition(new GeoPoint(64.494202, 40.706212), new GeoPoint( 64.491258, 40.717042));
                 break;
+            case GOOGLE_MAP:
+                startPoint = new GeoPoint(64.35342867d, 40.7328d);
+                currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2023g);
+                overlay.setPosition(new GeoPoint(64.359857,40.712084), new GeoPoint( 64.348411, 40.7575));
+                overlay.setTransparency(0.2f);
+                break;
+
             case ARKH:
             default:
                 startPoint = new GeoPoint(64.544608, 40.546129);
@@ -195,8 +208,9 @@ public class MapOSMTab extends Fragment {
         //map.setMinZoomLevel(14.0);
         map.getOverlayManager().add(overlay);
         // показывает мое местоположение
-        MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),map);
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),map);
         mLocationOverlay.enableMyLocation();
+        mLocationOverlay.setEnabled(false);
         map.getOverlays().add(mLocationOverlay);
         // установка маркера игрока
         playerPosition = new Marker(map);
@@ -265,9 +279,44 @@ public class MapOSMTab extends Fragment {
         });
     }
     /*
+    * кнопка смены карты с красивой на гугл
+    * */
+    private void setBtnMapChange(View inflate){
+        MaterialButton mapChange = inflate.findViewById(R.id.btnMapChange);
+        mapChange.setOnClickListener(view -> {
+            if (current_map != MAIDAN){
+                current_map = MAIDAN;
+                setUpMap(MAIDAN);
+
+            }else {
+                current_map = GOOGLE_MAP;
+                setUpMap(GOOGLE_MAP);
+
+            }
+            onPause();
+            onResume();
+            /*map.getOverlayManager().remove(overlay);
+            map.invalidate();*/
+        });
+    }
+    /*
+    * кнопка, чтобы скрыть-показать маркер OSM человечка
+    * */
+    private void setBtnHideOSMUserMarker(View inflate){
+        MaterialButton btnHideOSMUserMarker = inflate.findViewById(R.id.btnHideOSMUserMarker);
+        btnHideOSMUserMarker.setIcon(getResources().getDrawable(R.drawable.man_off));
+        btnHideOSMUserMarker.setOnClickListener(view -> {
+          mLocationOverlay.setEnabled(!mLocationOverlay.isEnabled());
+          if (mLocationOverlay.isEnabled()){
+              btnHideOSMUserMarker.setIcon(getResources().getDrawable(R.drawable.man_on));
+          } else{
+              btnHideOSMUserMarker.setIcon(getResources().getDrawable(R.drawable.man_off));
+          }
+        });
+    }
+    /*
     * кнопка перехода в кучу фрагментов
     * */
-
     private void setBtnOpenHub(View inflate){
         MaterialButton openhub = inflate.findViewById(R.id.btnOpenHub);
         openhub.setOnClickListener(view -> {

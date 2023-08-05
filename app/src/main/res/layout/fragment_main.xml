@@ -173,7 +173,7 @@
 				app:layout_constraintTop_toBottomOf="@+id/txtCoordinates" />
 
 			<TextView
-				android:id="@+id/txtProtectionRad"
+				android:id="@+id/txtProtectionRa"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginStart="8dp"
@@ -317,7 +317,7 @@
 				android:textColor="@color/common_google_signin_btn_text_dark_pressed"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toEndOf="@+id/ImageViewRad"
-				app:layout_constraintTop_toBottomOf="@+id/txtProtectionRad" />
+				app:layout_constraintTop_toBottomOf="@+id/txtProtectionRa" />
 
 			<TextView
 				android:id="@+id/txtGestaltOpen"

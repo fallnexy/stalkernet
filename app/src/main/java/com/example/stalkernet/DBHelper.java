@@ -79,15 +79,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     // таблица faction
-    public static final String KEY_ID_FACTION = "_id";
-    public static final String KEY_NAME_FACTION = "name";
+    public static final String KEY_ID__FACTION = "_id";
+    public static final String KEY_NAME__FACTION = "name";
     public static final String KEY_DESCRIPTION_FACTION = "description";
     public static final String KEY_LOCATION_ID_FACTION = "location_id";
     public static final String KEY_LATITUDE_FACTION = "latitude";
     public static final String KEY_LONGITUDE_FACTION = "longitude";
     public static final String KEY_ACCESS_STATUS_FACTION = "access_status";
     public static final String KEY_ACCESS_KEY_FACTION = "access_key";
-    public static final String KEY_IMAGE_FACTION = "image";
+    public static final String KEY_IMAGE__FACTION = "image";
     public static final String KEY_KOSTYL_FACTION = "kostyl";
 
 
@@ -141,16 +141,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ACCESS_KEY__ITEM = "access_key";
 
     // таблица quest
-    public static final String KEY_ID_QUEST = "_id";
+    public static final String KEY_ID__QUEST = "_id";
     public static final String KEY_NAME_QUEST = "name";
     public static final String KEY_DESCRIPTION_QUEST = "description";
-    public static final String KEY_STATUS_QUEST = "status";
+    public static final String KEY_STATUS__QUEST = "status";
     public static final String KEY_ACCESS_QUEST = "access_status";
     public static final String KEY_ACCESS_KEY_QUEST = "access_key";
     public static final String KEY_IMAGE_QUEST = "image";
 
     // таблица quest_step
-    public static final String KEY_ID_QUEST_STEP = "_id";
+    public static final String KEY_ID__QUEST_STEP = "_id";
     public static final String KEY_QUEST_ID_QUEST_STEP = "quest_id";
     public static final String KEY_DESCRIPTION_QUEST_STEP = "description";
     public static final String KEY_LOCATION_ID_QUEST_STEP = "location_id";
@@ -158,7 +158,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_PERSON_ID_QUEST_STEP = "person_id";
     public static final String KEY_ARTEFACT_ID_QUEST_STEP = "artefact_id";
     public static final String KEY_STATUS_QUEST_STEP = "status"; //выполнено или нет
-    public static final String KEY_ACCESS_STATUS_QUEST_STEP = "access_status"; // можно ли выполнять
+    public static final String KEY_ACCESS_STATUS__QUEST_STEP = "access_status"; // можно ли выполнять
     public static final String KEY_ACCESS_KEY_QUEST_STEP = "access_key";
 
     // таблица creed
@@ -199,6 +199,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_QUEST_ID__USER = "quest_id";
     public static final String KEY_SUIT__USER = "suit";
     public static final String KEY_BONUS__USER = "bonus";
+    public static final String KEY_SCIENCE_QR__USER = "science_qr";
 
     // таблица markers
     public static final String KEY_ID__MARKER = "_id";
