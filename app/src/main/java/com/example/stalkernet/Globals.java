@@ -3,25 +3,22 @@ package com.example.stalkernet;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 
-import static com.example.stalkernet.StatsService.LOG_CHE;
 import static com.example.stalkernet.anomaly.Anomaly.BIO;
 import static com.example.stalkernet.anomaly.Anomaly.PSY;
 import static com.example.stalkernet.anomaly.Anomaly.RAD;
-import static com.example.stalkernet.playerCharacter.PlayerCharacter.MAX_BIO_KEY;
+import static com.example.stalkernet.playerCharacter.PlayerCharacter.CONTAMINATION_2D_KEY;
 import static com.example.stalkernet.playerCharacter.PlayerCharacter.MAX_HEALTH_KEY;
 import static com.example.stalkernet.playerCharacter.PlayerCharacter.MAX_PROTECTION_STRENGTH;
-import static com.example.stalkernet.playerCharacter.PlayerCharacter.MAX_PSY_KEY;
-import static com.example.stalkernet.playerCharacter.PlayerCharacter.MAX_RAD_KEY;
 import static com.example.stalkernet.playerCharacter.PlayerCharacter.PREFERENCE_NAME;
 
 public class Globals {
@@ -53,7 +50,7 @@ public class Globals {
             radCapacityOut, bioCapacityOut, psyCapacityOut, MaxProtectionAvailable;
     public Location location = new Location("GPS");
 
-    public boolean scienceQR = false;          // не работает или работает? - вроде как обновляет вместе с обновлением координат
+    public boolean scienceQR = false, applyQR = false;          // не работает или работает? - вроде как обновляет вместе с обновлением координат
 
 
     public Globals(Context mContext) {
@@ -113,7 +110,7 @@ public class Globals {
         String percentProtection = String.format(Locale.US,"%.2f\n%.2f\n%.2f", protectionValues[5], protectionValues[4], protectionValues[3]);
         perCentProtection.setText(percentProtection);
 
-        String str = String.format(Locale.US,"Итоговая защита: %.2f", totalProtection);
+        String str = String.format(Locale.US,"Итоговая защита, %%: %.2f", totalProtection);
         tvTotalProtection.setText(str);
     }
     /*
@@ -188,7 +185,6 @@ public class Globals {
                             " - " +
                             String.format(Locale.US,"%.6f", location.getLongitude());
         tvCoordinate.setText(coordinate);
-        Log.d(LOG_CHE, coordinate);
     }
 
     //эта штука вызывается в MainActivity и обновяет статы, которые есть в GeneralTab
@@ -209,12 +205,14 @@ public class Globals {
 
     private int maxHealth;
     private int maxRad, maxBio, maxPsy;
+
     private void loadSome(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
         maxHealth = sharedPreferences.getInt(MAX_HEALTH_KEY, 2000);
-        maxRad = sharedPreferences.getInt(MAX_RAD_KEY, 1000);
-        maxBio = sharedPreferences.getInt(MAX_BIO_KEY, 1000);
-        maxPsy = sharedPreferences.getInt(MAX_PSY_KEY, 1000);
+        double[] maxRadBioPsy = Arrays.stream(Objects.requireNonNull(sharedPreferences.getString(CONTAMINATION_2D_KEY, "0, 0, 0, 1000, 1000, 1000")).split(", ")).mapToDouble(Double::parseDouble).toArray();
+        maxRad = (int) maxRadBioPsy[3];
+        maxBio = (int) maxRadBioPsy[4];
+        maxPsy = (int) maxRadBioPsy[5];
     }
     SharedPreferences sharedPreferences;
     public void loadStats() {

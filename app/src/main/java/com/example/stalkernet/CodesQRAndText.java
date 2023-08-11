@@ -15,8 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import static com.example.stalkernet.StatsService.INTENT_SERVICE;
+import static com.example.stalkernet.StatsService.INTENT_SERVICE_QR;
 import static com.example.stalkernet.StatsService.INTENT_SERVICE_USER_ID;
-import static com.example.stalkernet.StatsService.LOG_CHE;
+import static com.example.stalkernet.anomaly.Anomaly.BIO;
+import static com.example.stalkernet.anomaly.Anomaly.PSY;
+import static com.example.stalkernet.anomaly.Anomaly.RAD;
+import static com.example.stalkernet.playerCharacter.PlayerCharacter.ARTEFACT;
+import static com.example.stalkernet.playerCharacter.PlayerCharacter.QUEST;
+import static com.example.stalkernet.playerCharacter.PlayerCharacter.SUIT;
 
 /*
  * Created by fallnexy on 16.09.2021.
@@ -36,7 +42,7 @@ public class CodesQRAndText {
     Cursor cursor;
     // переменные, необходимые для sc1 и sc2
     String textCode;
-    String[] textCodeSplitted = new String[6];
+    String[] textCodeSplitted = new String[10];
 
     public CodesQRAndText(Fragment fragment, TextView textView, Globals globals){
         this.fragment = fragment;
@@ -44,7 +50,7 @@ public class CodesQRAndText {
         this.globals = globals;
     }
 
-    public void checkCode(String code, boolean scienceQR){
+    public void checkCode(String code, boolean scienceQR, boolean applyQR){
         dbHelper = new DBHelper(fragment.requireActivity().getApplicationContext());
         Intent intent = new Intent("Command");
         Intent intentNew = new Intent(INTENT_SERVICE);
@@ -57,10 +63,9 @@ public class CodesQRAndText {
         * */
         if (textCode.equals("sc4")){
             setUser(intentNew, textCodeSplitted);
-            Log.d(LOG_CHE, "sc4");
         }
 
-        if (textCode.equals("sc1") | textCode.equals("sc2")) {
+        if (textCode.equals("sc1") | textCode.equals("sc2") | textCode.equals("sc5")) {
             code = textCode;
         }
 
@@ -136,6 +141,14 @@ public class CodesQRAndText {
                     intent.putExtra("Command", Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
                     fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
 
+                    var1 = -1;
+                    break label94;
+                case "sc5":
+                    if (applyQR) {
+                        textView.setText(makeSCText(textCodeSplitted));
+                        intent.putExtra(INTENT_SERVICE_QR, Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                        fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    }
                     var1 = -1;
                     break label94;
                 case "зона5звезд":
@@ -455,9 +468,9 @@ public class CodesQRAndText {
                 i++;
             }
             if (textCodeSplitted[0].equals("sc1")) {
-                if (textCodeSplitted[2].equals("suit") && Double.parseDouble(textCodeSplitted[3]) > 80){
+                if (textCodeSplitted[2].equals(SUIT) && Double.parseDouble(textCodeSplitted[3]) > 80){
                     textCodeSplitted[3] = "80";
-                } else if (!textCodeSplitted[2].equals("suit") && !textCodeSplitted[2].equals("tot") && Double.parseDouble(textCodeSplitted[3]) > 49.95){
+                } else if (!textCodeSplitted[2].equals(SUIT) && !textCodeSplitted[2].equals("tot") && Double.parseDouble(textCodeSplitted[3]) > 49.95){
                     textCodeSplitted[3] = "49.95";
                 }
                 if (Double.parseDouble(textCodeSplitted[3]) < 0){
@@ -492,40 +505,39 @@ public class CodesQRAndText {
         if (text[0].equals("sc1")){
             textFinal = "Установлено: уровень защиты от ";
             switch (text[1]){
-                case "rad":
+                case RAD:
                     textFinal += "рад - ";
                     break;
-                case "bio":
+                case BIO:
                     textFinal += "био -  ";
                     break;
-                case "psy":
+                case PSY:
                     textFinal += "пси - ";
                     break;
                 default:
                     textFinal += "ничего - ";
             }
             switch (text[2]){
-                case "suit":
+                case SUIT:
                     textFinal += "костюм: ";
                     break;
-                case "art":
+                case ARTEFACT:
                     textFinal += "артефакт: ";
                     break;
-                case "quest":
+                case QUEST:
                     textFinal += "квест: ";
                     break;
                 default:
                     textFinal += "ничто: ";
             }
             textFinal += text[3] + "%";
-        }
-        if (text[0].equals("sc2")){
+        } else if (text[0].equals("sc2")){
             textFinal = "Установлено: ";
             switch (text[1]){
-                case "rad":
+                case RAD:
                     textFinal += "степень радиационного заражения изменена на ";
                     break;
-                case "bio":
+                case BIO:
                     textFinal += "степень биологического заражения изменена на ";
                     break;
                 case "hp":
@@ -536,12 +548,9 @@ public class CodesQRAndText {
             }
             textFinal += text[2] + "%";
 
-        }
-
-        if (text[0].equals("sc3")){
+        } else  if (text[0].equals("sc3")){
             textFinal = "Установлена аномалия в слот № " + text[5] + " с силой " + text[3] + " и радиусом " + (150 + 20 * Integer.parseInt(text[4]) + "м");
-        }
-        if (text[0].equals("del")){
+        } else if (text[0].equals("del")){
             textFinal = "Удалена аномалия из слота № " + text[5];
         }
 
@@ -552,12 +561,39 @@ public class CodesQRAndText {
     * определение юзера-игрока
     * */
     private void setUser(Intent intent, @NonNull String[] text){
-        if (text[1].equals("user")){
-            String toastText = "Выполнен вход пользователя №" + text[2];
-            textView.setText(toastText);
+        String toastText = "";
+        switch (text[1]){
+            case "user":
+                toastText = "Выполнен вход пользователя №" + text[2];
+                textView.setText(toastText);
 
-            intent.putExtra(INTENT_SERVICE_USER_ID, text[2]);
-            fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                intent.putExtra(INTENT_SERVICE_USER_ID, text[2]);
+                break;
+            case "qr":
+                if (text[2].equals("sci")){
+                    if (text[3].equals("on")){
+                        toastText = "Установлено соединение с сервером ВНИИ ЧЗО \\\"Salus\\\".";
+                    } else if (text[3].equals("off")){
+                        toastText = "Cоединение с сервером ВНИИ ЧЗО \\\"Salus\\\" разорвано.";
+                    } else{
+                        toastText = "ERROR";
+                    }
+
+                } else if (text[2].equals("app")){
+                    if (text[3].equals("on")){
+                        toastText = "Апгрейд установлен: можно применять артефакты.";
+                    } else if (text[3].equals("off")){
+                        toastText = "Произошел откат апгрейда: применение артефактов невозможно";
+                    } else{
+                        toastText = "ERROR";
+                    }
+
+                }
+                intent.putExtra(INTENT_SERVICE_QR, Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                break;
         }
+
+        textView.setText(toastText);
+        fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
     }
 }

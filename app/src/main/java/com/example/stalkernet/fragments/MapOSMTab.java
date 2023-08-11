@@ -20,6 +20,7 @@ import com.example.stalkernet.DBHelper;
 import com.example.stalkernet.Discharge;
 import com.example.stalkernet.Globals;
 import com.example.stalkernet.Points;
+import com.example.stalkernet.PuzzleGameDialog;
 import com.example.stalkernet.R;
 import com.example.stalkernet.anomaly.Anomaly;
 import com.example.stalkernet.map.RBPItem;
@@ -78,6 +79,7 @@ public class MapOSMTab extends Fragment {
 
     private Polygon[] anomalyPolygons = null;
     private Marker[] localityMarker = null;
+    private Marker[] mileStoneMarker = null;
     private Marker playerPosition = null;
     private Marker testMarker = null;
 
@@ -107,6 +109,7 @@ public class MapOSMTab extends Fragment {
             income = intent.getStringExtra(INTENT_MAP_UPDATE);
             if (income != null){
                 checkLocality();
+                checkMileStone();
                 playerPosition.setPosition(new GeoPoint(globals.location.getLatitude(), globals.location.getLongitude()));
             }
         }
@@ -142,6 +145,7 @@ public class MapOSMTab extends Fragment {
         try {
             anomalyPolygons = anomaly.createPolygons(map);
             createLocalityMarker();
+            createMileStoneMarker();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -372,6 +376,7 @@ public class MapOSMTab extends Fragment {
         database = dbHelper.open();
         try {
             createLocalityMarker();
+            //createMileStoneMarker();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -518,6 +523,65 @@ public class MapOSMTab extends Fragment {
             } while (cursor.moveToNext());
         }
         cursor.close();
+    }
+
+    private void checkMileStone(){
+        cursor = database.query(DBHelper.TABLE_MILESTONE, new String[]{DBHelper.KEY_ID__MILESTONE, DBHelper.KEY_FINISH_STATUS__MILESTONE}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MILESTONE);
+            int accessStatus = cursor.getColumnIndex(DBHelper.KEY_FINISH_STATUS__MILESTONE);
+
+            do {
+                if (cursor.getString(accessStatus).equals("true")) {
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setDragOffset(0);
+                } else if(cursor.getString(accessStatus).equals("false")){
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.status_active_0521));
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setDragOffset(8);
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
+    private void createMileStoneMarker(){
+
+        cursor = database.query(DBHelper.TABLE_MILESTONE, null, null, null, null, null, null);
+        mileStoneMarker = new Marker[cursor.getCount()];
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MILESTONE);
+            int name = cursor.getColumnIndex(DBHelper.KEY_NAME__MILESTONE);
+            int description = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__MILESTONE);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__MILESTONE);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__MILESTONE);
+            int finishStatus = cursor.getColumnIndex(DBHelper.KEY_FINISH_STATUS__MILESTONE);
+            do {
+                mileStoneMarker[cursor.getInt(idIndex) - 1] = new Marker(map);
+
+                mileStoneMarker[cursor.getInt(idIndex) - 1].setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
+                mileStoneMarker[cursor.getInt(idIndex) - 1].setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                if (cursor.getString(finishStatus).equals("true")) {
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                } else {
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_empty_loc));
+                }
+                mileStoneMarker[cursor.getInt(idIndex) - 1].setTitle(cursor.getString(name));
+                mileStoneMarker[cursor.getInt(idIndex) - 1].setSubDescription(cursor.getString(description));
+                mileStoneMarker[cursor.getInt(idIndex) - 1].setId(cursor.getString(idIndex));
+                mileStoneMarker[cursor.getInt(idIndex) - 1].setOnMarkerClickListener((marker, mapView) -> {
+                    showPuzzleGameDialog(Integer.parseInt(marker.getId()), marker.getTitle(), marker.getSubDescription(), (int) marker.getDragOffset());
+                    return false;
+                });
+                map.getOverlays().add(mileStoneMarker[cursor.getInt(idIndex) - 1]);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
+
+    private void showPuzzleGameDialog(int id, String name, String description, int enable) {
+        PuzzleGameDialog dialog = PuzzleGameDialog.newInstance(id, name, description, enable);
+        dialog.show(getFragmentManager(), "PuzzleGameDialog");
+
     }
 
 }

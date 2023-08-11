@@ -96,7 +96,7 @@ public class ChatChildFragment extends Fragment {
 
             String code = String.valueOf(editText.getText());
 
-            codesQRAndText.checkCode(code, globals.scienceQR);
+            codesQRAndText.checkCode(code, globals.scienceQR, globals.applyQR);
 
             label94: {
 

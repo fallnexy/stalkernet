@@ -123,6 +123,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ACCESS_KEY__ARTEFACT = "access_key";
     public static final String KEY_IMAGE__ARTEFACT = "image";
     public static final String KEY_KOSTYL__ARTEFACT = "kostyl";
+    public static final String KEY_APPLY_ONE__ARTEFACT = "apply_one";
+    public static final String KEY_APPLY_TWO__ARTEFACT = "apply_two";
+    public static final String KEY_ACCESS_APPLY_TWO__ARTEFACT = "access_apply_two";
+    public static final String KEY_APPLY_THREE__ARTEFACT = "apply_three";
+    public static final String KEY_ACCESS_APPLY_THREE__ARTEFACT = "access_apply_three";
+    public static final String KEY_APPLY_LEVEL__ARTEFACT = "apply_level";
 
     // таблица milestone
     public static final String KEY_ID__MILESTONE = "_id";
@@ -132,6 +138,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ACCESS_KEY__MILESTONE = "access_key";
     public static final String KEY_IMAGE__MILESTONE = "image";
     public static final String KEY_KOSTYL__MILESTONE = "kostyl";
+    public static final String KEY_LATITUDE__MILESTONE = "latitude";
+    public static final String KEY_LONGITUDE__MILESTONE = "longitude";
+    public static final String KEY_FINISH_STATUS__MILESTONE = "finish_status";
 
     // таблица item
     public static final String KEY_ID__ITEM = "_id";
@@ -200,6 +209,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_SUIT__USER = "suit";
     public static final String KEY_BONUS__USER = "bonus";
     public static final String KEY_SCIENCE_QR__USER = "science_qr";
+    public static final String KEY_APPLY_QR__USER = "apply_qr";
 
     // таблица markers
     public static final String KEY_ID__MARKER = "_id";

@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.stalkernet.anomaly.Anomaly;
@@ -50,6 +49,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 
 import static android.app.NotificationManager.IMPORTANCE_HIGH;
+import static com.example.stalkernet.PuzzleGameDialog.MILESTONE_ID;
 import static com.example.stalkernet.anomaly.Anomaly.BIO;
 import static com.example.stalkernet.anomaly.Anomaly.GESTALT;
 import static com.example.stalkernet.anomaly.Anomaly.MINE;
@@ -87,6 +87,7 @@ public class StatsService extends Service {
     public static final String INTENT_SERVICE = "StRoulette";
     public static final String INTENT_SERVICE_PROTECTION = "protection";
     public static final String INTENT_SERVICE_USER_ID = "user_id";
+    public static final String INTENT_SERVICE_QR = "set_qr";
     public static final String INTENT_SERVICE_MINE = "mine_anomaly";
     public static final String INTENT_SERVICE_SOUND = "effect_manager";
     public static final String INTENT_SERVICE_TEST_COORDINATE = "drag_marker";
@@ -101,6 +102,8 @@ public class StatsService extends Service {
     public static final String CURRENT_KEY = "current_key";
     public static final String MAX_DRIFT_KEY = "max_drift_key";
     public static final String DRIFT_CORRECTION_KEY = "drift_correction_key";
+    public static final String APPLY_QR_KEY = "applyQR";
+    public static final String SCIENCE_QR_KEY = "ScienceQR";
 
     public static final double MAX_CONTAMINATION = 1000;
     public static final double MAX_CONTAMINATION_LEGEND = 1500;
@@ -111,6 +114,7 @@ public class StatsService extends Service {
     public Anomaly[] anomaly;
     public Quest quest;
     public Tool tools;
+    public Artefact artefact;
     public QRAnomaly qrAnomaly;
     public WifiAnomaly wifiAnomaly;
     public Discharge discharge;
@@ -133,7 +137,7 @@ public class StatsService extends Service {
 
     private int maxDrift;
     private int driftCorrection;
-    public boolean scienceQR;
+    public boolean scienceQR, applyQR;
     //нужность переменных неизвестна
     //private static final int ID_SERVICE = 101;
     public int NUMBER_OF_ANOMALIES = 0; // задается в onCreate
@@ -178,8 +182,8 @@ public class StatsService extends Service {
 
     // для умных команд вида sc1@rad@suit@20
     public String textCode;
-    public String[] textCodeSplitted = new String[6];
-    public void MakeSplit(String input){
+    public String[] textCodeSplitted = new String[10];
+    public void makeSplit(String input){
         try {
             Pattern pattern = Pattern.compile(",\\s");
             String[] words = pattern.split(input);
@@ -279,10 +283,68 @@ public class StatsService extends Service {
                 current = factionMap.get(cursor.getInt(factionIndex));
                 cursor.close();
 
-
                 saveStats();
                 loadStats();
                 quest.isQuestAvailable(input);
+            }
+            //TODO сюда вставить все sc коды и переделать так, чтобы первый switch был про sc
+            input = intent.getStringExtra(INTENT_SERVICE_QR);
+            if(input != null){
+                makeSplit(input);
+                if (textCodeSplitted[0].equals("sc4")) {
+                    switch (textCodeSplitted[2]){
+                        case "app":
+                            tools.setApplyQR(user_id, textCodeSplitted[3].equals("on"));
+                            applyQR = textCodeSplitted[3].equals("on");
+                            break;
+                        case "sci":
+                            tools.setScienceQR(user_id, textCodeSplitted[3].equals("on"));
+                            scienceQR = textCodeSplitted[3].equals("on");
+                            break;
+                    }
+                } else if (textCodeSplitted[0].equals("sc5")){
+                    artefact.open_access(textCodeSplitted[2], textCodeSplitted[3]);
+                }else{
+                    String effect = artefact.apply(textCodeSplitted[1]);
+                    makeSplit(effect);
+                    int index = Arrays.asList(textCodeSplitted).indexOf("sep");
+                    String[] firstEffect = Arrays.copyOfRange(textCodeSplitted, 0, index);
+                    String[] secondEffect = Arrays.copyOfRange(textCodeSplitted, index + 1, textCodeSplitted.length);
+                    if (firstEffect[0].equals("sc1")){
+                        playerCharacter[current].setProtection(firstEffect[1],firstEffect[2],Double.parseDouble(firstEffect[3]));
+                    } else {
+                        if (firstEffect[1].equals(RAD) || firstEffect[1].equals(BIO)){
+                            try {
+                                playerCharacter[current].increaseContaminationUnitByPercent(firstEffect[1], Double.parseDouble(firstEffect[2]));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else if (firstEffect[1].equals("hp")){
+                            try {
+                                playerCharacter[current].setHealth(playerCharacter[current].getHealth() + Float.parseFloat(firstEffect[2]) * playerCharacter[current].getMaxHealth() / 100);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if (secondEffect[0].equals("sc1")){
+                        playerCharacter[current].setProtection(secondEffect[1],secondEffect[2],Double.parseDouble(secondEffect[3]));
+                    } else {
+                        if (secondEffect[1].equals(RAD) || secondEffect[1].equals(BIO)){
+                            try {
+                                playerCharacter[current].increaseContaminationUnitByPercent(secondEffect[1], Double.parseDouble(secondEffect[2]));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else if (secondEffect[1].equals("hp")){
+                            try {
+                                playerCharacter[current].setHealth(playerCharacter[current].getHealth() + Float.parseFloat(secondEffect[2]) * playerCharacter[current].getMaxHealth() / 100);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
             }
             int intInput = intent.getIntExtra(INTENT_SERVICE_MAX_DRIFT, -1);
             if (intInput > 0){
@@ -291,6 +353,13 @@ public class StatsService extends Service {
             intInput = intent.getIntExtra(INTENT_SERVICE_DRIFT_CORRECTION, -1);
             if (intInput > 0){
                 setDriftCorrection(intInput);
+            }
+            intInput = intent.getIntExtra(MILESTONE_ID, 0);
+            if (intInput > 0){
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
+                database.update(DBHelper.TABLE_MILESTONE, contentValues, DBHelper.KEY_ID__MILESTONE + "=" + (intInput), null);
+                //Log.d(LOG_CHE, "service milestone = " + intInput);
             }
         }
     };
@@ -304,7 +373,7 @@ public class StatsService extends Service {
            protectionSuitRewhriteMap.put("quest", 0);
            label110: {
                String fromCommand = intent.getStringExtra("Command");
-               MakeSplit(fromCommand);
+               makeSplit(fromCommand);
                //Log.d("wtf_textCode", fromCommand);
                if (textCode.equals("sc1") | textCode.equals("sc2") | textCode.equals("sc3") | textCode.equals("del")) {
                    fromCommand = textCode;
@@ -331,14 +400,13 @@ public class StatsService extends Service {
                    case "sc2": // sc2@rad@25
                        //          0   1   2
                        // TODO переделать, чтобы было без if
-                       if (textCodeSplitted[1].equals("rad") || textCodeSplitted[1].equals("bio")){
+                       if (textCodeSplitted[1].equals(RAD) || textCodeSplitted[1].equals(BIO)){
                            try {
                                playerCharacter[current].increaseContaminationUnitByPercent(textCodeSplitted[1], Double.parseDouble(textCodeSplitted[2]));
                            } catch (Exception e) {
                                e.printStackTrace();
                            }
-                       }
-                       if (textCodeSplitted[1].equals("hp")){
+                       } else if (textCodeSplitted[1].equals("hp")){
                            try {
                                playerCharacter[current].setHealth(playerCharacter[current].getHealth() + Float.parseFloat(textCodeSplitted[2]) * playerCharacter[current].getMaxHealth() / 100);
                            } catch (Exception e) {
@@ -359,7 +427,7 @@ public class StatsService extends Service {
                        contentValues.put(DBHelper.KEY_POWER__ANOMALY, String.valueOf(dPower));
                        contentValues.put(DBHelper.KEY_RADIUS__ANOMALY, String.valueOf(dRadius));
                        int slot = NUMBER_OF_ANOMALIES - 5 + id;
-                       Log.d("аномалии", String.valueOf(slot));
+                       //Log.d("аномалии", String.valueOf(slot));
                        database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID__ANOMALY + "=?", new String[]{String.valueOf(slot)});
 
                        shit = -1;
@@ -383,7 +451,6 @@ public class StatsService extends Service {
                        contentValues.put(DBHelper.KEY_RADIUS__ANOMALY, 30);
                        contentValues.put(DBHelper.KEY_TYPE__ANOMALY, "min");
                        int slotMine = anomaly[0].getAnomalyInfo() - 5 + 4;
-                       Log.d("аномалии", String.valueOf(slotMine));
                        database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID__ANOMALY + "=?", new String[]{String.valueOf(slotMine)});
 
                        Toast.makeText(getApplicationContext(),"минное поле активировано", Toast.LENGTH_LONG).show();
@@ -1096,7 +1163,10 @@ public class StatsService extends Service {
 
         quest = new Quest(database, cursor);
         tools = new Tool(database, cursor);
+        artefact = new Artefact(database, cursor);
         scienceQR = tools.getScienceQR(user_id);
+        applyQR = tools.getApplyQR(user_id);
+
 
         discharge = new Discharge(this, database, cursor);
 
@@ -1194,6 +1264,7 @@ public class StatsService extends Service {
             //getMovingAnomalies();
             applyAnomalies();
             checkLocality();
+            checkMileStone();
             checkQuest();
 
 
@@ -1212,6 +1283,8 @@ public class StatsService extends Service {
         stringBuilder.append(myCurrentLocation.getLongitude());//6
         stringBuilder.append(":");
         stringBuilder.append(scienceQR);  //qr ученого//6
+        stringBuilder.append(":");
+        stringBuilder.append(applyQR);  //qr ученого//6
         stringBuilder.append(":");
         String stringBuilder2 = stringBuilder.toString();
 
@@ -1374,7 +1447,7 @@ public class StatsService extends Service {
         //
         ContentValues cv;
 
-        String creedString = "SELECT access_status FROM milestone WHERE access_status =?";
+        String creedString = "SELECT _id, access_status FROM milestone WHERE access_status =?";
         cursor = database.rawQuery(creedString, new String[]{"true"});
         if (cursor.getCount() > 8) {
             cv = new ContentValues();
@@ -1423,6 +1496,52 @@ public class StatsService extends Service {
         }
         cursor.close();
     }
+    /*
+    * Проверяет находится ли игрок в радиусе 30 метров, если находится, то ставит локации
+    * access_status значению true
+    * */
+    // TODO это надо перенести в класс локаций
+    public void checkMileStone(){
+        cursor = database.query(DBHelper.TABLE_MILESTONE, new String[]{"_id", "latitude", "longitude", "finish_status", "access_key"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MILESTONE);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__MILESTONE);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__MILESTONE);
+            int accessStatusIndex = cursor.getColumnIndex(DBHelper.KEY_FINISH_STATUS__MILESTONE);
+            int accessKeyIndex = cursor.getColumnIndex(DBHelper.KEY_ACCESS_KEY__MILESTONE);
+
+            do {
+                Location location = new Location("");
+                location.setLatitude(cursor.getDouble(latIndex));
+                location.setLongitude(cursor.getDouble(lonIndex));
+                double distanceToLocality = location.distanceTo(myCurrentLocation);
+                if (distanceToLocality < 30 & cursor.getString(accessStatusIndex).equals("false")){
+                    ContentValues contentValues = new ContentValues();
+                    database.beginTransaction();
+                    try {
+                        contentValues.put(DBHelper.KEY_FINISH_STATUS__MILESTONE, "true");
+                        database.update(DBHelper.TABLE_MILESTONE, contentValues,DBHelper.KEY_ID__MILESTONE + "=" + cursor.getInt(idIndex),null);
+                        database.setTransactionSuccessful();
+                    } finally {
+                        database.endTransaction();
+                    }
+                }
+                if (distanceToLocality > 30 & cursor.getString(accessStatusIndex).equals("true")){
+                    ContentValues contentValues = new ContentValues();
+                    database.beginTransaction();
+                    try {
+                        contentValues.put(DBHelper.KEY_FINISH_STATUS__MILESTONE, "false");
+                        database.update(DBHelper.TABLE_MILESTONE, contentValues,DBHelper.KEY_ID__MILESTONE + "=" + cursor.getInt(idIndex),null);
+                        database.setTransactionSuccessful();
+                    } finally {
+                        database.endTransaction();
+                    }
+                }
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
 
 
     // Переводит double[][] string
@@ -1457,7 +1576,8 @@ public class StatsService extends Service {
         user_id = sharedPreferences.getInt(USER_ID_KEY, 1);
         maxDrift = sharedPreferences.getInt(MAX_DRIFT_KEY, 10);
         driftCorrection = sharedPreferences.getInt(DRIFT_CORRECTION_KEY, 3);
-        scienceQR = sharedPreferences.getBoolean("ScienceQR", false);
+        scienceQR = sharedPreferences.getBoolean(SCIENCE_QR_KEY, false);
+        applyQR = sharedPreferences.getBoolean(APPLY_QR_KEY, false);
 
         playerCharacter[current].setHealth(sharedPreferences.getFloat(HEALTH_KEY, 2000));
         playerCharacter[current].setMaxHealth(sharedPreferences.getInt(MAX_HEALTH_KEY, 2000));
@@ -1474,6 +1594,7 @@ public class StatsService extends Service {
         playerCharacter[current].setProtectionMap();
         playerCharacter[current].setDefaultContaminationMap();
         playerCharacter[current].setSubProtectionMap();
+
 
         setAnomalyMap();
         setFactionMap();
@@ -1501,13 +1622,15 @@ public class StatsService extends Service {
         edit.putString(GESTALT_PROTECTION_KEY, twoDArrToString(playerCharacter[current].getGesProtection()));
         edit.putString(CONTAMINATION_2D_KEY, twoDArrToString(playerCharacter[current].getContamination2D()));
 
+
         edit.putInt(CURRENT_KEY, current);
         edit.putInt(USER_ID_KEY, user_id);
         edit.putInt(MAX_DRIFT_KEY, maxDrift);
         edit.putInt(DRIFT_CORRECTION_KEY, driftCorrection);
 
+        edit.putBoolean(SCIENCE_QR_KEY, scienceQR);
+        edit.putBoolean(APPLY_QR_KEY, applyQR);
 
-        edit.putBoolean("ScienceQR", scienceQR);
         edit.putString("DischargeImmunity", Boolean.toString(this.DischargeImmunity));
         edit.putString("Lock", Boolean.toString(this.IsUnlocked));
         edit.putString("IS_ANOMALIES_AVAILABLE", Boolean.toString(this.IS_ANOMALIES_AVAILABLE));

@@ -98,6 +98,9 @@ public class QuestChildFragment extends Fragment {
             if (cursor.getString(statusIndex).toLowerCase(Locale.ENGLISH).equals("true")){
                 textStatus.setTextColor(getResources().getColor(R.color.green));
                 textStatus.setText("КВЕСТ ЗАВЕРШЕН");
+            } else if(cursor.getString(statusIndex).toLowerCase(Locale.ENGLISH).equals("const")){
+                textStatus.setTextColor(getResources().getColor(R.color.green));
+                textStatus.setText("ЗАГРУЗ или\nПОСТОЯННОЕ ЗАДАНИЕ");
             } else {
                 textStatus.setTextColor(getResources().getColor(R.color.design_default_color_error));
                 textStatus.setText("КВЕСТ НЕ ВЫПОЛНЕН");

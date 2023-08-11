@@ -36,6 +36,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import static com.example.stalkernet.StatsService.INTENT_SERVICE;
+import static com.example.stalkernet.StatsService.INTENT_SERVICE_QR;
+
 public class QRTab extends Fragment implements View.OnClickListener{
     private Globals globals;
     CodesQRAndText codesQRAndText;
@@ -50,8 +53,8 @@ public class QRTab extends Fragment implements View.OnClickListener{
 
     private Random random = new Random();
     private boolean scienceQR = true;
-    private boolean pre_scan = false;
-    private Button btnScienceQR;
+    private boolean applyQR = false;
+    private Button btnScienceQR, btnApplyQR;
 
     public Location current_location = new Location("GPS");
 
@@ -77,14 +80,20 @@ public class QRTab extends Fragment implements View.OnClickListener{
         useFlash = inflate.findViewById(R.id.use_flash);
 
         inflate.findViewById(R.id.read_barcode).setOnClickListener(this);
-        inflate.findViewById(R.id.apply_qr).setOnClickListener(this);
         btnScienceQR = inflate.findViewById(R.id.btnScienceQR);
         btnScienceQR.setOnClickListener(this);
+        btnApplyQR = inflate.findViewById(R.id.btnApplyQR);
+        btnApplyQR.setOnClickListener(this);
 
         if (globals.scienceQR){
             btnScienceQR.setVisibility(View.VISIBLE);
         } else {
             btnScienceQR.setVisibility(View.INVISIBLE);
+        }
+        if (globals.applyQR){
+            btnApplyQR.setVisibility(View.VISIBLE);
+        } else {
+            btnApplyQR.setVisibility(View.INVISIBLE);
         }
 
         codesQRAndText = new CodesQRAndText(this, barcodeValue, globals);
@@ -121,21 +130,17 @@ public class QRTab extends Fragment implements View.OnClickListener{
 * */
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.apply_qr) {
-            //isScienceQR = false;
+        if (v.getId() == R.id.btnApplyQR) {
             scienceQR = false;
-            pre_scan = true;
-            // launch barcode activity.
+            applyQR = true;
         }
         if (v.getId() == R.id.read_barcode) {
-            //isScienceQR = false;
             scienceQR = false;
-            pre_scan = false;
+            applyQR = false;
         }
         if (v.getId() == R.id.btnScienceQR){
-            //isScienceQR = true;
             scienceQR = true;
-            //pre_scan = false;
+            applyQR = false;
         }
 
         // launch barcode activity.
@@ -782,20 +787,11 @@ public class QRTab extends Fragment implements View.OnClickListener{
                             barcodeValue.setText("иди своей дорогой, сталкер");*/
                     }
 
-                    codesQRAndText.checkCode(barcode.displayValue, scienceQR);
+                    codesQRAndText.checkCode(barcode.displayValue, scienceQR, applyQR);
 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
-                    String str = "mpjvqlzkws"; //"Соня не убивала" -1022716346     // "health5" 795560281       // "BDplus2Health"    -16716590  // "dolgDischargeImmunity"  -1449685624 // gestalt_closed_3   1910275381
-                    String str2 = "xrjoqykant"; //"ScienceQR" -1555514523    // "health25" -1107435105     // "BDplus5Health"   -1649172843  // "dolgDischargeImmunity"  1259972122      // gestalt_closed_4   1910275382
-                    String str3 = "pjiscyunaf"; //"ScienceQRoff" -1930888214 //  "health50" -1107435017    // "BDplus10Health"    1381804599  // "mechMinus60Rad"  -1658045336             // monolithStrong   1989494219
-                    String str4 = "гагры"; //"G" 71                        // "BDplus45HealthRandom"  1036792636  //  "mechMinus60Bio"  -1658060453        // monolithWeak  1749658540
-                    String str5 = "штраф"; // "gestalt_closed" 1704779201     // "health100"  29249045         // "BDminus5Health"  -944954941  // "mechPlus70Health"  -232827188      // monolith_blessing -63138094
-                    String str6 = "200";             // "gestalt_closed_2" 1910275380   // "radProtection100" 1293683299  // "BDminus10HealthRandom"  804709100     // "setRad0"  1984920125   // plus10RadProtection  852949013
-                    String str7 = "300";               // "всегдазакрыт" -1925203169       // "radProt10030"  -1800724366   // "BDminus21HealthRandom"  5747468       // "setBio15"  1388454378  //  plus10BioProtection  -301504184
-
                     statusMessage.setText(R.string.barcode_failure);
-                    Log.d(TAG, "No barcode captured, intent data is null " + str.hashCode() + "  " + str2.hashCode() + "  " + str3.hashCode() + "  " + str4.hashCode() + "  " + str5.hashCode() + "  " + str6.hashCode() + "  " + str7.hashCode());
                 }
             } else {
                 statusMessage.setText(String.format(getString(R.string.barcode_error),
@@ -819,8 +815,9 @@ public class QRTab extends Fragment implements View.OnClickListener{
             cv.put(accessColumn, "true");
             database.update(table, cv, accessKeyColumn + "= ?", new String[]{barcodeText});
         } else {
-            Cursor cursor = database.rawQuery("SELECT description, vzaimodeistvie FROM artefact WHERE access_key =?", new String[]{barcodeText});
+            Cursor cursor = database.rawQuery("SELECT _id, description, vzaimodeistvie FROM artefact WHERE access_key =?", new String[]{barcodeText});
             cursor.moveToFirst();
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__ARTEFACT);
             int scienceIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__ARTEFACT);
             int nonScienceIndex = cursor.getColumnIndex(DBHelper.KEY_VZAIMODEISTVIE__ARTEFACT);
             String scienceText = cursor.getString(scienceIndex);
@@ -829,6 +826,11 @@ public class QRTab extends Fragment implements View.OnClickListener{
                 cv.put(accessColumn, "true");
                 database.update(table, cv, accessKeyColumn + "= ?", new String[]{barcodeText});
                 barcodeValue.setText(scienceText);
+            } else if (applyQR) {
+                Intent intentNew = new Intent(INTENT_SERVICE);
+                String str = "app, " + cursor.getString(idIndex);
+                intentNew.putExtra(INTENT_SERVICE_QR, str);
+                QRTab.this.requireActivity().getApplicationContext().sendBroadcast(intentNew);
             } else {
                 barcodeValue.setText(nonScienceText);
             }
@@ -937,9 +939,9 @@ public class QRTab extends Fragment implements View.OnClickListener{
         textOnArt(nonScience, science, R.string.empty_string);
     }
 
-    private void textOnArt (int nonScience, int science, int pre_scanning){
-       if (pre_scan){
-           barcodeValue.setText(pre_scanning);
+    private void textOnArt (int nonScience, int science, int apply){
+       if (applyQR){
+           barcodeValue.setText(apply);
        } else if(scienceQR) {
            barcodeValue.setText(science);
        } else {

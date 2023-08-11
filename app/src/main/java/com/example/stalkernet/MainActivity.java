@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
                 globals.location.setLatitude(Double.parseDouble(split[1]));
                 globals.location.setLongitude(Double.parseDouble(split[2]));
                 globals.scienceQR = Boolean.parseBoolean(split[3]);
+                globals.applyQR = Boolean.parseBoolean(split[4]);
                 globals.updateStats();
             } catch (Exception e) {
                 e.printStackTrace();

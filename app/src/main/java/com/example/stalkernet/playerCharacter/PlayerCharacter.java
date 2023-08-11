@@ -171,6 +171,7 @@ public class PlayerCharacter {
             throw new IllegalArgumentException("Invalid value for LastTimeHitBy. Only 'rad', 'bio', 'psy', 'dis', 'ges', or '' are allowed.");
         }
     }
+
     /*
     * а не соединить ли здоровье и макс здоровье в один массив
     * */
@@ -606,6 +607,7 @@ public class PlayerCharacter {
         subProtectionMap.put(QUEST,0);
         subProtectionMap.put(ARTEFACT,1);
         subProtectionMap.put(SUIT,2);
+        subProtectionMap.put("tot",3);
     }
     public HashMap<String, Integer> getSubProtectionMap() {
         setSubProtectionMap();

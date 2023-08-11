@@ -221,7 +221,6 @@
     <string name="bio">Био</string>
     <string name="psy">Пси</string>
     <string name="degree_of_contamination">Степень заражения: </string>
-    <string name="totalProtection">Итоговая защита: %1$.2f</string>
     <string name="suit_art_quest">костюма:\nартефакта:\nквеста:</string>
     <string name="remaining_capacity">Осталось \nзащиты, %</string>
     <string name="protection_degree">Степень \nзащиты, %</string>
