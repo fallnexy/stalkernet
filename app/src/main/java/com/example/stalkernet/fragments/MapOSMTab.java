@@ -4,13 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,13 +47,16 @@ import androidx.fragment.app.FragmentTransaction;
 
 import static com.example.stalkernet.StatsService.INTENT_SERVICE;
 import static com.example.stalkernet.StatsService.INTENT_SERVICE_TEST_COORDINATE;
-import static com.example.stalkernet.StatsService.LOG_CHE;
 
 public class MapOSMTab extends Fragment {
 
     public static final String INTENT_MAP = "MapTab.Circle";
     public static final String INTENT_MAP_VISIBLE = "visible";
     public static final String INTENT_MAP_UPDATE = "update";
+    public static final String PREFERENCE_MAP = "shar_pref_map";
+    public static final String ZOOM_KEY = "zoom_key";
+    public static final String START_POINT_LAT_KEY = "start_point_lat_key";
+    public static final String START_POINT_LON_KEY = "start_point_lon_key";
     public static final int ARKH = 0;
     public static final int ADMIRAL = 1;
     public static final int MAIDAN = 3;
@@ -70,7 +73,7 @@ public class MapOSMTab extends Fragment {
     private MapView map = null;
     private MapEventsOverlay mapEventsOverlay = null;
     private RotationGestureOverlay mRotationGestureOverlay = null;
-    private GroundOverlay overlay;
+    private GroundOverlay overlay, overlay2;
     private Bitmap currentMap;
     private GeoPoint startPoint;
     private IMapController mapController;
@@ -80,6 +83,7 @@ public class MapOSMTab extends Fragment {
     private Polygon[] anomalyPolygons = null;
     private Marker[] localityMarker = null;
     private Marker[] mileStoneMarker = null;
+    private Marker[] checkpointMarker = null;
     private Marker playerPosition = null;
     private Marker testMarker = null;
 
@@ -89,8 +93,8 @@ public class MapOSMTab extends Fragment {
     private Cursor cursor;
 
     private DisplayMetrics displayMetrics;
-    private int screenWidth;
-    private int screenHeight;
+    private int screenWidth, screenHeight;
+    private double zoom, startLat, startLon;
 
 
     public MapOSMTab(Globals globals) {
@@ -118,6 +122,7 @@ public class MapOSMTab extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflate = inflater.inflate(R.layout.fragment_map_osm, container, false);
+        loadStats();
         getDisplaySize();
         dbHelper = new DBHelper(getActivity());
         dbHelper.create_db();
@@ -142,10 +147,15 @@ public class MapOSMTab extends Fragment {
         // рисует маркеры из БД на карте
         drawMarkers();
         // создаем круглые аномалии и всякое другое
+        createMileStoneMarker();
+        createCheckpointMarker();
+        createLocalityMarker();
+        anomalyPolygons = anomaly.createPolygons(map);
         try {
-            anomalyPolygons = anomaly.createPolygons(map);
-            createLocalityMarker();
-            createMileStoneMarker();
+
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -177,11 +187,11 @@ public class MapOSMTab extends Fragment {
         overlay.setTransparency(0f);
         switch (location){
             case MAIDAN:
-                startPoint = new GeoPoint(64.35342867d, 40.7328d);
-                currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_2022);
+                startPoint = new GeoPoint(startLat, startLon);
+                currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_2026);
                 overlay.setPosition(new GeoPoint(/*64.3606562*/64.36029,40.71272391), new GeoPoint( /*64.347312*/64.347652, 40.75284205));
                 break;
-            case ADMIRAL:
+            /*case ADMIRAL:
                 startPoint = new GeoPoint(64.573749, 40.516295);
                 currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_adm);
                 overlay.setPosition(new GeoPoint(64.575250, 40.511678), new GeoPoint( 64.572320, 40.522501));
@@ -190,26 +200,36 @@ public class MapOSMTab extends Fragment {
                 startPoint = new GeoPoint(64.492765, 40.711437);
                 currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_secondlz);
                 overlay.setPosition(new GeoPoint(64.494202, 40.706212), new GeoPoint( 64.491258, 40.717042));
-                break;
+                break;*/
             case GOOGLE_MAP:
-                startPoint = new GeoPoint(64.35342867d, 40.7328d);
-                currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2023g);
+                startPoint = new GeoPoint(startLat, startLon);
+                currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.map2026g);
                 overlay.setPosition(new GeoPoint(64.359857,40.712084), new GeoPoint( 64.348411, 40.7575));
                 overlay.setTransparency(0.2f);
+
+                Bitmap maidanMap = BitmapFactory.decodeResource(getResources(), R.drawable.map_2026);
+                overlay2 = new GroundOverlay();
+                overlay2.setTransparency(0f);
+                overlay2.setPosition(new GeoPoint(/*64.3606562*/64.36029,40.71272391), new GeoPoint( /*64.347312*/64.347652, 40.75284205));
+                overlay2.setImage(maidanMap);
                 break;
 
-            case ARKH:
+            /*case ARKH:
             default:
                 startPoint = new GeoPoint(64.544608, 40.546129);
                 currentMap = BitmapFactory.decodeResource(getResources(), R.drawable.maparkh);
-                overlay.setPosition(new GeoPoint(64.592084, 40.425673), new GeoPoint( 64.498119, 40.772684));
+                overlay.setPosition(new GeoPoint(64.592084, 40.425673), new GeoPoint( 64.498119, 40.772684));*/
         }
 
         overlay.setImage(currentMap);
         mapController = map.getController();
-        mapController.setZoom(14.65);
+        mapController.setZoom(zoom);
         mapController.setCenter(startPoint);
-        //map.setMinZoomLevel(14.0);
+        //map.setMinZoomLevel(15.2);
+
+        if (overlay2 != null){
+            map.getOverlayManager().add(overlay2);
+        }
         map.getOverlayManager().add(overlay);
         // показывает мое местоположение
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),map);
@@ -289,18 +309,51 @@ public class MapOSMTab extends Fragment {
         MaterialButton mapChange = inflate.findViewById(R.id.btnMapChange);
         mapChange.setOnClickListener(view -> {
             if (current_map != MAIDAN){
+                map.getOverlays().remove(overlay);
+                map.getOverlays().remove(mileStoneMarker[0]);
+                map.getOverlays().remove(mileStoneMarker[1]);
+                map.getOverlays().remove(mileStoneMarker[2]);
+                map.getOverlays().remove(mileStoneMarker[3]);
+                map.getOverlays().remove(mileStoneMarker[4]);
+                map.getOverlays().remove(mileStoneMarker[5]);
+                map.getOverlays().remove(mileStoneMarker[6]);
+                map.getOverlays().remove(mileStoneMarker[7]);
                 current_map = MAIDAN;
+                onPause();
                 setUpMap(MAIDAN);
-
+                onResume();
+                map.getOverlays().remove(mileStoneMarker[0]);
+                map.getOverlays().remove(mileStoneMarker[1]);
+                map.getOverlays().remove(mileStoneMarker[2]);
+                map.getOverlays().remove(mileStoneMarker[3]);
+                map.getOverlays().remove(mileStoneMarker[4]);
+                map.getOverlays().remove(mileStoneMarker[5]);
+                map.getOverlays().remove(mileStoneMarker[6]);
+                map.getOverlays().remove(mileStoneMarker[7]);
             }else {
+                map.getOverlays().remove(overlay);
+                map.getOverlays().remove(mileStoneMarker[0]);
+                map.getOverlays().remove(mileStoneMarker[1]);
+                map.getOverlays().remove(mileStoneMarker[2]);
+                map.getOverlays().remove(mileStoneMarker[3]);
+                map.getOverlays().remove(mileStoneMarker[4]);
+                map.getOverlays().remove(mileStoneMarker[5]);
+                map.getOverlays().remove(mileStoneMarker[6]);
+                map.getOverlays().remove(mileStoneMarker[7]);
                 current_map = GOOGLE_MAP;
+                onPause();
                 setUpMap(GOOGLE_MAP);
-
+                onResume();
+                map.getOverlays().remove(mileStoneMarker[0]);
+                map.getOverlays().remove(mileStoneMarker[1]);
+                map.getOverlays().remove(mileStoneMarker[2]);
+                map.getOverlays().remove(mileStoneMarker[3]);
+                map.getOverlays().remove(mileStoneMarker[4]);
+                map.getOverlays().remove(mileStoneMarker[5]);
+                map.getOverlays().remove(mileStoneMarker[6]);
+                map.getOverlays().remove(mileStoneMarker[7]);
             }
-            onPause();
-            onResume();
-            /*map.getOverlayManager().remove(overlay);
-            map.invalidate();*/
+
         });
     }
     /*
@@ -333,7 +386,7 @@ public class MapOSMTab extends Fragment {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(fragmentContainer.getId(), hubFragment);
             fragmentTransaction.commit();
-            Log.d(LOG_CHE, "wtf");
+            //Log.d(LOG_CHE, "wtf");
         });
 
     }
@@ -344,7 +397,7 @@ public class MapOSMTab extends Fragment {
         if (isOn){
             testMarker = new Marker(map);
             testMarker.setIcon(getResources().getDrawable(R.drawable.quest));
-            testMarker.setPosition(new GeoPoint(64.573749, 40.516295));
+            testMarker.setPosition(new GeoPoint(64.360703, 40.730299));
             testMarker.setVisible(true);
             testMarker.setDraggable(true);
             map.getOverlays().add(testMarker);
@@ -374,6 +427,7 @@ public class MapOSMTab extends Fragment {
     public void onResume() {
         super.onResume();
         database = dbHelper.open();
+        loadStats();
         try {
             createLocalityMarker();
             //createMileStoneMarker();
@@ -395,8 +449,11 @@ public class MapOSMTab extends Fragment {
         if (database != null && database.isOpen()) {
             database.close();
         }
+        saveStats();
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
+
+
 
     /*private void createThingsForMap(){
         if (anomalyPolygons == null){
@@ -475,17 +532,26 @@ public class MapOSMTab extends Fragment {
     * выставляет иконку локации
     * */
     private void checkLocality(){
-        cursor = database.query(DBHelper.TABLE_LOCALITY, new String[]{"_id", "access_status"}, null, null, null, null, null);
+        cursor = database.query(DBHelper.TABLE_LOCALITY, new String[]{"_id", "access_status", "name"}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
             int accessStatus = cursor.getColumnIndex(DBHelper.KEY_ACCESS_STATUS__LOCALITY);
+            int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME__LOCALITY);
 
             do {
                 //Log.d("аномалия_bool", String.valueOf(cursor.getString(accessStatus)));
                 if (cursor.getString(accessStatus).equals("true")) {
-                    localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                    if ((cursor.getInt(idIndex)) == 13){
+                        localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.loc_dead));
+                    } else if ((cursor.getInt(idIndex)) == 12){
+                        localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.loc_master));
+                    } else {
+                        localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                    }
+                    localityMarker[cursor.getInt(idIndex) - 1].setTitle(cursor.getString(nameIndex));
                 } else if(cursor.getString(accessStatus).equals("false")){
                     localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_empty_loc));
+                    localityMarker[cursor.getInt(idIndex) - 1].setTitle("");
                 }
 
             } while (cursor.moveToNext());
@@ -513,11 +579,19 @@ public class MapOSMTab extends Fragment {
                 localityMarker[cursor.getInt(idIndex) - 1].setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
                 localityMarker[cursor.getInt(idIndex) - 1].setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                 if (cursor.getString(accessStatus).equals("true")) {
-                    localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                    if ((cursor.getInt(idIndex)) == 13){
+                        localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.loc_dead));
+                    } else if ((cursor.getInt(idIndex)) == 12){
+                        localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.loc_master));
+                    } else {
+                        localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                    }
+                    localityMarker[cursor.getInt(idIndex) - 1].setTitle(cursor.getString(name));
                 } else {
                     localityMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_empty_loc));
+                    localityMarker[cursor.getInt(idIndex) - 1].setTitle("");
                 }
-                localityMarker[cursor.getInt(idIndex) - 1].setTitle(cursor.getString(name));
+
                 map.getOverlays().add(localityMarker[cursor.getInt(idIndex) - 1]);
 
             } while (cursor.moveToNext());
@@ -533,10 +607,10 @@ public class MapOSMTab extends Fragment {
 
             do {
                 if (cursor.getString(accessStatus).equals("true")) {
-                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.milestone_icon));
                     mileStoneMarker[cursor.getInt(idIndex) - 1].setDragOffset(0);
                 } else if(cursor.getString(accessStatus).equals("false")){
-                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.status_active_0521));
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.milestone_icon_none));
                     mileStoneMarker[cursor.getInt(idIndex) - 1].setDragOffset(8);
                 }
             } while (cursor.moveToNext());
@@ -560,7 +634,7 @@ public class MapOSMTab extends Fragment {
                 mileStoneMarker[cursor.getInt(idIndex) - 1].setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
                 mileStoneMarker[cursor.getInt(idIndex) - 1].setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                 if (cursor.getString(finishStatus).equals("true")) {
-                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_khown_loc));
+                    mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.milestone_icon));
                 } else {
                     mileStoneMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_empty_loc));
                 }
@@ -577,6 +651,31 @@ public class MapOSMTab extends Fragment {
         }
         cursor.close();
     }
+    /*
+    * создает маркеры для контрольных точек
+    * */
+    private void createCheckpointMarker(){
+
+        cursor = database.query(DBHelper.TABLE_CHECKPOINT, null, null, null, null, null, null);
+        checkpointMarker = new Marker[cursor.getCount()];
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__CHECKPOINT);
+            int name = cursor.getColumnIndex(DBHelper.KEY_NAME__CHECKPOINT);
+            int description = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION__CHECKPOINT);
+            int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__CHECKPOINT);
+            int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__CHECKPOINT);
+            do {
+                checkpointMarker[cursor.getInt(idIndex) - 1] = new Marker(map);
+                checkpointMarker[cursor.getInt(idIndex) - 1].setPosition(new GeoPoint(cursor.getDouble(latIndex), cursor.getDouble(lonIndex)));
+                checkpointMarker[cursor.getInt(idIndex) - 1].setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                checkpointMarker[cursor.getInt(idIndex) - 1].setIcon(getResources().getDrawable(R.drawable.icon_checkpoint));
+                checkpointMarker[cursor.getInt(idIndex) - 1].setTitle(cursor.getString(name));
+                map.getOverlays().add(checkpointMarker[cursor.getInt(idIndex) - 1]);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
 
     private void showPuzzleGameDialog(int id, String name, String description, int enable) {
         PuzzleGameDialog dialog = PuzzleGameDialog.newInstance(id, name, description, enable);
@@ -584,4 +683,21 @@ public class MapOSMTab extends Fragment {
 
     }
 
+    SharedPreferences sharedPreferences;
+
+    private void saveStats(){
+        sharedPreferences = getActivity().getSharedPreferences(PREFERENCE_MAP,Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putFloat(ZOOM_KEY, (float) map.getZoomLevelDouble());
+        edit.putFloat(START_POINT_LAT_KEY, (float) map.getMapCenter().getLatitude());
+        edit.putFloat(START_POINT_LON_KEY, (float) map.getMapCenter().getLongitude());
+        edit.apply();
+    }
+
+    private void loadStats(){
+        sharedPreferences = getActivity().getSharedPreferences(PREFERENCE_MAP,Context.MODE_PRIVATE);
+        zoom = sharedPreferences.getFloat(ZOOM_KEY, 15.2f);
+        startLat = sharedPreferences.getFloat(START_POINT_LAT_KEY, 64.353429f);
+        startLon = sharedPreferences.getFloat(START_POINT_LON_KEY, 40.7328f);
+    }
 }

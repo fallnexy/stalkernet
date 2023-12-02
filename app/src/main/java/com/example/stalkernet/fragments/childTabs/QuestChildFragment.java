@@ -129,9 +129,14 @@ public class QuestChildFragment extends Fragment {
             int DESCRIPTION_INDEX = localCursor.getColumnIndex(DBHelper.KEY_DESCRIPTION_QUEST_STEP);
             int STATUS_INDEX = localCursor.getColumnIndex(DBHelper.KEY_STATUS_QUEST_STEP);
             int ACCESS_INDEX = localCursor.getColumnIndex(DBHelper.KEY_ACCESS_KEY_QUEST_STEP);
+            int questIdIndex = localCursor.getColumnIndex(DBHelper.KEY_QUEST_ID__QUEST_STEP);
+            int idIndex = localCursor.getColumnIndex(DBHelper.KEY_ID__QUEST_STEP);
 
             localCursor.moveToPosition(childPosition);
             description.setText(localCursor.getString(DESCRIPTION_INDEX));
+
+            int questStepId = localCursor.getInt(idIndex);
+            int questId = localCursor.getInt(questIdIndex);
 
             //выставляет статус завершенности квеста
             if (localCursor.getString(STATUS_INDEX).toLowerCase(Locale.ENGLISH).equals("true")){
@@ -143,21 +148,22 @@ public class QuestChildFragment extends Fragment {
                 * Далее идет определение того, выполненный подквест - последний в квесте или нет,
                 * и что делать в обоих случаях
                 */
-                int idIndex = localCursor.getColumnIndex(DBHelper.KEY_ID__QUEST_STEP);
-                int questStepId = localCursor.getInt(idIndex); //id выполненного подквеста
-                Cursor isNextStepCursor = database.rawQuery("SELECT _id, quest_id FROM quest_step WHERE quest_id =?", new String[]{String.valueOf(groupPosition + 1)});
+                //int idIndex = localCursor.getColumnIndex(DBHelper.KEY_ID__QUEST_STEP);
+                //int questStepId = localCursor.getInt(idIndex); //id выполненного подквеста
+                Cursor isNextStepCursor = database.rawQuery("SELECT _id, quest_id FROM quest_step WHERE quest_id =?", new String[]{String.valueOf(questId)});
                 isNextStepCursor.moveToLast();
-                int questId = isNextStepCursor.getInt(idIndex); //id последнего подквеста в курсоре
+                int questStepIdNext = isNextStepCursor.getInt(idIndex); //id последнего подквеста в курсоре
                 /*
                 * Если выполненный подквест последний в квесте, то ставит статус родительскому квесту TRUE.
                 * Иначе если id выполненного подквеста меньше id последнего подквеста в квесте, то отображеет
                 * в детской вьешке следующий подквест
                 */
-                if (questStepId == questId){
+
+                if (questStepId == questStepIdNext){
                     cv = new ContentValues();
                     cv.put(DBHelper.KEY_STATUS__QUEST, "true");
-                    database.update(DBHelper.TABLE_QUEST, cv, DBHelper.KEY_ID__QUEST + "=" + (groupPosition+1), null);
-                } else if(questStepId < questId){
+                    database.update(DBHelper.TABLE_QUEST, cv, DBHelper.KEY_ID__QUEST + "=" + (questId), null);
+                } else if(questStepId < questStepIdNext){
                     cv = new ContentValues();
                     cv.put(DBHelper.KEY_ACCESS_STATUS__QUEST_STEP, "true");
                     database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID__QUEST_STEP + "=" + (questStepId+1), null);
@@ -175,6 +181,8 @@ public class QuestChildFragment extends Fragment {
             code = localCursor.getString(ACCESS_INDEX);
             String finalCode = code; // почему то требует копировать вот так
 
+            //int questId = questStepId;
+
 
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -183,8 +191,8 @@ public class QuestChildFragment extends Fragment {
                     Bundle argsQuestDialog = new Bundle();
                     argsQuestDialog.putString("type", "quest");
                     argsQuestDialog.putString("code", finalCode);
-                    argsQuestDialog.putString("group_position", String.valueOf(groupPosition + 1));
-                    argsQuestDialog.putString("child_position", String.valueOf(childPosition));
+                    argsQuestDialog.putString("group_position", String.valueOf(questId));
+                    argsQuestDialog.putString("child_position", String.valueOf(questStepId));
                     questConfirmDialog.setArguments(argsQuestDialog);
                     questConfirmDialog.show(getActivity().getSupportFragmentManager(), "custom");
                 }

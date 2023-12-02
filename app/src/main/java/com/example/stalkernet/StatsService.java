@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.stalkernet.anomaly.Anomaly;
@@ -35,6 +36,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.jakewharton.threetenabp.AndroidThreeTen;
+
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -56,10 +62,12 @@ import static com.example.stalkernet.anomaly.Anomaly.MINE;
 import static com.example.stalkernet.anomaly.Anomaly.OASIS;
 import static com.example.stalkernet.anomaly.Anomaly.PSY;
 import static com.example.stalkernet.anomaly.Anomaly.RAD;
+import static com.example.stalkernet.anomaly.GestaltAnomaly.GESTALT_AVAILABLE;
 import static com.example.stalkernet.anomaly.MineAnomaly.MINE_ACTIVATION;
 import static com.example.stalkernet.anomaly.MineAnomaly.MINE_DAMAGE_PERCENT;
 import static com.example.stalkernet.anomaly.MineAnomaly.MINE_DEACTIVATION;
 import static com.example.stalkernet.anomaly.MineAnomaly.MINE_EXPLOSION;
+import static com.example.stalkernet.anomaly.WifiAnomaly.ANTENNA_WIFI;
 import static com.example.stalkernet.anomaly.WifiAnomaly.CHIMERA_WIFI;
 import static com.example.stalkernet.anomaly.WifiAnomaly.CONTROL_WIFI;
 import static com.example.stalkernet.fragments.MapOSMTab.INTENT_MAP;
@@ -82,7 +90,7 @@ import static com.example.stalkernet.playerCharacter.PlayerCharacter.USER_ID_KEY
 import static java.util.Objects.isNull;
 
 public class StatsService extends Service {
-    public static final String LOG_CHE = "ну чече";
+    public static final String LOG_CHE = "che_che";
     public static final String CHANNEL_ID = "my_channel_01";
     public static final String INTENT_SERVICE = "StRoulette";
     public static final String INTENT_SERVICE_PROTECTION = "protection";
@@ -124,6 +132,7 @@ public class StatsService extends Service {
 
     int user_id = 1;
     private boolean isInsideAnomaly = false;
+
     private HashMap<String, Integer> anomalyMap = new HashMap<>();
     private HashMap<Integer, Integer> factionMap = new HashMap<>();
 
@@ -182,7 +191,7 @@ public class StatsService extends Service {
 
     // для умных команд вида sc1@rad@suit@20
     public String textCode;
-    public String[] textCodeSplitted = new String[10];
+    public String[] textCodeSplitted = new String[12];
     public void makeSplit(String input){
         try {
             Pattern pattern = Pattern.compile(",\\s");
@@ -216,10 +225,10 @@ public class StatsService extends Service {
                         playerCharacter[current].applyProtection(qrAnomaly.getDamage(PSY));
                         break;
                     case "HpPlusFive":
-                        playerCharacter[current].setHealth(100);
+                        playerCharacter[current].increaseHealth(100);
                         break;
                     case "HpPlusSeven":
-                        playerCharacter[current].setHealth(200);
+                        playerCharacter[current].increaseHealth(200);
                         break;
                     case "HpMinus25perCent":
                         playerCharacter[current].increaseHealthPercent(-15);
@@ -277,9 +286,14 @@ public class StatsService extends Service {
             if (input != null){
                 user_id = Integer.parseInt(input);
 
-                cursor = database.query(DBHelper.TABLE_USER, new String[] {DBHelper.KEY_ID__USER, DBHelper.KEY_FACTION_ID__USER}, null, null, null, null, null);
+                cursor = database.query(DBHelper.TABLE_USER, new String[] {DBHelper.KEY_ID__USER, DBHelper.KEY_FACTION_ID__USER, DBHelper.KEY_SCIENCE_QR__USER, DBHelper.KEY_APPLY_QR__USER}, null, null, null, null, null);
                 cursor.moveToPosition(user_id - 1);
                 int factionIndex = cursor.getColumnIndex(DBHelper.KEY_FACTION_ID__USER);
+                int scienceIndex = cursor.getColumnIndex(DBHelper.KEY_SCIENCE_QR__USER);
+                int applyIndex = cursor.getColumnIndex(DBHelper.KEY_APPLY_QR__USER);
+
+                scienceQR = cursor.getInt(scienceIndex) == 1;
+                applyQR = cursor.getInt(applyIndex) == 1;
                 current = factionMap.get(cursor.getInt(factionIndex));
                 cursor.close();
 
@@ -290,7 +304,9 @@ public class StatsService extends Service {
             //TODO сюда вставить все sc коды и переделать так, чтобы первый switch был про sc
             input = intent.getStringExtra(INTENT_SERVICE_QR);
             if(input != null){
+
                 makeSplit(input);
+                Log.d(LOG_CHE, "input = " + Arrays.toString(textCodeSplitted));
                 if (textCodeSplitted[0].equals("sc4")) {
                     switch (textCodeSplitted[2]){
                         case "app":
@@ -303,13 +319,19 @@ public class StatsService extends Service {
                             break;
                     }
                 } else if (textCodeSplitted[0].equals("sc5")){
+
+
                     artefact.open_access(textCodeSplitted[2], textCodeSplitted[3]);
                 }else{
-                    String effect = artefact.apply(textCodeSplitted[1]);
-                    makeSplit(effect);
+                    //String effect = artefact.apply(textCodeSplitted[1]);
+
+                    //makeSplit(effect);
                     int index = Arrays.asList(textCodeSplitted).indexOf("sep");
+                    int index2 = Arrays.asList(textCodeSplitted).indexOf("seb");
                     String[] firstEffect = Arrays.copyOfRange(textCodeSplitted, 0, index);
-                    String[] secondEffect = Arrays.copyOfRange(textCodeSplitted, index + 1, textCodeSplitted.length);
+                    String[] secondEffect = Arrays.copyOfRange(textCodeSplitted, index + 1, index2);
+                    String[] thirdEffect = Arrays.copyOfRange(textCodeSplitted, index2 + 1, textCodeSplitted.length);
+
                     if (firstEffect[0].equals("sc1")){
                         playerCharacter[current].setProtection(firstEffect[1],firstEffect[2],Double.parseDouble(firstEffect[3]));
                     } else {
@@ -327,22 +349,46 @@ public class StatsService extends Service {
                             }
                         }
                     }
-                    if (secondEffect[0].equals("sc1")){
-                        playerCharacter[current].setProtection(secondEffect[1],secondEffect[2],Double.parseDouble(secondEffect[3]));
-                    } else {
-                        if (secondEffect[1].equals(RAD) || secondEffect[1].equals(BIO)){
-                            try {
-                                playerCharacter[current].increaseContaminationUnitByPercent(secondEffect[1], Double.parseDouble(secondEffect[2]));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else if (secondEffect[1].equals("hp")){
-                            try {
-                                playerCharacter[current].setHealth(playerCharacter[current].getHealth() + Float.parseFloat(secondEffect[2]) * playerCharacter[current].getMaxHealth() / 100);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+
+                    try {
+                        if (secondEffect[0].equals("sc1")){
+                            playerCharacter[current].setProtection(secondEffect[1],secondEffect[2],Double.parseDouble(secondEffect[3]));
+                        } else {
+                            if (secondEffect[1].equals(RAD) || secondEffect[1].equals(BIO)){
+                                try {
+                                    playerCharacter[current].increaseContaminationUnitByPercent(secondEffect[1], Double.parseDouble(secondEffect[2]));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else if (secondEffect[1].equals("hp")){
+                                try {
+                                    playerCharacter[current].setHealth(playerCharacter[current].getHealth() + Float.parseFloat(secondEffect[2]) * playerCharacter[current].getMaxHealth() / 100);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        if (thirdEffect[0].equals("sc2")){
+                            if (thirdEffect[1].equals(RAD) || thirdEffect[1].equals(BIO)){
+                                try {
+                                    playerCharacter[current].increaseContaminationUnitByPercent(thirdEffect[1], Double.parseDouble(thirdEffect[2]));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else if (thirdEffect[1].equals("hp")){
+                                try {
+                                    playerCharacter[current].setHealth(playerCharacter[current].getHealth() + Float.parseFloat(thirdEffect[2]) * playerCharacter[current].getMaxHealth() / 100);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -359,7 +405,6 @@ public class StatsService extends Service {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(DBHelper.KEY_ACCESS_STATUS__MILESTONE, "true");
                 database.update(DBHelper.TABLE_MILESTONE, contentValues, DBHelper.KEY_ID__MILESTONE + "=" + (intInput), null);
-                //Log.d(LOG_CHE, "service milestone = " + intInput);
             }
         }
     };
@@ -383,6 +428,21 @@ public class StatsService extends Service {
                ContentValues contentValues;
                int id;
                switch (fromCommand){
+                   case "oasis":
+                       Location location = new Location("");
+                       location.setLatitude(64.349654);
+                       location.setLongitude(40.732351);
+                       if (myCurrentLocation.distanceTo(location) < 50){
+                           playerCharacter[current].increaseHealthPercent(35);
+                           playerCharacter[current].increaseContaminationUnitByPercent(RAD, -20);
+                           playerCharacter[current].increaseContaminationUnitByPercent(BIO, -20);
+                       } else {
+                           playerCharacter[current].increaseHealthPercent(75);
+                           playerCharacter[current].increaseContaminationUnitByPercent(RAD, -35);
+                           playerCharacter[current].increaseContaminationUnitByPercent(BIO, -35);
+                       }
+                       shit = -1;
+                       break label110;
                    case "isMonolith":
                        isMonolith = true;
                        DischargeImmunity = true;
@@ -472,6 +532,18 @@ public class StatsService extends Service {
                        ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).setProtected(GESTALT_ID);
                        shit = -1;
                        break label110;
+                   case "gestalt_closed_2": //TODO добавить в систему смарт кодов так, чтобы гештальт ид из полученного сообщения добывался
+                       ((GestaltAnomaly) anomaly[anomalyMap.get(GESTALT)]).setProtected("2");
+                       shit = -1;
+                       break label110;
+                   case "SetGesProtection":
+                       anomaly[0].setGestaltAvailable(false);
+                       shit = -1;
+                       break label110;
+                   case "SetGesProtectionOFF":
+                       anomaly[0].setGestaltAvailable(true);
+                       shit = -1;
+                       break label110;
                }
                switch(fromCommand.hashCode()) {
                    case 305958064:
@@ -559,18 +631,7 @@ public class StatsService extends Service {
                            break label110;
                        }
                        break;
-                   case 317294316:
-                       if (fromCommand.equals("SetGesProtection")) {
-                           shit = 27;
-                           break label110;
-                       }
-                       break;
-                   case -707972381:
-                       if (fromCommand.equals("SetGesProtectionOFF")) {
-                           shit = 28;
-                           break label110;
-                       }
-                       break;
+
                    case 1831428070: // снять неуяз к аномалиям и выбросу
                        if (fromCommand.equals("noMoreGod")) {
                            shit = 29;
@@ -1260,7 +1321,7 @@ public class StatsService extends Service {
         //Log.d(LOG_CHE_CHE, "service speed " + myCurrentLocation.getSpeed());
         if (!playerCharacter[current].isDead() && IsUnlocked) {
             applyDischarge();
-            //artCompass(); // артос компас, который дает неуязвимость на 15 нимут
+            artCompass(); // артос компас, который дает неуязвимость на 15 нимут
             //getMovingAnomalies();
             applyAnomalies();
             checkLocality();
@@ -1310,14 +1371,13 @@ public class StatsService extends Service {
         factionMap.put(1, 1);
         factionMap.put(2, 0);
         factionMap.put(3, 0);
-        factionMap.put(4, 0);
-        factionMap.put(5, 3);
+        factionMap.put(4, 3);
+        factionMap.put(5, 2);
         factionMap.put(6, 2);
         factionMap.put(7, 0);
         factionMap.put(8, 0);
         factionMap.put(9, 0);
         factionMap.put(10, 0);
-        factionMap.put(11, 0);
     }
 
     public LatLng moving_anomalies(LatLng start_LatLng, LatLng finish_latLng){
@@ -1355,10 +1415,44 @@ public class StatsService extends Service {
     /*
     * возвращает номер игрового для в зависимости от даты
     * нужно, чтобы аномалии работали в тот день, в который должны
+    * Цикл 1: 11.09 17:00 - 12.09 11:55    1883829600000 - 1883897700000
+        Выброс 1 в 12.09 в 11:55
+        Цикл 2: 12.09 11:55 - 13.09 10:00  1883897700000 - 1883977200000
+        Выброс 2 в 13.09 в 10:00
+        Цикл 3: 13.09 10:00 - 14.09 19:20  1883977200000 - 1884097200000
+        Выброс 3 в 14.09 в 19:20
+        Цикл 4: 14.09 19:20 - 15.09 13:00  1884097200000 - 1884160800000
     * */
-    // TODO должна возвращать номер игрового для в зависимости от даты но пока что возвращает 1
+
+    private final long timeFinish = 1884160800000L;
+
+    private long time;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    LocalDateTime datetime;
+    ZonedDateTime zonedDateTime;
+
+    private long getChangeTime(String inTime){
+
+        datetime = LocalDateTime.parse(inTime, formatter);
+        zonedDateTime = datetime.atZone(ZoneId.systemDefault());
+        long dischargeTimeMillis = zonedDateTime.toInstant().toEpochMilli();
+        return dischargeTimeMillis;
+    }
     private int getCurrentDay(){
-        return 1;
+        time = System.currentTimeMillis();
+
+        if (time >= getChangeTime("2023-09-11 17:00")){
+            if (time < getChangeTime("2023-09-12 12:55")){
+                return 1;
+            } else if (time < getChangeTime("2023-09-13 10:00")){
+                return 2;
+            } else if (time < getChangeTime("2023-09-14 19:20")){
+                return 3;
+            } else if (time < timeFinish){
+                return 4;
+            }
+        }
+        return 0;
     }
 
     /*
@@ -1389,7 +1483,9 @@ public class StatsService extends Service {
                 if (inside){
                     isInsideAnomaly = true;
                     int anomalySubClass = anomalyMap.get(type);
-                    playerCharacter[current].applyProtection(anomaly[anomalySubClass].getDamage());
+                    if (!type.equals(GESTALT) || (type.equals(GESTALT) && playerCharacter[current].getHealth() > 100)) {
+                        playerCharacter[current].applyProtection(anomaly[anomalySubClass].getDamage());
+                    }
                     //TODO передвинуть звуки в свой метод
                     effectManager.StopActions();
                     effectManager.PlaySound(type, anomaly[0].getPower());
@@ -1402,6 +1498,7 @@ public class StatsService extends Service {
             if (wifiAnomaly.getWiFiScan()){
                 playerCharacter[current].applyProtection(wifiAnomaly.getDamage(CONTROL_WIFI));
                 playerCharacter[current].applyProtection(wifiAnomaly.getDamage(CHIMERA_WIFI));
+                playerCharacter[current].applyProtection(wifiAnomaly.getDamage(ANTENNA_WIFI));
                 isInsideAnomaly = true;
 
                 if (wifiAnomaly.makeSound()) {
@@ -1449,7 +1546,7 @@ public class StatsService extends Service {
 
         String creedString = "SELECT _id, access_status FROM milestone WHERE access_status =?";
         cursor = database.rawQuery(creedString, new String[]{"true"});
-        if (cursor.getCount() > 8) {
+        if (cursor.getCount() > 6) {
             cv = new ContentValues();
             cv.put(DBHelper.KEY_STATUS__CREED_BRANCH, "true");
             database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "= ?", new String[]{"15"});
@@ -1467,7 +1564,7 @@ public class StatsService extends Service {
     // TODO это надо перенести в класс локаций
     public void checkLocality(){
         cursor = database.query(DBHelper.TABLE_LOCALITY, new String[]{"_id", "latitude", "longitude", "access_status", "access_key"}, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
+        if (cursor.moveToFirst() && IS_ANOMALIES_AVAILABLE) {
             int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__LOCALITY);
             int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__LOCALITY);
             int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__LOCALITY);
@@ -1497,13 +1594,13 @@ public class StatsService extends Service {
         cursor.close();
     }
     /*
-    * Проверяет находится ли игрок в радиусе 30 метров, если находится, то ставит локации
+    * Проверяет находится ли игрок в радиусе 30 метров, если находится, то ставит вехе
     * access_status значению true
     * */
     // TODO это надо перенести в класс локаций
     public void checkMileStone(){
         cursor = database.query(DBHelper.TABLE_MILESTONE, new String[]{"_id", "latitude", "longitude", "finish_status", "access_key"}, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
+        if (cursor.moveToFirst() && IS_ANOMALIES_AVAILABLE) {
             int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID__MILESTONE);
             int latIndex = cursor.getColumnIndex(DBHelper.KEY_LATITUDE__MILESTONE);
             int lonIndex = cursor.getColumnIndex(DBHelper.KEY_LONGITUDE__MILESTONE);
@@ -1596,9 +1693,11 @@ public class StatsService extends Service {
         playerCharacter[current].setSubProtectionMap();
 
 
+
         setAnomalyMap();
         setFactionMap();
 
+        anomaly[anomalyMap.get(GESTALT)].setGestaltAvailable(sharedPreferences.getBoolean(GESTALT_AVAILABLE, true));
 
         this.DischargeImmunity = Boolean.parseBoolean(sharedPreferences.getString("DischargeImmunity", "false"));
         this.IsUnlocked = Boolean.parseBoolean(sharedPreferences.getString("Lock", "true"));
@@ -1622,6 +1721,7 @@ public class StatsService extends Service {
         edit.putString(GESTALT_PROTECTION_KEY, twoDArrToString(playerCharacter[current].getGesProtection()));
         edit.putString(CONTAMINATION_2D_KEY, twoDArrToString(playerCharacter[current].getContamination2D()));
 
+        edit.putBoolean(GESTALT_AVAILABLE, anomaly[anomalyMap.get(GESTALT)].isGestaltAvailable());
 
         edit.putInt(CURRENT_KEY, current);
         edit.putInt(USER_ID_KEY, user_id);

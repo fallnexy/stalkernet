@@ -3,8 +3,12 @@ package com.example.stalkernet.fragments.childTabs;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,19 +70,21 @@ public class DatabaseChildFragment extends Fragment {
             // получаем курсор по элементам для конкретной группы
             int idColumn = groupCursor.getColumnIndex(DBHelper.KEY_ID_TABLE_OF_TABLES);
             String stringForCursor = "SELECT * FROM " +
-                    "(SELECT l._id, l.name, l.description, l.image, l.kostyl, l.access_status FROM locality AS l\n" +
+                    "(SELECT l._id, l.name, l.description, l.image, l.kostyl, l.access_status, NULL AS feature, NULL AS apply_level, NULL AS is_dangerous FROM locality AS l\n" +
                     "UNION\n" +
-                    "SELECT f._id, f.name, f.description, f.image, f.kostyl, f.access_status FROM faction AS f\n" +
+                    "SELECT f._id, f.name, f.description, f.image, f.kostyl, f.access_status, NULL AS feature, NULL AS apply_level, NULL AS is_dangerous FROM faction AS f\n" +
                     "UNION\n" +
-                    "SELECT p._id, p.name, p.description, p.image, p.kostyl, p.access_status FROM person AS p\n" +
+                    "SELECT p._id, p.name, p.description, p.image, p.kostyl, p.access_status, NULL AS feature, NULL AS apply_level, NULL AS is_dangerous FROM person AS p\n" +
                     "UNION\n" +
-                    "SELECT m._id, m.name, m.description, m.image, m.kostyl, m.access_status FROM monster AS m\n" +
+                    "SELECT m._id, m.name, m.description, m.image, m.kostyl, m.access_status, NULL AS feature, NULL AS apply_level, NULL AS is_dangerous FROM monster AS m\n" +
                     "UNION\n" +
-                    "SELECT a._id, a.name, a.description, a.image, a.kostyl, a.access_status FROM artefact AS a\n" +
+                    "SELECT a._id, a.name, a.description, a.image, a.kostyl, a.access_status, a.feature, a.apply_level, a.is_dangerous FROM artefact AS a\n" +
                     "UNION\n" +
-                    "SELECT ms._id, ms.name, ms.description, ms.image, ms.kostyl, ms.access_status FROM milestone AS ms)\n" +
-                    "WHERE kostyl = ? AND access_status =?";
-            return database.rawQuery(stringForCursor, new String[]{String.valueOf(groupCursor.getInt(idColumn)), "true"});
+                    "SELECT ms._id, ms.name, ms.description, ms.image, ms.kostyl, ms.access_status, NULL AS feature, NULL AS apply_level, NULL AS is_dangerous FROM milestone AS ms\n" +
+                    "UNION\n" +
+                    "SELECT c._id, c.name, c.description, c.image, c.kostyl, c.access_status, NULL AS feature, NULL AS apply_level, NULL AS is_dangerous FROM checkpoint AS c)\n" +
+                    "WHERE kostyl = ? AND access_status !=?";
+            return database.rawQuery(stringForCursor, new String[]{String.valueOf(groupCursor.getInt(idColumn)), "false"});
         }
         /*
         * Оформляет родительские вьюшки в expandableView
@@ -115,21 +121,66 @@ public class DatabaseChildFragment extends Fragment {
                                  View convertView, ViewGroup parent) {
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.item_locality, null);
+                convertView = inflater.inflate(R.layout.item_db_child, null);
             }
             Cursor localCursor = getChildrenCursor(cursor);
             TextView name = convertView.findViewById(R.id.txtVName);
             TextView description = convertView.findViewById(R.id.txtVDescription);
             ImageView imageView = convertView.findViewById(R.id.imageViewItemLocality);
+            TextView artFeature = convertView.findViewById(R.id.tvDBFeature);
+            TextView artFeaturePre = convertView.findViewById(R.id.tvDBFeaturePreText);
+            TextView addInfo = convertView.findViewById(R.id.tvAddInfo);
 
             int NAME_INDEX = 1;
             int DESCRIPTION_INDEX = 2;
             int IMAGE_INDEX = 3;
+            int featureIndex = localCursor.getColumnIndex(DBHelper.KEY_FEATURE__ARTEFACT);
+            int kostylIndex = localCursor.getColumnIndex(DBHelper.KEY_KOSTYL__ARTEFACT);
+            int applyLevelIndex = localCursor.getColumnIndex(DBHelper.KEY_APPLY_LEVEL__ARTEFACT);
+            int accessStatusIndex = localCursor.getColumnIndex(DBHelper.KEY_ACCESS_STATUS__ARTEFACT);
+            int addInfoIndex;
 
             localCursor.moveToPosition(childPosition);
+
             name.setText(localCursor.getString(NAME_INDEX));
             description.setText(localCursor.getString(DESCRIPTION_INDEX));
             imageView.setImageDrawable(imageDrawable(localCursor, IMAGE_INDEX));
+
+            /*
+            * случай артефакта
+            * */
+            if (localCursor.getInt(kostylIndex) == 5){
+                addInfoIndex = localCursor.getColumnIndex(DBHelper.KEY_IS_DANGEROUS__ARTEFACT);
+                if (localCursor.getString(addInfoIndex).equals("true")){
+                    addInfo.setText("Опасный");
+                } else {
+                    addInfo.setText("Безопасный");
+                }
+
+                String feature = localCursor.getString(featureIndex);
+                artFeature.setText(feature);
+                if (localCursor.getString(accessStatusIndex).equals("partial")){
+                    description.setVisibility(View.GONE);
+                    artFeature.setVisibility(View.GONE);
+                } else {
+                    artFeature.setVisibility(View.VISIBLE);
+                    description.setVisibility(View.VISIBLE);
+                }
+                artFeaturePre.setVisibility(View.VISIBLE);
+                artFeaturePre.setText(colorChanger(localCursor.getInt(applyLevelIndex)));
+
+                if (feature.equals("none")){
+                    artFeature.setVisibility(View.GONE);
+                    artFeaturePre.setVisibility(View.GONE);
+                } else {
+                    artFeaturePre.setVisibility(View.VISIBLE);
+                }
+            } else {
+                addInfo.setText("");
+                artFeaturePre.setVisibility(View.GONE);
+                artFeature.setVisibility(View.GONE);
+            }
+
 
             localCursor.close();
             /*
@@ -188,8 +239,33 @@ public class DatabaseChildFragment extends Fragment {
                 childTo);
         exListLocality.setAdapter(sctAdapter);
     }
-
-
+    /*
+    * закраска нужной стадии у артоса
+    * */
+    private SpannableString colorChanger(int level){
+        String feature = "Свойства:\nСтадия I\nСтадия II\nСтадия III";
+        SpannableString spannableString = new SpannableString(feature);
+        int colorForStageI = Color.GREEN;
+        int startStageI;
+        int endStageI;
+        switch (level){
+            default:
+            case 1:
+                startStageI = feature.indexOf("Стадия I");
+                endStageI = startStageI + "Стадия I".length();
+                break;
+            case 2:
+                startStageI = feature.indexOf("Стадия II");
+                endStageI = startStageI + "Стадия II".length();
+                break;
+            case 3:
+                startStageI = feature.indexOf("Стадия III");
+                endStageI = startStageI + "Стадия III".length();
+                break;
+        }
+        spannableString.setSpan(new ForegroundColorSpan(colorForStageI), startStageI, endStageI, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannableString;
+    }
 
 
     @Override

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayout3"
@@ -7,99 +8,285 @@
     android:layout_height="match_parent">
 
 
-    <CheckBox
-        android:id="@+id/auto_focus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:checked="false"
-        android:text="@string/auto_focus"
-        android:textColor="@color/cardview_light_background"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clQR"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rectangle_light_green_background"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <CheckBox
+        <TextView
+            android:id="@+id/tvQRType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Тип: "
+            android:textColor="@color/cardview_light_background"
+            app:layout_constraintEnd_toStartOf="@+id/tvQRResultType"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvQRResultType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text=""
+            android:textColor="@color/cardview_light_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/tvQRType"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ScrollView
+            android:id="@+id/scrollView2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toTopOf="@+id/btnApplyQR"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvQRType">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/linearLayout4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvQRNameHard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Название:"
+                    android:textColor="@color/cardview_light_background"
+                    app:layout_constraintEnd_toStartOf="@+id/tvQRName"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvQRName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="@color/cardview_light_background"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/tvQRNameHard"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvQRIsDangerousHard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Опасность:"
+                    android:textColor="@color/cardview_light_background"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvQRNameHard" />
+
+                <TextView
+                    android:id="@+id/tvIsDangerous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="@color/cardview_light_background"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvQRName" />
+
+                <TextView
+                    android:id="@+id/barcode_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@color/cardview_light_background"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.327"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvQRIsDangerousHard" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnApplyQR"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvQRArtStage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Свойства:\nСтадия I\nСтадия II\nСтадия III"
+                    android:textColor="@color/cardview_light_background"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvArtFeature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:textColor="@color/cardview_light_background"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvQRArtStage"
+                    app:layout_constraintStart_toEndOf="@+id/tvQRArtStage"
+                    app:layout_constraintTop_toTopOf="@+id/tvQRArtStage" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </HorizontalScrollView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApplyQR"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:elevation="50dp"
+            android:text="исп"
+            android:translationZ="10dp"
+            app:backgroundTint="@color/creedTwo"
+            app:iconPadding="-50dp"
+            app:iconSize="50dp"
+            app:iconTintMode="multiply"
+            app:layout_constraintBottom_toBottomOf="@+id/horizontalScrollView2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/horizontalScrollView2" />
+
+        <Button
+            android:id="@+id/btnQRWarring"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/applyQRWarring"
+            app:layout_constraintBottom_toTopOf="@+id/btnApplyQR"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rectangle_orange_background"
+        app:layout_constraintBottom_toTopOf="@+id/read_barcode"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="4dp"
+            android:text="Результат: "
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/status_message"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/status_message"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/barcode_header"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="18sp"
+            app:autoSizeTextType="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView9"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/use_flash"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:checked="false"
-        android:text="@string/use_flash"
-        android:textColor="@color/cardview_light_background"
-        app:layout_constraintStart_toEndOf="@+id/auto_focus"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <Button
-        android:id="@+id/read_barcode"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/button_action_0521"
-        android:text="@string/read_barcode"
-        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auto_focus" />
-
-    <Button
-        android:id="@+id/btnScienceQR"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/button_action_0521"
-        android:text="@string/toResearch"
-        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/read_barcode" />
-
-
-    <Button
-        android:id="@+id/btnApplyQR"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/button_action_0521"
-        android:text="@string/pre_read_barcode"
-        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnScienceQR" />
+        android:scaleX="2"
+        android:scaleY="2"
+        app:layout_constraintBottom_toTopOf="@+id/tvFlashText"
+        app:layout_constraintEnd_toEndOf="@+id/tvFlashText"
+        app:layout_constraintStart_toStartOf="@+id/tvFlashText" />
 
     <TextView
-        android:id="@+id/status_message"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/barcode_header"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/cardview_light_background"
-        android:textSize="18sp"
-        app:autoSizeTextType="none"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnApplyQR" />
-
-
-    <TextView
-        android:id="@+id/barcode_value"
+        android:id="@+id/tvFlashText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/cardview_light_background"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/use_flash"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/auto_focus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:checked="false"
+        android:scaleX="2"
+        android:scaleY="2"
+        app:layout_constraintBottom_toTopOf="@+id/textView21"
+        app:layout_constraintEnd_toEndOf="@+id/textView21"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@+id/textView21" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="Автоприменение\nлекарств"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/read_barcode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:elevation="50dp"
+        android:translationZ="10dp"
+        app:backgroundTint="@color/creedTwo"
+        app:icon="@drawable/scanner_active_0521"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="50dp"
+        app:iconTintMode="multiply"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/status_message" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

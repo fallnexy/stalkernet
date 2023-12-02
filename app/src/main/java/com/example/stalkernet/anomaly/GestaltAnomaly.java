@@ -22,9 +22,12 @@ import androidx.core.util.Pair;
 public class GestaltAnomaly extends Anomaly{
 
     public static final String GESTALT_OPEN = "open", GESTALT_CLOSE = "close", GESTALT_PROTECTED = "protected";
+    public static final String GESTALT_AVAILABLE = "ges_available";
 
     private ContentValues contentValues;
     private Context context;
+
+
 
     public GestaltAnomaly(StatsService service, SQLiteDatabase database, Cursor cursor) {
         super(service, database, cursor);
@@ -67,7 +70,7 @@ public class GestaltAnomaly extends Anomaly{
     public void setProtected(String id){
         setCV(GESTALT_PROTECTED, id, "GP");
         Handler handler = new Handler();
-        handler.postDelayed(() -> setCV(GESTALT_CLOSE, id, "GC"), 12000);
+        handler.postDelayed(() -> setCV(GESTALT_CLOSE, id, "GC"), 600000);
     }
     /*
     * вызывается в setProtected, чтобы внести изменения в базу данных
@@ -78,4 +81,6 @@ public class GestaltAnomaly extends Anomaly{
         this.database.update(DBHelper.TABLE_ANOMALY, contentValues, DBHelper.KEY_ID__ANOMALY + "=?", new String[]{id});
         sendIntent("StatsService.Message","Message",massage);
     }
+
+
 }

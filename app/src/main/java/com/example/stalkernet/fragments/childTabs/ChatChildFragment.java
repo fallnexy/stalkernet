@@ -1,8 +1,10 @@
 package com.example.stalkernet.fragments.childTabs;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.stalkernet.CodesQRAndText;
+import com.example.stalkernet.DBHelper;
 import com.example.stalkernet.Globals;
 import com.example.stalkernet.R;
 import com.google.android.material.button.MaterialButton;
@@ -96,6 +99,8 @@ public class ChatChildFragment extends Fragment {
 
             String code = String.valueOf(editText.getText());
 
+            makeAccessTrue(DBHelper.TABLE_QUEST, DBHelper.KEY_ACCESS_QUEST, DBHelper.KEY_ACCESS_KEY_QUEST, code);
+
             codesQRAndText.checkCode(code, globals.scienceQR, globals.applyQR);
 
             label94: {
@@ -172,18 +177,6 @@ public class ChatChildFragment extends Fragment {
                         }
                         break;
                     // новые коды
-                    case -1925203169: //гештальт защита
-                        if (code.equals("всегдазакрыт")) {
-                            var3 = 19;
-                            break label94;
-                        }
-                    case 1974805046: //гештальт защита снята
-                        if (code.equals("теперьоткрыт")) {
-                            var3 = 20;
-                            break label94;
-                        }
-
-
                     case 272021583: //
                         if (code.equals("коссева")) {
                             /*textCodeSplitted[0] = "sc1";
@@ -199,7 +192,7 @@ public class ChatChildFragment extends Fragment {
                             textCodeSplitted[1] = "rad";
                             textCodeSplitted[2] = "suit";
                             textCodeSplitted[3] = "80";*/
-                            var3 = 21;
+                            var3 = 22;
                             break label94;
                         }
                     case -156863704: //
@@ -208,7 +201,7 @@ public class ChatChildFragment extends Fragment {
                             textCodeSplitted[1] = "bio";
                             textCodeSplitted[2] = "suit";
                             textCodeSplitted[3] = "50";*/
-                            var3 = 21;
+                            var3 = 23;
                             break label94;
                         }
                     case -430325800: //
@@ -217,7 +210,7 @@ public class ChatChildFragment extends Fragment {
                             textCodeSplitted[1] = "bio";
                             textCodeSplitted[2] = "suit";
                             textCodeSplitted[3] = "0";*/
-                            var3 = 21;
+                            var3 = 24;
                             break label94;
                         }
                     case 272098569: //
@@ -305,15 +298,27 @@ public class ChatChildFragment extends Fragment {
                     intent.putExtra("Command", "Discharge");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
-                case 19:
-                    intent.putExtra("Command", "SetGesProtection");
+                case 21:
+                    intent.putExtra("Command", "sc1, bio, suit, 80");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
-                case 20:
-                    intent.putExtra("Command", "SetGesProtectionOFF");
+                case 22:
+                    intent.putExtra("Command", "sc1, rad, suit, 80");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     break;
-                case 28:
+                case 23:
+                    intent.putExtra("Command", "sc1, bio, suit, 50");
+                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    break;
+                case 24:
+                    intent.putExtra("Command", "sc1, bio, suit, 0");
+                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    break;
+                case 27:
+                    intent.putExtra("Command", "noMoreGod");
+                    ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
+                    break;
+                 case 28:
                     intent.putExtra("Command", "sc1, rad, suit, 80");
                     ChatChildFragment.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                     intent.putExtra("Command", "sc1, bio, suit, 80");
@@ -475,5 +480,20 @@ public class ChatChildFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadStats();
+    }
+
+    // ищет в БД и делает доступной запись в соответствующих фрагментах
+    private void makeAccessTrue(String table, String accessColumn, String accessKeyColumn, String code) {
+        SQLiteDatabase database;
+        DBHelper dbHelper;
+        ContentValues cv;
+        dbHelper = new DBHelper(getActivity());
+        database = dbHelper.open();
+        cv = new ContentValues();
+        if (!table.equals(DBHelper.TABLE_ARTEFACT)) {
+            cv.put(accessColumn, "true");
+            database.update(table, cv, accessKeyColumn + "= ?", new String[]{code});
+        }
+        database.close();
     }
 }

@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.location.Location;
-import android.util.Log;
 
 import com.example.stalkernet.DBHelper;
 import com.example.stalkernet.StatsService;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import androidx.core.util.Pair;
 
-import static com.example.stalkernet.StatsService.LOG_CHE;
 import static com.example.stalkernet.anomaly.GestaltAnomaly.GESTALT_CLOSE;
 import static com.example.stalkernet.anomaly.GestaltAnomaly.GESTALT_OPEN;
 import static com.example.stalkernet.fragments.MapOSMTab.INTENT_MAP;
@@ -50,6 +48,7 @@ public class Anomaly {
     protected boolean showable;
     protected boolean inside;
     protected double damage;
+    private boolean gestaltAvailable = true;
     private int dayStart, dayFinish, id;
 
     private int idIndex, polygonIndex, latIndex, lonIndex, radiusIndex, dayStartIndex,
@@ -70,6 +69,7 @@ public class Anomaly {
         this.database = database;
         this.cursor = cursor;
         location = new Location("");
+        //gestaltAvailable = true;
     }
     /*
     * конструктор для карты
@@ -90,7 +90,16 @@ public class Anomaly {
     public Anomaly() {
 
     }
+    /*
+    * getter и setter для гештальта
+    * */
+    public boolean isGestaltAvailable(){
+        return gestaltAvailable;
+    }
 
+    public void setGestaltAvailable(boolean gestaltAvailable) {
+        this.gestaltAvailable = gestaltAvailable;
+    }
     /*
      * берет из базы данных инфо о аномалии и возвращает количество аномалий
      * */
@@ -123,7 +132,7 @@ public class Anomaly {
         if (figure.equals(CIRCLE)){
             radius = cursor.getDouble(radiusIndex);
             distance = distanceToCharacter(cursor.getDouble(latIndex), cursor.getDouble(lonIndex));
-            inside = distance < radius && day >= dayStart && day <= dayFinish;
+            inside = distance < radius && day >= dayStart && day < dayFinish;
         } else{
             latitudesArray = Arrays.stream(cursor.getString(latIndex).split(","))
                     .mapToDouble(Double::parseDouble).toArray();
@@ -138,7 +147,7 @@ public class Anomaly {
         type = cursor.getString(typeIndex);
         showable = cursor.getString(showableIndex).equals("true");
 
-        if (type.equals(GESTALT) && inside){
+        if (type.equals(GESTALT) && inside && gestaltAvailable){
             if (gesStatus.equals(GESTALT_CLOSE)) {
                 updateDB(DBHelper.KEY_GESTALT_STATUS__ANOMALY, GESTALT_OPEN, id);
                 sendIntent("StatsService.Message","Message","G");
@@ -150,13 +159,10 @@ public class Anomaly {
         inside = (inside && !type.equals(GESTALT)) || (!inside && type.equals(GESTALT) && gesStatus.equals(GESTALT_OPEN));
         boolean visible = cursor.getString(visibleIndex).equals("true");
         if (inside && !visible){
-            Log.d(LOG_CHE, "WTF");
             updateDB(DBHelper.KEY_VISIBLE__ANOMALY, "true", id);
             String message = (id - 1) + ":" + "true";
-            Log.d(LOG_CHE, message);
             sendIntent(INTENT_MAP, INTENT_MAP_VISIBLE, message);
-        } else if (!inside && visible){
-            Log.d(LOG_CHE, "WTF_false");
+        } else if (!inside && visible && !type.equals(MINE)){
             updateDB(DBHelper.KEY_VISIBLE__ANOMALY, "false", id);
             sendIntent(INTENT_MAP, INTENT_MAP_VISIBLE, (id - 1) + ":" + "false");
         }

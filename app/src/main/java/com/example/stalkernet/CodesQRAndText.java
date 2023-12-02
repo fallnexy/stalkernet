@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import static com.example.stalkernet.StatsService.INTENT_SERVICE;
 import static com.example.stalkernet.StatsService.INTENT_SERVICE_QR;
 import static com.example.stalkernet.StatsService.INTENT_SERVICE_USER_ID;
+import static com.example.stalkernet.StatsService.LOG_CHE;
 import static com.example.stalkernet.anomaly.Anomaly.BIO;
 import static com.example.stalkernet.anomaly.Anomaly.PSY;
 import static com.example.stalkernet.anomaly.Anomaly.RAD;
@@ -85,6 +86,10 @@ public class CodesQRAndText {
                     fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
                     var1 = -1;
                     break label94;
+                case "во славу монолита":
+                    setUser(intentNew, new String[]{"sc4", "user", "96"});
+                    var1 = -1;
+                    break label94;
                 case "пятнистый":
                     intent.putExtra("Command", "isMonolith");
                     fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
@@ -144,10 +149,10 @@ public class CodesQRAndText {
                     var1 = -1;
                     break label94;
                 case "sc5":
-                    if (applyQR) {
+                    if (!applyQR && !scienceQR) {
                         textView.setText(makeSCText(textCodeSplitted));
-                        intent.putExtra(INTENT_SERVICE_QR, Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
-                        fragment.requireActivity().getApplicationContext().sendBroadcast(intent);
+                        intentNew.putExtra(INTENT_SERVICE_QR, Arrays.toString(textCodeSplitted).replaceAll("[\\[\\]]", ""));
+                        fragment.requireActivity().getApplicationContext().sendBroadcast(intentNew);
                     }
                     var1 = -1;
                     break label94;
@@ -169,6 +174,14 @@ public class CodesQRAndText {
                     break label94;
                 case "снятьнеуяз":
                     simpleSendMessageAndText(intent, R.string.dropNewBeginImmunity, "noMoreGod");
+                    var1 = -1;
+                    break label94;
+                case "всегдазакрыт":
+                    simpleSendMessageAndText(intent, R.string.ges_available_off, "SetGesProtection");
+                    var1 = -1;
+                    break label94;
+                case "теперьоткрыт":
+                    simpleSendMessageAndText(intent, R.string.ges_available_on, "SetGesProtectionOFF");
                     var1 = -1;
                     break label94;
             }
@@ -211,16 +224,6 @@ public class CodesQRAndText {
                     }
                     break;
                 // новые коды
-                case -1925203169: //гештальт защита
-                    if (code.equals("всегдазакрыт")) {
-                        var3 = 19;
-                        break label94;
-                    }
-                case 1974805046: //гештальт защита снята
-                    if (code.equals("теперьоткрыт")) {
-                        var3 = 20;
-                        break label94;
-                    }
                 case -604537487: //
                     if (code.equals("выходигрока")) {
                         var3 = 26;
@@ -229,33 +232,6 @@ public class CodesQRAndText {
                 case -189541994: //
                     if (code.equals("снятьнеуяз")) {
                         var3 = 27;
-                        break label94;
-                    }
-                case 272021583: //
-                    if (code.equals("коссева")) {
-                        textCodeSplitted[0] = "sc1";
-                        textCodeSplitted[1] = "bio";
-                        textCodeSplitted[2] = "suit";
-                        textCodeSplitted[3] = "80";
-                        var3 = 21;
-                        break label94;
-                    }
-                case 271719333: //
-                    if (code.equals("косзаря")) {
-                        textCodeSplitted[0] = "sc1";
-                        textCodeSplitted[1] = "rad";
-                        textCodeSplitted[2] = "suit";
-                        textCodeSplitted[3] = "80";
-                        var3 = 21;
-                        break label94;
-                    }
-                case -156863704: //
-                    if (code.equals("косстраж")) {
-                        textCodeSplitted[0] = "sc1";
-                        textCodeSplitted[1] = "bio";
-                        textCodeSplitted[2] = "suit";
-                        textCodeSplitted[3] = "50";
-                        var3 = 21;
                         break label94;
                     }
                 case -430325800: //
@@ -341,14 +317,6 @@ public class CodesQRAndText {
                 break;
             case 18:
                 intent.putExtra("Command", "Discharge");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 19:
-                intent.putExtra("Command", "SetGesProtection");
-                ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
-                break;
-            case 20:
-                intent.putExtra("Command", "SetGesProtectionOFF");
                 ChatTab.this.requireActivity().getApplicationContext().sendBroadcast(intent);
                 break;
             case 21: //sc1
@@ -552,6 +520,9 @@ public class CodesQRAndText {
             textFinal = "Установлена аномалия в слот № " + text[5] + " с силой " + text[3] + " и радиусом " + (150 + 20 * Integer.parseInt(text[4]) + "м");
         } else if (text[0].equals("del")){
             textFinal = "Удалена аномалия из слота № " + text[5];
+        } else if (text[0].equals("sc5")){
+            textFinal = "улучшение возможности применения артефакта";
+            Log.d(LOG_CHE, "текст = " + textFinal);
         }
 
         return textFinal;

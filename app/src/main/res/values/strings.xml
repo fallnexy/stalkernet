@@ -6,30 +6,21 @@
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="title_activity_main">Barcode Reader Sample</string>
-    <string name="barcode_header">жми Взаимодействовать, а потом на рамку с кодом</string>
+    <string name="barcode_header">статус сканирования</string>
     <string name="read_barcode">Взаимодействовать</string>
     <string name="auto_focus">Автофокус</string>
-    <string name="use_flash">Вспышка</string>
+    <string name="use_flash">Вспышка  </string>
     <string name="barcode_success">QR прочитан успешно</string>
     <string name="barcode_failure">QR код не найден</string>
     <string name="barcode_error">"Error reading barcode: %1$s"</string>
     <string name="toResearch">Исследовать</string>
     <string name="beginNewGame">Начало новой жизни</string>
-    <string name="composite_cooldown">Высокая вероятность смертельного облучения. Функционал заблокирован для сохранения здоровья пользователя.</string>
-    <string name="composite_detected"><![CDATA[<font color=\"red\">Обнаружен композитный артефакт. Ожидание резонирующих артефактов.</font>]]></string>
-    <string name="composite_continue"><![CDATA[<font color=\"yellow\">Резонанс композитного артефакта. Завершите резонанс</font>]]></string>
-    <string name="composite_canceled"><![CDATA[<font color=\"red\">Провал резонанса. Перезагрузка сенсоров… Ожидание композитного артефакта.</font>]]></string>
-    <string name="composite_canceled_2"><![CDATA[<font color=\"red\">Артефакт демонстрирует резонирующие свойства.</font>]]></string>
     <string name="gestalt_closed">Синхронизация с аномалией Гештальт. Гештальт закрыт, сформирован временный иммунитет.</string>
     <string name="gestalt_closed_Sc">Тип объекта: Гештальт\n\nОбнаружено Пси-поле слабого типа с реверсивным эффектом. Будьте предельно осторожны.</string>
     <string name="gestalt_closed_Sc_2">Тип объекта: Гештальт\n\nОбнаружено Пси-поле слабого типа с реверсивным эффектом. Обнаружено аномальное искажение пространства. Будьте предельно осторожны.</string>
     <string name="scienceQR_off">Соединение с сервером ВНИИ ЧЗО \"Salus\" разорвано.</string>
     <string name="scienceQR_on">Установлено соединение с сервером ВНИИ ЧЗО \"Salus\".</string>
-    <string name="art_status_nm7s576l0i"><![CDATA[<font color=\"red\">Первый этап завершен</font>]]></string>
-    <string name="art_status_vz6rafxyei"><![CDATA[<font color=\"yellow\">Второй этап завершен</font>]]></string>
-    <string name="art_status_jt0dfct2w0"><![CDATA[<font color=\"green\">Третий этап завершен</font>]]></string>
     <string name="art_sc_">\n\n</string>
-    <string name="pre_read_barcode">ПРЕДВАРИТЕЛЬНОЕ СКАНИРОВАНИЕ</string>
     <string name="empty_string">че-то это не то</string>
     <string name="item_0521_01">Обнаружен накопитель данных КПК старого образца.\n\nПарсинг данных…\n\nchat_logs.txt\n\nАлександр Петрович (14/05/2021 12:22)\nкакого ХУЯ ключ от пси делает в медблоке?!?\nподнимай всех боеспособных живо, око в руки, компас, пробивайтесь туда БЫСТРО иначе пизда вам всем</string>
     <string name="item_0521_03">Усилитель Сигнала.</string>
@@ -43,16 +34,7 @@
     <string name="item_0521_07">Накопитель данных.\n\nОбнаружено современное шифрование. Для анализа требуется авторизация через сервер ВНИИ ЧЗО \"Salus\".</string>
     <string name="item_0521_07s">Накопитель данных.\n\nОбнаружены данные, дезигнация \"Универсальное Животное Армейской Защиты\".\n\nДанные разбиты на 4 части.\n\nДиректива ВНИИ ЧЗО: Электроника, найденная в ходе экспедиций в ЧЗО подлежит описи, оценке и изучению.</string>
     <string name="item_0521_08">Чтец Ноосферы Лебедева, версия 0.5.2.7.\n\nНесанкционированный доступ.\nУправление заблокировано.\n\nВНИМАНИЕ, ПОЛЬЗОВАТЕЛЬ\nСПАРЬТЕ ДАННОЕ УСТРОЙСТВО ЧЕРЕЗ СЕРВЕР \"Salus\"</string>
-    <string name="item_0521_08s_1">Сигнал ноосферы:\n\nЧетыре ангара отведено непосредственно под программу УЖАЗ, в первом инкубатории будет установлено оборудование до старта работ. Озаботьтесь защитными костюмами для персонала, мы не хотим потерять сотрудников раньше времени.</string>
-    <string name="item_0521_08s_2">Сигнал ноосферы:\n\nАлександров, доложите в бюро что работа над ПСИ идёт полным ходом. Мы возвели несколько антенн в Лиманске, настроили фокусиратор сигнала на город, это позволит нам работать с населением и оставаться в безопасности. Что там с портативной защитой?</string>
-    <string name="item_0521_08s_3">Сигнал ноосферы:\n\nПрофессор, здесь точно кто-то был до нас, но пока мы не можем точно установить временной период. Мы нашли несколько устройств, в том числе так называемое ОКО, подозреваем что над ними работали уже после Катастрофы. Перебрали ЭВМ для доступа в корпуса, ищем ключ от ПСИ чтобы начать работу.</string>
-    <string name="item_0521_08s_4">Сигнал ноосферы:\n\nМы можем использовать эту дорогу для обхода большей части препятствий в районе хранилищ биологических форм. Выставьте КПП чтобы не дать посторонним продвинуться к Инкубаторию.</string>
-    <string name="item_0521_08s_5">Сигнал ноосферы:\n\nКоршун, будьте предельно осторожны среди этих хранилищ, они не зря так сильно разрушены, тут полно аномалий. Мы думаем что здесь велись работы над еще чем-то, пока непонятно.</string>
-    <string name="item_0521_08s_6">Сигнал ноосферы:\n\nСегодня передали сигнал об эвакуации, в Припяти пожар, взрыв. Поднимай весь персонал, консервируйте корпуса, нас заберут отсюда в 18:00.</string>
-    <string name="item_0521_08s_7">Устройство ожидает сканирования. Для лучших результатов Вам необходимо находиться в непосредственной близости к проявлениям Ноосферы.</string>
     <string name="item_0521_08s">Упс, ай дид ит агайн, </string>
-    <string name="art_mezfB2Jn7H8n2JP">На случай моей смерти сообщаю. Я - Демиург, раньше был служителем монолита, но потом смог вырвыться из-под этого зомбирования. Кроме меня снова стасть людьми смогли Евангилист, Карсиканец, Гор. Все они мертвы\nВсе они умерли, потому что знали, что камень, так называемый Монолит, творение рук человеческих и все служители монолита были лишь марионетками. Все. Все от начальника штаба, до рядового бойца. Камнем управляет организация О-Сознание - группа сумашедшие ученые, запершиеся в бункерах и ставящие нечеловеческие эксперименты. Их я и собираюсь уничтожить и освободить своих бывших братьев. </string>
-    <string name="capacity">прочность</string>
     <string name="glebRad0">Механизм применён.\n\nНейтрализация 65–75% радиационного воздействия на организм пользователя\n\nМожет потребоваться курс дальнейшего лечения, обратитесь к специалисту.</string>
     <string name="glebRadsc">Механизм активен.\n\nВзаимодействуйте с этим объектом для получения полезного эффекта.</string>
     <string name="glebRadDawn">Внимание!\n\nПовторное применение возможно не ранее чем через 40 минут после предыдущего. Функционал заблокирован.</string>
@@ -195,9 +177,6 @@
     <string name="quest_21_04">Топливный блок высокой плотности.\n\nОдна такая канистра способна питать Генератор Электромагнитного поля высокой мощности в течение одного часа</string>
     <string name="quest_21_04sc">Топливный блок высокой плотности.\n\nОдна такая канистра способна питать Генератор Электромагнитного поля высокой мощности в течение одного часа</string>
     <string name="gleb">прочность</string>
-    <string name="setOneProtectionAvailable">Установлено разрешение на защиту от 1 типа урона одновременно</string>
-    <string name="setTwoProtectionsAvailable">Установлено разрешение на защиту от 2 типов урона одновременно</string>
-    <string name="setThreeProtectionsAvailable">Установлено разрешение на защиту от 3 типов урона одновременно</string>
     <string name="setDischargeImmunityTrue">Защита от выброса установлена</string>
     <string name="setDischargeImmunityFalse">Защита от выброса снята</string>
     <string name="resetAllProtections">Все защиты сняты</string>
@@ -214,7 +193,6 @@
     <string name="example_format">Чтобы деактивировать мину, \nрешите пример: %1$d + %2$d</string>
     <string name="timer_format">Осталось секунд: %1$d</string>
     <string name="loading">ожидание gps…</string>
-    <string name="to_map">переходи на карту</string>
     <string name="protections_available">Количетсво допустимых защит: %1$d</string>
     <string name="health">Здоровье</string>
     <string name="radiation">Радиация</string>
@@ -225,4 +203,13 @@
     <string name="remaining_capacity">Осталось \nзащиты, %</string>
     <string name="protection_degree">Степень \nзащиты, %</string>
     <string name="protections_from">Защита \nполучена от</string>
+    <string name="tvIsScienceQR">Режим сканера \"Исследование\": %1$s</string>
+    <string name="tvIsApplyQR">Режим сканера \"Применение\": %1$s</string>
+    <string name="oasis_o"> </string>
+    <string name="oasis_cd">подождите</string>
+    <string name="ges_available_off">Гештальт-аномалии больше недостуны</string>
+    <string name="ges_available_on">Гештальт-аномалии вновь достуны</string>
+    <string name="art_dangerous_false">Аномальный Объект.\n\nФон в норме, опасности для организма не обнаружено.</string>
+    <string name="art_dangerous_true">Внимание! Опасный Объект!\nОбнаружено воздействие на организм. Проверьте монитор состояния пользователя.\n\nБудьте предельно осторожны. Рекомендуется изоляция объекта в экранирующем устройстве.</string>
+    <string name="applyQRWarring">Чтобы использовать свойства\nартефактов, приобретите\nсоответствующий модуль</string>
 </resources>

@@ -24,6 +24,18 @@
             app:layout_constraintBottom_toBottomOf="parent">
 
 
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="версия 1.02"
+                android:textColor="@color/cardview_light_background"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardViewPsy" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUser"
                 android:layout_width="0dp"
@@ -34,6 +46,7 @@
                 android:background="@drawable/rectangle_green_background"
                 android:elevation="50dp"
                 android:translationZ="10dp"
+                android:text="Пользователь"
                 app:iconSize="50dp"
                 app:backgroundTint="@null"
                 app:iconPadding="-50dp"
@@ -56,7 +69,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/rectangle_light_green_background">>
+                    android:background="@drawable/rectangle_light_green_background">
 
                     <TextView
                         android:id="@+id/txtVPlayerFaction"
@@ -80,6 +93,30 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/txtVPlayerFaction" />
 
+                    <TextView
+                        android:id="@+id/tvIsScienceQR"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/tvIsScienceQR"
+                        android:textColor="@color/cardview_light_background"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/txtVProtectionsAvailable" />
+
+                    <TextView
+                        android:id="@+id/tvIsApplyQR"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/tvIsApplyQR"
+                        android:textColor="@color/cardview_light_background"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvIsScienceQR" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
@@ -99,7 +136,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/rectangle_green_background"
                 android:elevation="50dp"
@@ -110,6 +147,7 @@
                 app:iconPadding="-50dp"
                 app:iconTintMode="multiply"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtMessage" />
 

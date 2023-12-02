@@ -17,6 +17,7 @@ import androidx.core.util.Pair;
 public class WifiAnomaly extends Anomaly{
     public static final String CONTROL_WIFI = "control";
     public static final String CHIMERA_WIFI = "chimera";
+    public static final String ANTENNA_WIFI = "antenna";
 
     Context context;
     private WifiManager wifiManager;
@@ -24,8 +25,10 @@ public class WifiAnomaly extends Anomaly{
 
     private long controlTimestamp = 0;
     private long chimeraTimestamp = 0;
+    private long antennaTimestamp = 0;
     private int controlCounter = 0;
     private int chimeraCounter = 0;
+    private int antennaCounter = 0;
 
     public WifiAnomaly(StatsService service){
         super(service);
@@ -41,7 +44,7 @@ public class WifiAnomaly extends Anomaly{
         wifiList = wifiManager.getScanResults();
         return wifiList.stream()
                 .map(result -> result.SSID)
-                .anyMatch(name -> name.equals("chimera") || name.equals("control"));
+                .anyMatch(name -> name.equals(CHIMERA_WIFI) || name.equals(CONTROL_WIFI) || name.equals(ANTENNA_WIFI));
     }
     /*
     * timeStamp вай фая в телефоне меняется через каждые  5 тиков
@@ -51,8 +54,26 @@ public class WifiAnomaly extends Anomaly{
         try {
             for (ScanResult result : wifiList) {
                 if (result.SSID.equals(wifiType)) {
-                    long timeStamp = wifiType.equals(CONTROL_WIFI) ? controlTimestamp : chimeraTimestamp;
-                    int counter = wifiType.equals(CONTROL_WIFI) ? controlCounter : chimeraCounter;
+                    long timeStamp;
+                    int counter;
+                    switch (wifiType){
+                        case CONTROL_WIFI:
+                            timeStamp = controlTimestamp;
+                            counter = controlCounter;
+                            break;
+                        case CHIMERA_WIFI:
+                            timeStamp = chimeraTimestamp;
+                            counter = chimeraCounter;
+                            break;
+                        case ANTENNA_WIFI:
+                            timeStamp = antennaTimestamp;
+                            counter = antennaCounter;
+                            break;
+                        default:
+                            timeStamp = 0;
+                            counter = 0;
+                    }
+
                     if (result.timestamp == timeStamp){
                         counter++;
                     } else{
@@ -62,10 +83,17 @@ public class WifiAnomaly extends Anomaly{
                         controlTimestamp = result.timestamp;
                         controlCounter = counter;
                         type = PSY;
-                    } else{
+                        damage = 1d;
+                    } else if (wifiType.equals(CHIMERA_WIFI)){
                         chimeraTimestamp = result.timestamp;
                         chimeraCounter = counter;
                         type = BIO;
+                        damage = 1d;
+                    } else {
+                        antennaTimestamp = result.timestamp;
+                        antennaCounter = counter;
+                        type = PSY;
+                        damage = 9d;
                     }
                     if (counter < 5){
                         return new Pair<>(type, damage);
@@ -81,6 +109,6 @@ public class WifiAnomaly extends Anomaly{
     * делает звук, если аномалия долбит
     * */
     public boolean makeSound(){
-        return (chimeraCounter > 0 && chimeraCounter <5) || (controlCounter > 0 && controlCounter <5);
+        return (chimeraCounter > 0 && chimeraCounter <5) || (controlCounter > 0 && controlCounter <5)|| (antennaCounter > 0 && antennaCounter <5);
     }
 }

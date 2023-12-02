@@ -82,17 +82,13 @@ public class PuzzleGameDialog extends DialogFragment {
     int[] ivPuzzles = {R.id.ivPuzzle1, R.id.ivPuzzle2, R.id.ivPuzzle3, R.id.ivPuzzle4, R.id.ivPuzzle5, R.id.ivPuzzle6};
     int[][] pictures = {
             {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2},
-            {R.drawable.milestone_1_5, R.drawable.milestone_1_1, R.drawable.milestone_1_4, R.drawable.milestone_1_6, R.drawable.milestone_1_3, R.drawable.milestone_1_2}
+            {R.drawable.milestone_2_5, R.drawable.milestone_2_1, R.drawable.milestone_2_4, R.drawable.milestone_2_6, R.drawable.milestone_2_3, R.drawable.milestone_2_2},
+            {R.drawable.milestone_3_5, R.drawable.milestone_3_1, R.drawable.milestone_3_4, R.drawable.milestone_3_6, R.drawable.milestone_3_3, R.drawable.milestone_3_2},
+            {R.drawable.milestone_4_5, R.drawable.milestone_4_1, R.drawable.milestone_4_4, R.drawable.milestone_4_6, R.drawable.milestone_4_3, R.drawable.milestone_4_2},
+            {R.drawable.milestone_5_5, R.drawable.milestone_5_1, R.drawable.milestone_5_4, R.drawable.milestone_5_6, R.drawable.milestone_5_3, R.drawable.milestone_5_2},
+            {R.drawable.milestone_6_5, R.drawable.milestone_6_1, R.drawable.milestone_6_4, R.drawable.milestone_6_6, R.drawable.milestone_6_3, R.drawable.milestone_6_2},
+            {R.drawable.milestone_7_5, R.drawable.milestone_7_1, R.drawable.milestone_7_4, R.drawable.milestone_7_6, R.drawable.milestone_7_3, R.drawable.milestone_7_2},
+            {R.drawable.milestone_8_5, R.drawable.milestone_8_1, R.drawable.milestone_8_4, R.drawable.milestone_8_6, R.drawable.milestone_8_3, R.drawable.milestone_8_2}
     };
     int[] alfa_1 = {251, 255, 252, 250, 253, 254};
     int[] alfa = {255, 254, 253, 252, 251, 250};

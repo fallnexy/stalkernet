@@ -38,6 +38,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_SAFE_ZONE = "save_zone"; // сделанная на пк таблица в stalker.db
     public static final String TABLE_DISCHARGE = "discharge"; // сделанная на пк таблица в stalker.db
     public static final String TABLE_USER = "user"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_CHECKPOINT = "checkpoint"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_INTERTABLE = "intertable"; // сделанная на пк таблица в stalker.db
+    public static final String TABLE_AID = "aid"; // сделанная на пк таблица в stalker.db
 
     // таблицы-костыли для expandableView
     public static final String TABLE_TABLE_OF_TABLES = "table_of_tables"; // сделанная на пк таблица в stalker.db
@@ -48,6 +51,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_NAME_TABLE_OF_TABLES = "table_name";
     public static final String KEY_KOSTYL_TABLE_OF_TABLES = "table_kostyl";
     public static final String KEY_IMAGE_TABLE_OF_TABLES = "table_image";
+
+    // таблица intertable
+    public static final String KEY_ID__INTERTABLE = "_id";
+    public static final String KEY_HUMAN_CODE__INTERTABLE = "human_code";
+    public static final String KEY_DB_NAME__INTERTABLE = "db_name";
+    public static final String KEY_DB_ID__INTERTABLE = "db_id";
+    public static final String KEY_DB_COLUMN__INTERTABLE = "db_column";
 
 
     //таблица anomaly
@@ -118,7 +128,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ID__ARTEFACT = "_id";
     public static final String KEY_NAME__ARTEFACT = "name";
     public static final String KEY_DESCRIPTION__ARTEFACT = "description";
-    public static final String KEY_VZAIMODEISTVIE__ARTEFACT = "vzaimodeistvie";
+    public static final String KEY_INTERACTION__ARTEFACT = "interaction";
     public static final String KEY_ACCESS_STATUS__ARTEFACT = "access_status";
     public static final String KEY_ACCESS_KEY__ARTEFACT = "access_key";
     public static final String KEY_IMAGE__ARTEFACT = "image";
@@ -129,6 +139,22 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_APPLY_THREE__ARTEFACT = "apply_three";
     public static final String KEY_ACCESS_APPLY_THREE__ARTEFACT = "access_apply_three";
     public static final String KEY_APPLY_LEVEL__ARTEFACT = "apply_level";
+    public static final String KEY_IS_DANGEROUS__ARTEFACT = "is_dangerous";
+    public static final String KEY_FEATURE__ARTEFACT = "feature";
+
+    // таблица aid
+    public static final String KEY_ID__AID = "_id";
+    public static final String KEY_NAME__AID = "name";
+    public static final String KEY_DESCRIPTION__AID = "description";
+    public static final String KEY_INTERACTION__AID = "interaction";
+    public static final String KEY_ACCESS_STATUS__AID = "access_status";
+    public static final String KEY_ACCESS_KEY__AID = "access_key";
+    public static final String KEY_IMAGE__AID = "image";
+    public static final String KEY_KOSTYL__AID = "kostyl";
+    public static final String KEY_APPLY_AID = "apply";
+    public static final String KEY_COOLDOWN__AID = "cooldown";
+    public static final String KEY_LAST_TIME__AID = "last_time";
+    public static final String KEY_PRICE__AID = "price";
 
     // таблица milestone
     public static final String KEY_ID__MILESTONE = "_id";
@@ -146,7 +172,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ID__ITEM = "_id";
     public static final String KEY_NAME__ITEM = "name";
     public static final String KEY_DESCRIPTION__ITEM = "description";
-    public static final String KEY_VZAIMODEISTVIE__ITEM = "vzaimodeistvie";
+    public static final String KEY_INTERACTION__ITEM = "interaction";
     public static final String KEY_ACCESS_KEY__ITEM = "access_key";
 
     // таблица quest
@@ -160,7 +186,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // таблица quest_step
     public static final String KEY_ID__QUEST_STEP = "_id";
-    public static final String KEY_QUEST_ID_QUEST_STEP = "quest_id";
+    public static final String KEY_QUEST_ID__QUEST_STEP = "quest_id";
     public static final String KEY_DESCRIPTION_QUEST_STEP = "description";
     public static final String KEY_LOCATION_ID_QUEST_STEP = "location_id";
     public static final String KEY_FACTION_ID_QUEST_STEP = "faction_id";
@@ -186,6 +212,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_STATUS__CREED_BRANCH = "status"; //выполнено или нет
     public static final String KEY_ACCESS_STATUS__CREED_BRANCH = "access_status"; // можно ли выполнять
     public static final String KEY_ACCESS_KEY__CREED_BRANCH = "access_key";
+
+    // таблица checkpoint
+    public static final String KEY_ID__CHECKPOINT = "_id";
+    public static final String KEY_NAME__CHECKPOINT = "name";
+    public static final String KEY_DESCRIPTION__CHECKPOINT = "description";
+    public static final String KEY_LATITUDE__CHECKPOINT = "latitude";
+    public static final String KEY_LONGITUDE__CHECKPOINT = "longitude";
+    public static final String KEY_ACCESS_STATUS__CHECKPOINT = "access_status";
+    public static final String KEY_IMAGE__CHECKPOINT = "image";
+    public static final String KEY_KOSTYL__CHECKPOINT = "kostyl";
 
     //таблица safe zone
     public static final String KEY_ID__SAFE_ZONE = "_id";

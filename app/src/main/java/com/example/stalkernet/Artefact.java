@@ -40,13 +40,13 @@ public class Artefact {
                     apply = cursor.getString(threeIndex);
                     break;
                 default:
-                    return "error";
+                    return "error_in_artefact.java";
             }
             cursor.close();
             return apply;
         }
         cursor.close();
-        return "error";
+        return "error_in_artefact.java";
     }
     /*
     * открытие уровня доступа

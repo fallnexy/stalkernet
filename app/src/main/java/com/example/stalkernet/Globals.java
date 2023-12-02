@@ -187,7 +187,7 @@ public class Globals {
         tvCoordinate.setText(coordinate);
     }
 
-    //эта штука вызывается в MainActivity и обновяет статы, которые есть в GeneralTab
+    //эта штука вызывается в MainActivity и обновяет статы, которые есть в UserChildFragment
     public void updateStats() {
         loadSome(mContext);
         updateHealth(maxHealth, Health, healthTextUser);

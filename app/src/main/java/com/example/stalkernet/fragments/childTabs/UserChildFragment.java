@@ -28,13 +28,21 @@ import static com.example.stalkernet.playerCharacter.PlayerCharacter.USER_ID_KEY
 
 public class UserChildFragment extends Fragment {
 
+    private static final String PREFERENCE_USER = "shar_pref_user";
+    private static final String CARD_USER_KEY = "card_user_key";
+    private static final String CARD_HEALTH_KEY = "card_hp_key";
+    private static final String CARD_RAD_KEY = "card_rad_key";
+    private static final String CARD_BIO_KEY = "card_bio_key";
+    private static final String CARD_PSY_KEY = "card_psy_key";
     private final Globals globals;
     DBHelper dbHelper;
     SQLiteDatabase database;
     Cursor cursor;
-    TextView txtFaction, txtProtectionsAvailable;
-    String userName, factionName, factionImage;
-    private int user_id = 1, protections_available;
+    TextView txtFaction, txtProtectionsAvailable, tvIsScienceQR, tvIsApplyQR;
+    String userName, isScienceQR, isApplyQR, factionName, factionImage;
+    private int user_id = 1, protections_available, scienceQR, applyQR;
+
+    CardView cardUser, cardHealth, cardRad, cardBio, cardPsy;
 
     public UserChildFragment(Globals globals) {
         this.globals = globals;
@@ -52,32 +60,43 @@ public class UserChildFragment extends Fragment {
         setBtnBio(inflate);
         setBtnPsy(inflate);
         setBtnUser(inflate);
+        loadStats();
         return inflate;
     }
     /*
     * кнопка и cardView юзера
     * */
     private void setBtnUser(View inflate){
+        cardUser = inflate.findViewById(R.id.cardViewUser);
         setUserCard(inflate);
         MaterialButton btnUser = inflate.findViewById(R.id.btnUser);
         btnUser.setText(userName);
         btnUser.setIcon(imageDrawable(factionImage));
         btnUser.setOnClickListener(view -> {
-
+            if (cardUser.getVisibility() == View.VISIBLE){
+                cardUser.setVisibility(View.GONE);
+            } else {
+                cardUser.setVisibility(View.VISIBLE);
+            }
         });
     }
     private void setUserCard(View inflate){
         txtFaction = inflate.findViewById(R.id.txtVPlayerFaction);
         txtProtectionsAvailable = inflate.findViewById(R.id.txtVProtectionsAvailable);
+        tvIsScienceQR = inflate.findViewById(R.id.tvIsScienceQR);
+        tvIsApplyQR = inflate.findViewById(R.id.tvIsApplyQR);
+
         txtFaction.setText(factionName);
         txtProtectionsAvailable.setText(getString(R.string.protections_available, protections_available));
+        tvIsScienceQR.setText(getString(R.string.tvIsScienceQR, scienceQR == 1 ? "включен" : "выключен"));
+        tvIsApplyQR.setText(getString(R.string.tvIsApplyQR, applyQR == 1 ? "включен" : "выключен"));
     }
     /*
     * кнопка здоровья
     * */
     private void setBtnHealth(View inflate){
         globals.healthTextUser = inflate.findViewById(R.id.tvHealthUser);
-        CardView cardHealth = inflate.findViewById(R.id.cardViewHealth);
+        cardHealth = inflate.findViewById(R.id.cardViewHealth);
         MaterialButton btnHealth = inflate.findViewById(R.id.btnHealth);
         btnHealth.setOnClickListener(view -> {
             if (cardHealth.getVisibility() == View.VISIBLE){
@@ -91,7 +110,7 @@ public class UserChildFragment extends Fragment {
     * кнопка рад и его cardView
     * */
     private void setBtnRad(View inflate){
-        CardView cardRad = inflate.findViewById(R.id.cardViewRad);
+        cardRad = inflate.findViewById(R.id.cardViewRad);
         setCardViewRad(inflate);
         MaterialButton btnRad = inflate.findViewById(R.id.btnRad);
         btnRad.setOnClickListener(view -> {
@@ -112,7 +131,7 @@ public class UserChildFragment extends Fragment {
     * кнопка bio и его cardView
     * */
     private void setBtnBio(View inflate){
-        CardView cardBio = inflate.findViewById(R.id.cardViewBio);
+        cardBio = inflate.findViewById(R.id.cardViewBio);
         setCardViewBio(inflate);
         MaterialButton btnBio = inflate.findViewById(R.id.btnBio);
         btnBio.setOnClickListener(view -> {
@@ -133,7 +152,7 @@ public class UserChildFragment extends Fragment {
     * кнопка psy и его cardView
     * */
     private void setBtnPsy(View inflate){
-        CardView cardPsy = inflate.findViewById(R.id.cardViewPsy);
+        cardPsy = inflate.findViewById(R.id.cardViewPsy);
         setCardViewPsy(inflate);
         MaterialButton btnPsy = inflate.findViewById(R.id.btnPsy);
         btnPsy.setOnClickListener(view -> {
@@ -151,9 +170,11 @@ public class UserChildFragment extends Fragment {
         globals.psyCapacityOut = inflate.findViewById(R.id.txtCapacityPsy);
     }
     private void setUser(){
-        loadStats();
+        loadServiceStats();
         database = dbHelper.open();
         String query = "SELECT user." + DBHelper.KEY_NAME__USER + " AS user_name, " +
+                "user." + DBHelper.KEY_SCIENCE_QR__USER + " AS science_qr, " +
+                "user." + DBHelper.KEY_APPLY_QR__USER + " AS apply_qr, " +
                 "faction." + DBHelper.KEY_NAME__FACTION + " AS faction_name, " +
                 "faction." + DBHelper.KEY_IMAGE__FACTION + " AS faction_image " +
                 "FROM " + DBHelper.TABLE_USER + " AS user " +
@@ -166,6 +187,8 @@ public class UserChildFragment extends Fragment {
         userName = cursor.getString(cursor.getColumnIndexOrThrow("user_name"));
         factionName = cursor.getString(cursor.getColumnIndexOrThrow("faction_name"));
         factionImage = cursor.getString(cursor.getColumnIndexOrThrow("faction_image"));
+        scienceQR = cursor.getInt(cursor.getColumnIndexOrThrow("science_qr"));
+        applyQR = cursor.getInt(cursor.getColumnIndexOrThrow("apply_qr"));
         cursor.close();
     }
     /*
@@ -177,20 +200,41 @@ public class UserChildFragment extends Fragment {
         return getResources().getDrawable(imageResource);
     }
     SharedPreferences sharedPreferences;
-    public void loadStats() {
+    public void loadServiceStats() {
         sharedPreferences = requireActivity().getSharedPreferences(PREFERENCE_NAME,Context.MODE_PRIVATE);
         user_id = sharedPreferences.getInt(USER_ID_KEY, 1);
         protections_available = sharedPreferences.getInt(PROTECTIONS_AVAILABLE_KEY, 1);
 
     }
 
+    private void loadStats(){
+        sharedPreferences = requireActivity().getSharedPreferences(PREFERENCE_USER,Context.MODE_PRIVATE);
+        cardUser.setVisibility(sharedPreferences.getInt(CARD_USER_KEY, 0));
+        cardHealth.setVisibility(sharedPreferences.getInt(CARD_HEALTH_KEY, 0));
+        cardRad.setVisibility(sharedPreferences.getInt(CARD_RAD_KEY, 0));
+        cardBio.setVisibility(sharedPreferences.getInt(CARD_BIO_KEY, 0));
+        cardPsy.setVisibility(sharedPreferences.getInt(CARD_PSY_KEY, 0));
+    }
+
+    public void saveStats() {
+        sharedPreferences = getContext().getSharedPreferences(PREFERENCE_USER, Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putInt(CARD_USER_KEY, cardUser.getVisibility());
+        edit.putInt(CARD_HEALTH_KEY, cardHealth.getVisibility());
+        edit.putInt(CARD_RAD_KEY, cardRad.getVisibility());
+        edit.putInt(CARD_BIO_KEY, cardBio.getVisibility());
+        edit.putInt(CARD_PSY_KEY, cardPsy.getVisibility());
+        edit.apply();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         database = dbHelper.open();
-        loadStats();
+        loadServiceStats();
         globals.loadStats();
         setUser();
+
     }
     @Override
     public void onPause() {
@@ -198,6 +242,7 @@ public class UserChildFragment extends Fragment {
         database.close();
         cursor.close();
         globals.saveStats();
+        saveStats();
     }
 
     @Override

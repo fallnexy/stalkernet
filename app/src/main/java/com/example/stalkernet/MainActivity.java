@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
@@ -167,12 +166,12 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
 
         globals = new Globals(this); // отличие от оригинала
 
-        //запускает GeneralTab
-        this.mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        this.mViewPager = findViewById(R.id.container);
-        this.mViewPager.setAdapter(this.mSectionsPagerAdapter);
+        //запускает первый ряд вкладок
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mViewPager = findViewById(R.id.container);
+        mViewPager.setAdapter(this.mSectionsPagerAdapter);
         TabLayout tabLayout = findViewById(R.id.tabs);
-        this.mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(this.mViewPager));
 
         CheckPermissions(this);
@@ -213,17 +212,11 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
         if (result.equals("true")){
             DBHelper dbHelper;
             SQLiteDatabase database;
-            Cursor cursor;
             dbHelper = new DBHelper(this);
             database = dbHelper.open();
-            cursor = database.rawQuery("SELECT _id, access_key FROM quest_step WHERE quest_id =?", new String[]{groupPosition});
-            cursor.moveToPosition(Integer.parseInt(childPosition));
-            int positionIndex = cursor.getColumnIndex(DBHelper.KEY_ID__QUEST_STEP);
-            int position = cursor.getInt(positionIndex);
             ContentValues cv = new ContentValues();
             cv.put(DBHelper.KEY_STATUS_QUEST_STEP, result);
-            database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID__QUEST_STEP + "=" + position, null);
-            cursor.close();
+            database.update(DBHelper.TABLE_QUEST_STEP, cv, DBHelper.KEY_ID__QUEST_STEP + "=" + childPosition, null);
             dbHelper.close();
         }
 
@@ -234,12 +227,8 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
         if (result.equals("true")){
             DBHelper dbHelper;
             SQLiteDatabase database;
-            Cursor cursor;
             dbHelper = new DBHelper(this);
             database = dbHelper.open();
-            /*cursor = database.rawQuery("SELECT _id, access_key FROM creed_branch WHERE creed_id =?", new String[]{groupPosition});
-            cursor.moveToPosition(Integer.parseInt(childPosition));
-            int position = cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID__CREED_BRANCH));*/
             ContentValues cv = new ContentValues();
             cv.put(DBHelper.KEY_STATUS__CREED_BRANCH, result);
             database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "=" + groupPosition, null);
@@ -254,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
                 String creed_id_to_false = String.valueOf(Integer.parseInt(groupPosition) - 3);
                 database.update(DBHelper.TABLE_CREED_BRANCH, cv, DBHelper.KEY_ID__CREED_BRANCH + "=" + creed_id_to_false, null);
             }
-            //cursor.close();
             dbHelper.close();
         }
     }
@@ -271,8 +259,6 @@ public class MainActivity extends AppCompatActivity implements QuestConfirmInter
 
         public Fragment getItem(int i) {
             switch (i) {
-                /*case 0:
-                    return new GeneralTab(globals);*/
                 case 0:
                     return new MapOSMTab(globals);
                 case 1:

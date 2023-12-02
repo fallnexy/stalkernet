@@ -89,7 +89,7 @@ public class PlayerCharacter {
     * contamination - матрица с 2 строками и 3 столбцами
     * первая строка - текущее значение заражения: рад био пси
     * вторая строка - максимально возможно заражение: рад био пси
-    * на данный момент максимальные значения изменять нельзя
+    * на данный момент максимальные значения изменять нельзя, только если это не изменение с помощью вехи
     * */
     private double[][] contamination = {{0, 0, 0},{1000, 1000, 1000}};
     private HashMap<String, Integer> contaminationMap = new HashMap<>();
@@ -414,7 +414,7 @@ public class PlayerCharacter {
         protectionMap.put(BIO, bioProtection);
         protectionMap.put(PSY, psyProtection);
         protectionMap.put(GESTALT, gesProtection);
-        protectionMap.put(OASIS, gesProtection);
+        protectionMap.put(OASIS, oasProtection);
     }
     public HashMap<String, double[][]> getProtectionMap() {
         setProtectionMap();
